@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,7 +27,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es-CL"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full">
+        <AppSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AppHeader />
+          <main className="flex-1 p-4 md:p-6">{children}</main>
+        </div>
+      </body>
     </html>
   );
 }

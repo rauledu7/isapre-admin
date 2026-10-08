@@ -21,3 +21,12 @@ export async function obtenerValorUF(): Promise<ValorUF> {
   }
   return parseRespuestaUF(await res.json());
 }
+
+export async function obtenerValorUFOpcional(): Promise<ValorUF | null> {
+  try {
+    return await obtenerValorUF();
+  } catch (error) {
+    console.error("No se pudo obtener la UF del día", error);
+    return null;
+  }
+}

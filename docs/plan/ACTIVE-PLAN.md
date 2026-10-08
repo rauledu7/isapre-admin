@@ -9,9 +9,10 @@
 - Tope imponible 2026: 90,0 UF (7% máx. 6,3 UF) y Tabla de Factores Única cargados en `src/config/isapres.ts`.
 
 ### Etapa 2: Layout Base y Cotizador Express (MVP)
-- [ ] Diseñar Sidebar funcional y Header con indicador del valor de la UF personalizable.
-- [ ] Crear formulario del **Cotizador Rápido** (Sueldo, Edad, Cargas, Isapre actual).
-- [ ] Construir panel de resultados interactivo: Muestra 7% en UF vs. alternativas de planes y si genera excedentes o adicional.
+- [x] Diseñar Sidebar funcional y Header con indicador del valor de la UF personalizable.
+- [x] Crear formulario del **Cotizador Rápido** (Sueldo, Edad, Cargas, Isapre actual).
+- [x] Construir panel de resultados interactivo: Muestra 7% en UF vs. alternativas de planes y si genera excedentes o adicional.
+- [ ] Carga de planes desde PDF (pendiente definir qué datos extraer y PDFs de ejemplo).
 
 ### Etapa 3: Embudo de Prospectos (CRM Liviano)
 - [ ] Configurar cliente de Supabase (o Mock Store con Zustand en Fase 1) para guardar prospectos.
