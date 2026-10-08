@@ -1,0 +1,15 @@
+# HARNESS DE DESARROLLO - CURSOR PRO (ISAPRE ASSISTANT)
+
+## 1. CONFIDENCE GATE (Regla del 95%)
+- Si no estás 95% seguro de la regla de negocio de Isapre (UF, 7% obligatorio, cargas, tabla de factores) o de la implementación técnica, detente y pregunta antes de escribir código.
+- Prohibido asumir nombres de Isapres, campos de formularios o cálculos financieros sin validar `MUST-DO.md`.
+
+## 2. PLAN & EXECUTION (SDD Modular)
+- Consulta SIEMPRE `docs/plan/ACTIVE-PLAN.md` antes de generar o editar código.
+- Trabaja ÚNICAMENTE en la etapa y tarea marcada como activa por el usuario.
+- Valida que no existan errores de compilación TypeScript (`tsc --noEmit`) ni fallos en Tailwind antes de marcar una tarea como completada.
+
+## 3. SEGURIDAD Y ESTÁNDARES
+- Stack obligatorio: Next.js (App Router), TypeScript (Strict), Tailwind CSS, Shadcn UI, Zustand, Supabase.
+- Todo cálculo financiero/salud debe estar aislado en funciones puras en `src/lib/calculators/`.
+- Protección de datos sensibles (datos de salud y sueldos de clientes) bajo estándares de privacidad.
