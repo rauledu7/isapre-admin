@@ -4,7 +4,7 @@ import { RotateCcwIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { useCotizadorStore } from "@/store/cotizadorStore";
+import { useCotizadorStore, useHidratarCotizador } from "@/store/cotizadorStore";
 import { useProspectosStore } from "@/store/prospectosStore";
 
 import { DatosClienteCard } from "./DatosClienteCard";
@@ -13,6 +13,7 @@ import { PropuestaCotizador } from "./PropuestaCotizador";
 import { ResultadosPanel } from "./ResultadosPanel";
 
 export function Cotizador() {
+  useHidratarCotizador();
   const reiniciar = useCotizadorStore((s) => s.reiniciar);
   const prospectoId = useCotizadorStore((s) => s.prospectoId);
   const prospecto = useProspectosStore((s) => s.prospectos.find((p) => p.id === prospectoId));

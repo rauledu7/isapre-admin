@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { CoberturaAdicional } from "@/types/isapre";
+import type { CoberturaAdicional, DetalleCobertura } from "@/types/isapre";
 
 import {
   calcularCotizacionLegal,
@@ -120,7 +120,7 @@ describe("calcularPrecioPlan", () => {
     expect(r.sumaFactores).toBe(2);
     expect(r.precioBaseAjustadoUF).toBe(4);
 
-    const [ges, caec, seguro] = r.coberturas;
+    const [ges, caec, seguro] = r.coberturas as [DetalleCobertura, DetalleCobertura, DetalleCobertura];
     expect(ges.cantidad).toBe(3);
     expect(ges.totalUF).toBeCloseTo(1.5, 10);
     expect(caec.cantidad).toBe(3);

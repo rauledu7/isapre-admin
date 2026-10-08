@@ -47,6 +47,6 @@ describe("Tabla de Factores Única", () => {
       if (siguiente) expect(t.edadHasta).toBe(siguiente.edadDesde);
       else expect(t.edadHasta).toBeNull();
     });
-    expect(tabla.tramos[0].edadDesde).toBe(0);
+    expect(tabla.tramos[0]?.edadDesde).toBe(0);
   });
 });

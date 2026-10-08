@@ -10,7 +10,7 @@ export default function ProspectosPage() {
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Prospectos</h1>
         <p className="text-sm text-muted-foreground">
-          Embudo comercial: arrastra las tarjetas entre etapas o cámbialas desde la lista.
+          Embudo comercial: busca por nombre o RUT y mueve cada prospecto entre etapas.
         </p>
       </div>
       <ProspectosView />

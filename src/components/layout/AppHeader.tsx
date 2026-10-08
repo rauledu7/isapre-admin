@@ -1,18 +1,12 @@
 import { Suspense } from "react";
 
 import { TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
-import { obtenerValorUFOpcional } from "@/lib/indicators/uf";
 
 import { MobileNav } from "./MobileNav";
-import { UFIndicator } from "./UFIndicator";
+import { UFOficial } from "./UFOficial";
 import { UserMenu } from "./UserMenu";
 
 const topeFormatter = new Intl.NumberFormat("es-CL", { minimumFractionDigits: 1 });
-
-async function UFOficial() {
-  const uf = await obtenerValorUFOpcional();
-  return <UFIndicator ufOficial={uf} />;
-}
 
 export function AppHeader() {
   return (

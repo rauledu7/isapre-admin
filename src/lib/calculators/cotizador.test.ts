@@ -45,7 +45,7 @@ describe("evaluarCotizacion", () => {
     expect(r.sumaFactores).toBeCloseTo(2.3, 10);
     expect(r.cotizacionLegal.cotizacionLegalUF).toBeCloseTo(3.5, 10);
 
-    const [p] = r.planes;
+    const p = r.planes[0]!;
     // 2 × 2,3 = 4,6 + GES 0,5 × 3 + CAEC 0,2 × 3 = 6,7
     expect(p.resultado.plan.precioFinalUF).toBeCloseTo(6.7, 10);
     expect(p.resultado.diferencia.tipo).toBe("adicional");
@@ -58,7 +58,7 @@ describe("evaluarCotizacion", () => {
     const r = evaluarCotizacion({ ...base, precioPlanActualUF: 7.2 });
     expect(r.planActual?.precioCLP).toBeCloseTo(288_000, 6);
     expect(r.planActual?.diferencia.adicionalUF).toBeCloseTo(3.7, 10);
-    expect(r.planes[0].variacionVsActualUF).toBeCloseTo(-0.5, 10);
-    expect(r.planes[0].variacionVsActualCLP).toBeCloseTo(-20_000, 6);
+    expect(r.planes[0]?.variacionVsActualUF).toBeCloseTo(-0.5, 10);
+    expect(r.planes[0]?.variacionVsActualCLP).toBeCloseTo(-20_000, 6);
   });
 });

@@ -28,5 +28,6 @@
 - [ ] Verificación end-to-end (requiere correr `supabase/migrations/20261008210000_etapa4_perfil_asesor.sql`).
 
 ### Etapa 5: Refinamiento de UX y Pruebas
-- [ ] Agregar filtros de búsqueda rápida de prospectos por RUT o Nombre.
-- [ ] Validaciones estricta con TypeScript y revisión de respuestas responsivas en celulares (los asesores usan mucho el móvil en terreno).
+- [x] Agregar filtros de búsqueda rápida de prospectos por RUT o Nombre (sin tildes, RUT con o sin puntos/guion).
+- [x] Validaciones estricta con TypeScript (`noUncheckedIndexedAccess`, `noFallthroughCasesInSwitch`, `noImplicitOverride`) y revisión de respuestas responsivas en celulares (390 px sin desborde horizontal).
+- [x] El Cotizador sobrevive a recargas en el celular (sessionStorage, se borra al cerrar la pestaña o la sesión).

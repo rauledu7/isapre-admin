@@ -9,8 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { ISAPRES, TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
 import { useCotizacion } from "@/hooks/useCotizacion";
 import type { ResultadoPlanAlternativa } from "@/lib/calculators/cotizador";
-import { ufACLP } from "@/lib/calculators/isapreMath";
 import { formatCLP, formatFactor, formatUF } from "@/lib/format";
+import { desglosePlan } from "@/lib/propuesta";
 import { cn } from "@/lib/utils";
 import { useCotizadorStore } from "@/store/cotizadorStore";
 import { useUFStore } from "@/store/ufStore";
@@ -85,23 +85,9 @@ function PlanResultadoCard({ item }: { item: ResultadoPlanAlternativa }) {
         </div>
       </CardHeader>
       <CardContent>
-        <Fila
-          etiqueta="Precio base × suma de factores"
-          detalle={`${formatUF(p.precioBaseUF)} × ${formatFactor(p.sumaFactores)}`}
-        >
-          <Monto uf={p.precioBaseAjustadoUF} clp={ufACLP(p.precioBaseAjustadoUF, resultado.valorUF)} />
-        </Fila>
-        {p.coberturas.map((c) => (
-          <Fila
-            key={c.coberturaId}
-            etiqueta={c.nombre}
-            detalle={
-              c.modalidad === "por_beneficiario"
-                ? `${formatUF(c.precioUnitarioUF)} × ${c.cantidad} beneficiarios`
-                : "Por contrato"
-            }
-          >
-            <Monto uf={c.totalUF} clp={ufACLP(c.totalUF, resultado.valorUF)} />
+        {desglosePlan(item, resultado.valorUF).map((l) => (
+          <Fila key={l.etiqueta} etiqueta={l.etiqueta} detalle={l.detalle}>
+            <Monto uf={l.uf} clp={l.clp} />
           </Fila>
         ))}
         <Separator className="my-1.5" />

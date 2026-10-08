@@ -1,12 +1,14 @@
 "use client";
 
-import { ColumnsIcon, ListIcon, PlusIcon, Settings2Icon } from "lucide-react";
+import { ColumnsIcon, ListIcon, PlusIcon, SearchIcon, Settings2Icon, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useProspectos } from "@/hooks/useProspectos";
+import { filtrarProspectos } from "@/lib/busqueda";
 import { cn } from "@/lib/utils";
 
 import { EtapasDialog } from "./EtapasDialog";
@@ -22,6 +24,8 @@ export function ProspectosView() {
   const [vista, setVista] = useState<Vista>("kanban");
   const [nuevoAbierto, setNuevoAbierto] = useState(false);
   const [etapasAbierto, setEtapasAbierto] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const filtrados = useMemo(() => filtrarProspectos(prospectos, busqueda), [prospectos, busqueda]);
 
   if (estado === "inicial" || estado === "cargando") {
     return <p className="text-sm text-muted-foreground">Cargando prospectos…</p>;
@@ -48,6 +52,33 @@ export function ProspectosView() {
         <Button variant="outline" onClick={() => setEtapasAbierto(true)}>
           <Settings2Icon /> Etapas
         </Button>
+        <div className="relative w-full sm:w-72">
+          <SearchIcon
+            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            type="text"
+            enterKeyHint="search"
+            autoComplete="off"
+            aria-label="Buscar prospecto por nombre o RUT"
+            placeholder="Buscar por nombre o RUT"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="pr-8 pl-8"
+          />
+          {busqueda && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Limpiar búsqueda"
+              className="absolute top-1/2 right-1.5 -translate-y-1/2"
+              onClick={() => setBusqueda("")}
+            >
+              <XIcon />
+            </Button>
+          )}
+        </div>
         <div className="ml-auto hidden rounded-lg p-0.5 ring-1 ring-foreground/10 md:flex" role="group" aria-label="Vista">
           {(
             [
@@ -77,13 +108,24 @@ export function ProspectosView() {
             Aún no tienes prospectos. Crea el primero o guarda una cotización desde el Cotizador.
           </CardContent>
         </Card>
+      ) : filtrados.length === 0 ? (
+        <Card>
+          <CardContent className="py-6 text-center text-sm text-muted-foreground">
+            Ningún prospecto coincide con “{busqueda.trim()}”.
+          </CardContent>
+        </Card>
       ) : (
         <>
+          {busqueda.trim() && (
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {filtrados.length} de {prospectos.length} prospectos
+            </p>
+          )}
           <div className={cn("hidden", vista === "kanban" && "md:block")}>
-            <KanbanBoard etapas={etapas} prospectos={prospectos} />
+            <KanbanBoard etapas={etapas} prospectos={filtrados} />
           </div>
           <div className={cn(vista === "kanban" && "md:hidden")}>
-            <ListaProspectos etapas={etapas} prospectos={prospectos} />
+            <ListaProspectos etapas={etapas} prospectos={filtrados} />
           </div>
         </>
       )}

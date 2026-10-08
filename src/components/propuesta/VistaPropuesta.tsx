@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeftIcon, PrinterIcon } from "lucide-react";
+import { ArrowLeftIcon, PrinterIcon, UserPenIcon } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { PerfilDialog } from "@/components/layout/PerfilDialog";
 import { Button } from "@/components/ui/button";
 import { TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
 import { useCotizacion } from "@/hooks/useCotizacion";
@@ -12,7 +13,7 @@ import { useProspectos } from "@/hooks/useProspectos";
 import { formatFechaHora } from "@/lib/format";
 import { getSupabase } from "@/lib/supabase/client";
 import { obtenerCotizacion, obtenerProspecto } from "@/lib/supabase/prospectos";
-import { useCotizadorStore } from "@/store/cotizadorStore";
+import { useCotizadorStore, useHidratarCotizador } from "@/store/cotizadorStore";
 import { usePerfilStore } from "@/store/perfilStore";
 import type { Prospecto } from "@/types/isapre";
 
@@ -25,6 +26,7 @@ export function VistaPropuesta() {
 }
 
 function DesdeCotizador() {
+  const hidratado = useHidratarCotizador();
   const cotizacion = useCotizacion();
   const isapreActual = useCotizadorStore((s) => s.cliente.isapreActual);
   const prospectoId = useCotizadorStore((s) => s.prospectoId);
@@ -32,6 +34,10 @@ function DesdeCotizador() {
   const prospecto = prospectos.find((p) => p.id === prospectoId) ?? null;
   const [fecha] = useState(() => formatFechaHora(new Date().toISOString()));
 
+  if (!hidratado) return <Mensaje>Cargando propuesta…</Mensaje>;
+  if (cotizacion.estado === "sin_uf") {
+    return <Mensaje>Obteniendo el valor UF… Si no está disponible, ingrésalo arriba.</Mensaje>;
+  }
   if (cotizacion.estado !== "listo" || cotizacion.resultado.planes.length === 0) {
     return (
       <Mensaje volver="/cotizador">
@@ -127,6 +133,7 @@ interface ContenidoProps {
 function Contenido({ volver, fecha, prospecto, propuesta }: ContenidoProps) {
   const asesor = usePerfilStore((s) => s.perfil);
   const estadoPerfil = usePerfilStore((s) => s.estado);
+  const [perfilAbierto, setPerfilAbierto] = useState(false);
 
   useEffect(() => {
     const anterior = document.title;
@@ -150,10 +157,14 @@ function Contenido({ volver, fecha, prospecto, propuesta }: ContenidoProps) {
         </div>
       </div>
       {estadoPerfil === "listo" && !asesor && (
-        <p className="rounded-lg bg-muted px-3 py-2 text-sm print:hidden">
-          Agrega tu nombre y contacto en “Mis datos de asesor” (menú superior) para firmar la propuesta.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm print:hidden">
+          <p>Agrega tu nombre y contacto para firmar la propuesta.</p>
+          <Button size="sm" variant="outline" onClick={() => setPerfilAbierto(true)}>
+            <UserPenIcon /> Mis datos
+          </Button>
+        </div>
       )}
+      <PerfilDialog open={perfilAbierto} onOpenChange={setPerfilAbierto} />
       <PropuestaDocumento propuesta={{ ...propuesta, asesor }} fecha={fecha} />
     </div>
   );

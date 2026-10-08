@@ -17,9 +17,9 @@ export function intercambiarOrden(
 ): EtapaEmbudo[] {
   const ordenadas = [...etapas].sort((a, b) => a.orden - b.orden);
   const i = ordenadas.findIndex((e) => e.id === id);
-  const j = i + direccion;
-  if (i < 0 || j < 0 || j >= ordenadas.length) return [];
-  const [a, b] = [ordenadas[i], ordenadas[j]];
+  const a = ordenadas[i];
+  const b = ordenadas[i + direccion];
+  if (i < 0 || !a || !b) return [];
   return [
     { ...a, orden: b.orden },
     { ...b, orden: a.orden },

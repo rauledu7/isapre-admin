@@ -35,13 +35,22 @@ function leerPlan(plan: PlanForm, indice: number): PlanAlternativa | string {
   const precioBaseUF = parseDecimal(plan.precioBaseUF);
   if (precioBaseUF === null) return `${nombre}: falta el precio base en UF`;
 
-  const adicionales = [plan.gesUF, plan.caecUF, plan.seguroUF].map(leerMontoOpcional);
-  if (adicionales.includes("invalido")) {
+  const gesUF = leerMontoOpcional(plan.gesUF);
+  const caecUF = leerMontoOpcional(plan.caecUF);
+  const seguroUF = leerMontoOpcional(plan.seguroUF);
+  if (gesUF === "invalido" || caecUF === "invalido" || seguroUF === "invalido") {
     return `${nombre}: revisa los montos de GES, CAEC o seguros`;
   }
-  const [gesUF, caecUF, seguroUF] = adicionales.map((v) => (v === null ? 0 : (v as number)));
 
-  return { id: plan.id, isapreId: plan.isapreId, nombre, precioBaseUF, gesUF, caecUF, seguroUF };
+  return {
+    id: plan.id,
+    isapreId: plan.isapreId,
+    nombre,
+    precioBaseUF,
+    gesUF: gesUF ?? 0,
+    caecUF: caecUF ?? 0,
+    seguroUF: seguroUF ?? 0,
+  };
 }
 
 export function leerFormulario(

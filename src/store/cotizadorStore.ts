@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 import { formatEnteroInput } from "@/lib/format";
 import type { CargaForm, ClienteForm, PlanForm } from "@/types/cotizador";
@@ -45,7 +47,9 @@ interface CotizadorState {
   asociarProspecto: (prospectoId: string | null) => void;
 }
 
-export const useCotizadorStore = create<CotizadorState>()((set) => ({
+export const useCotizadorStore = create<CotizadorState>()(
+  persist(
+    (set) => ({
   prospectoId: null,
   cliente: clienteInicial(),
   cargas: [],
@@ -78,4 +82,29 @@ export const useCotizadorStore = create<CotizadorState>()((set) => ({
       planes: [planVacio()],
     }),
   asociarProspecto: (prospectoId) => set({ prospectoId }),
-}));
+    }),
+    {
+      // sessionStorage: sobrevive a recargas (p. ej. volver desde WhatsApp en el celular)
+      // pero se borra al cerrar la pestaña. Contiene renta del cliente: no usar localStorage.
+      name: "isapre-cotizador",
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: ({ prospectoId, cliente, cargas, planes }) => ({ prospectoId, cliente, cargas, planes }),
+      // Se rehidrata en el cliente tras montar, para no romper la hidratación del HTML del servidor.
+      skipHydration: true,
+    },
+  ),
+);
+
+/** Rehidrata el Cotizador desde sessionStorage; devuelve `true` cuando el estado está listo. */
+export function useHidratarCotizador(): boolean {
+  // En el servidor no hay sessionStorage y zustand no adjunta la API `persist`.
+  const [listo, setListo] = useState(
+    () => (useCotizadorStore.persist as typeof useCotizadorStore.persist | undefined)?.hasHydrated() ?? false,
+  );
+  useEffect(() => {
+    const desuscribir = useCotizadorStore.persist.onFinishHydration(() => setListo(true));
+    void useCotizadorStore.persist.rehydrate();
+    return desuscribir;
+  }, []);
+  return listo;
+}
