@@ -8,8 +8,8 @@ import { useCotizadorStore } from "@/store/cotizadorStore";
 import { useProspectosStore } from "@/store/prospectosStore";
 
 import { DatosClienteCard } from "./DatosClienteCard";
-import { GuardarCotizacion } from "./GuardarCotizacion";
 import { PlanesCard } from "./PlanesCard";
+import { PropuestaCotizador } from "./PropuestaCotizador";
 import { ResultadosPanel } from "./ResultadosPanel";
 
 export function Cotizador() {
@@ -38,7 +38,7 @@ export function Cotizador() {
         </div>
         <section aria-label="Resultados" className="flex flex-col gap-4">
           <ResultadosPanel />
-          <GuardarCotizacion />
+          <PropuestaCotizador />
         </section>
       </div>
     </div>

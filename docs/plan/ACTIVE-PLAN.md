@@ -22,8 +22,10 @@
 - [x] Conexión, migración y login verificados contra el proyecto Supabase real.
 
 ### Etapa 4: Herramienta de Cierre (Exportación y WhatsApp)
-- [ ] Implementar generador de mensaje con formato predeterminado para WhatsApp con la propuesta económica.
-- [ ] Crear vista imprimible / exportable a PDF con el resumen comparativo para el cliente final.
+- [x] Implementar generador de mensaje con formato predeterminado para WhatsApp con la propuesta económica (abrir WhatsApp al teléfono del prospecto o copiar).
+- [x] Crear vista imprimible / exportable a PDF con el resumen comparativo para el cliente final (`/propuesta`, desde el Cotizador y desde cotizaciones guardadas).
+- [x] Perfil del asesor (nombre, teléfono, email) como firma de la propuesta + nota legal al pie.
+- [ ] Verificación end-to-end (requiere correr `supabase/migrations/20261008210000_etapa4_perfil_asesor.sql`).
 
 ### Etapa 5: Refinamiento de UX y Pruebas
 - [ ] Agregar filtros de búsqueda rápida de prospectos por RUT o Nombre.

@@ -166,3 +166,11 @@ export interface Cotizacion {
   resultado: ResultadoEvaluacion;
   creadaEn: string;
 }
+
+/** Datos de contacto del asesor que firman las propuestas al cliente. */
+export interface PerfilAsesor {
+  nombre: string;
+  /** Normalizado "+56XXXXXXXXX". */
+  telefono: string | null;
+  email: string | null;
+}

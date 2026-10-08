@@ -49,7 +49,7 @@ export function FichaProspecto() {
     return (
       <div className="flex flex-col items-start gap-3">
         <p className="text-sm">Prospecto no encontrado.</p>
-        <Button variant="outline" render={<Link href="/prospectos" />}>
+        <Button variant="outline" nativeButton={false} render={<Link href="/prospectos" />}>
           Volver a prospectos
         </Button>
       </div>
@@ -133,7 +133,7 @@ export function FichaProspecto() {
           </Card>
           <NotasProspecto prospectoId={prospecto.id} />
         </div>
-        <HistorialCotizaciones prospectoId={prospecto.id} />
+        <HistorialCotizaciones prospecto={prospecto} />
       </div>
 
       <ProspectoFormDialog open={editando} onOpenChange={setEditando} prospecto={prospecto} />

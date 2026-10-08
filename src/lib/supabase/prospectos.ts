@@ -204,6 +204,12 @@ export async function listarCotizaciones(sb: Supabase, prospectoId: string): Pro
   return data.map(aCotizacion);
 }
 
+export async function obtenerCotizacion(sb: Supabase, id: string): Promise<Cotizacion | null> {
+  const { data, error } = await sb.from("cotizaciones").select("*").eq("id", id).maybeSingle();
+  if (error) fallar(error, "No se pudo cargar la cotización");
+  return data ? aCotizacion(data) : null;
+}
+
 export async function guardarCotizacion(
   sb: Supabase,
   c: {

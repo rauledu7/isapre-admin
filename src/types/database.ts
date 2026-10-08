@@ -143,6 +143,27 @@ export interface Database {
           },
         ];
       };
+      perfiles_asesor: {
+        Row: {
+          asesor_id: string;
+          nombre: string;
+          telefono: string | null;
+          email: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          asesor_id?: string;
+          nombre: string;
+          telefono?: string | null;
+          email?: string | null;
+        };
+        Update: {
+          nombre?: string;
+          telefono?: string | null;
+          email?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };

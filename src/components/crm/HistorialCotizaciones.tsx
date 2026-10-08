@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 
+import { AccionesPropuesta } from "@/components/propuesta/AccionesPropuesta";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ISAPRES } from "@/config/isapres";
 import { formatCLP, formatFechaHora, formatUF, formatValorUF } from "@/lib/format";
 import { getSupabase } from "@/lib/supabase/client";
 import { listarCotizaciones } from "@/lib/supabase/prospectos";
-import type { Cotizacion, ResultadoDiferencia } from "@/types/isapre";
+import type { Cotizacion, Prospecto, ResultadoDiferencia } from "@/types/isapre";
 
 function textoDiferencia(d: ResultadoDiferencia): string {
   if (d.tipo === "excedente") return `Excedente ${formatUF(d.excedenteUF)} (${formatCLP(d.excedenteCLP)})`;
@@ -16,7 +17,8 @@ function textoDiferencia(d: ResultadoDiferencia): string {
   return "Sin diferencia";
 }
 
-export function HistorialCotizaciones({ prospectoId }: { prospectoId: string }) {
+export function HistorialCotizaciones({ prospecto }: { prospecto: Prospecto }) {
+  const prospectoId = prospecto.id;
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,6 +75,18 @@ export function HistorialCotizaciones({ prospectoId }: { prospectoId: string }) 
                   </li>
                 ))}
               </ul>
+              <AccionesPropuesta
+                size="sm"
+                telefono={prospecto.telefono}
+                hrefPdf={`/propuesta?cotizacion=${c.id}`}
+                propuesta={{
+                  clienteNombre: prospecto.nombre,
+                  isapreActual: prospecto.isapreActual,
+                  valorUF: c.valorUF,
+                  topeImponibleUF: c.topeImponibleUF,
+                  resultado: c.resultado,
+                }}
+              />
             </article>
           );
         })}
