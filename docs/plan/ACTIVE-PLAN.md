@@ -6,7 +6,7 @@
 - [x] Inicializar proyecto Next.js (App Router), TypeScript, Tailwind CSS y Shadcn UI.
 - [x] Crear archivo de tipos `src/types/isapre.ts` (Prospecto, Plan, Carga, Cotización).
 - [x] Implementar motor de cálculo puro en `src/lib/calculators/isapreMath.ts` (conversión CLP a 7% UF, tope imponible, cálculo de excedentes/diferencia).
-- Pendiente de negocio: valor oficial de `TOPE_IMPONIBLE_SALUD_UF` y Tabla de Factores (`TABLA_FACTORES`) en `src/config/isapres.ts`.
+- Tope imponible 2026: 90,0 UF (7% máx. 6,3 UF) y Tabla de Factores Única cargados en `src/config/isapres.ts`.
 
 ### Etapa 2: Layout Base y Cotizador Express (MVP)
 - [ ] Diseñar Sidebar funcional y Header con indicador del valor de la UF personalizable.

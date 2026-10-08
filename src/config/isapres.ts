@@ -11,8 +11,8 @@ export const ISAPRES: readonly Isapre[] = [
 
 export const TASA_COTIZACION_LEGAL = 0.07;
 
-// TODO: pendiente valor oficial vigente (UF) entregado por negocio.
-export const TOPE_IMPONIBLE_SALUD_UF: number | null = null;
+/** Res. Ex. N° 237 SP (feb 2026) y Of. Circ. IF/N° 12 SdS: 7% máximo = 6,3 UF. Reajuste anual. */
+export const TOPE_IMPONIBLE_SALUD_UF = 90.0;
 
 /** Tabla Única de Factores (Superintendencia de Salud), vigente para contratos desde abril 2020. */
 export const TABLA_FACTORES: TablaFactores | null = {
