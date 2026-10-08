@@ -3,12 +3,14 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { Button } from "@/components/ui/button";
+
+import { MetasMes } from "./MetasMes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { COLOR_TIPO_ETAPA, PALETA } from "@/config/ui";
 import { useProspectos } from "@/hooks/useProspectos";
 import { contarPorEtapa, totalesEmbudo, type TotalesEmbudo } from "@/lib/embudo";
 
-function EtiquetaEtapa({ x, y, nombre }: { x: number; y: number; nombre: string }) {
+function EtiquetaEtapa({ x, y, nombre = "" }: { x: number; y: number; nombre?: string }) {
   const visible = nombre.length > 18 ? `${nombre.slice(0, 17)}…` : nombre;
   return (
     <text x={x} y={y} dy={4} textAnchor="end" fill="var(--foreground)" fontSize={12}>
@@ -49,6 +51,7 @@ export function DashboardView() {
 
   return (
     <div className="flex flex-col gap-4">
+      <MetasMes etapas={etapas} prospectos={prospectos} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {METRICAS.map((m) => (
           <Card key={m.clave} size="sm">
@@ -83,7 +86,7 @@ export function DashboardView() {
                     <EtiquetaEtapa
                       x={Number(props.x)}
                       y={Number(props.y)}
-                      nombre={String(props.payload?.value ?? "")}
+                      nombre={props.payload?.value == null ? "" : String(props.payload.value)}
                     />
                   )}
                 />

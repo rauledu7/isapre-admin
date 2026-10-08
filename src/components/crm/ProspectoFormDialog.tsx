@@ -43,6 +43,9 @@ function formDesde(
       isapreActual: prospecto.isapreActual,
       cargas: prospecto.cargas.map(String),
       etapaId: prospecto.etapaId,
+      proximoContacto: prospecto.proximoContacto ?? "",
+      ufCierre: prospecto.ufCierre === null ? "" : String(prospecto.ufCierre).replace(".", ","),
+      cerradoEn: prospecto.cerradoEn ?? "",
     };
   }
   return {
@@ -54,6 +57,9 @@ function formDesde(
     rentaImponibleCLP: "",
     isapreActual: null,
     cargas: [],
+    proximoContacto: "",
+    ufCierre: "",
+    cerradoEn: "",
     ...iniciales,
     etapaId: etapaPorDefecto,
   };
@@ -231,6 +237,27 @@ function FormularioProspecto({
           </div>
         ))}
         {errores.cargas && <p className="text-xs text-destructive">{errores.cargas}</p>}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Campo
+          label="Próximo contacto"
+          type="date"
+          value={form.proximoContacto}
+          onChange={(e) => set({ proximoContacto: e.target.value })}
+          aria-invalid={Boolean(errores.proximoContacto)}
+          ayuda={error("proximoContacto")}
+        />
+        <Campo
+          label="UF del plan cerrado"
+          sufijo="UF"
+          inputMode="decimal"
+          placeholder="3,2000"
+          value={form.ufCierre}
+          onChange={(e) => set({ ufCierre: e.target.value })}
+          aria-invalid={Boolean(errores.ufCierre)}
+          ayuda={error("ufCierre") ?? "Cuenta para la meta al cerrar la etapa como ganada."}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">

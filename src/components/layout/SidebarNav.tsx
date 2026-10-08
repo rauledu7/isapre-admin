@@ -1,6 +1,6 @@
 "use client";
 
-import { CalculatorIcon, LayoutDashboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { CalculatorIcon, CalendarIcon, LayoutDashboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
@@ -17,6 +17,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboardIcon },
+  { href: "/calendario", label: "Calendario", icon: CalendarIcon },
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
   { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
 ];

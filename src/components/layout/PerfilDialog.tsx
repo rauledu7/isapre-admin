@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { parseDecimal, parseEntero } from "@/lib/format";
 import { getSupabase } from "@/lib/supabase/client";
 import { formatearTelefono, normalizarTelefono } from "@/lib/telefono";
 import { usePerfilStore } from "@/store/perfilStore";
@@ -24,10 +25,12 @@ interface PerfilDialogProps {
 export function PerfilDialog({ open, onOpenChange }: PerfilDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Mis datos de asesor</DialogTitle>
-          <DialogDescription>Aparecen como firma en las propuestas que envías a tus clientes.</DialogDescription>
+          <DialogDescription>
+            Firman las propuestas y definen la meta de UF y contratos del mes.
+          </DialogDescription>
         </DialogHeader>
         {open && <FormularioPerfil onOpenChange={onOpenChange} />}
       </DialogContent>
@@ -44,7 +47,17 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
   const [nombre, setNombre] = useState(perfil?.nombre ?? "");
   const [telefono, setTelefono] = useState(perfil?.telefono ? formatearTelefono(perfil.telefono) : "");
   const [email, setEmail] = useState(perfil?.email ?? "");
-  const [errores, setErrores] = useState<{ nombre?: string; telefono?: string; email?: string }>({});
+  const [metaUf, setMetaUf] = useState(perfil?.metaUfMes === null || perfil?.metaUfMes === undefined ? "" : String(perfil.metaUfMes).replace(".", ","));
+  const [metaContratos, setMetaContratos] = useState(
+    perfil?.metaContratosMes === null || perfil?.metaContratosMes === undefined ? "" : String(perfil.metaContratosMes),
+  );
+  const [errores, setErrores] = useState<{
+    nombre?: string;
+    telefono?: string;
+    email?: string;
+    metaUf?: string;
+    metaContratos?: string;
+  }>({});
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -64,10 +77,14 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
     e.preventDefault();
     const conTelefono = telefono.trim() !== "";
     const tel = conTelefono ? normalizarTelefono(telefono) : null;
+    const uf = metaUf.trim() === "" ? null : parseDecimal(metaUf);
+    const contratos = metaContratos.trim() === "" ? null : parseEntero(metaContratos);
     const nuevos = {
       ...(nombre.trim() === "" && { nombre: "Ingresa tu nombre" }),
       ...(conTelefono && tel === null && { telefono: "Teléfono chileno inválido" }),
       ...(email.trim() !== "" && !EMAIL_RE.test(email.trim()) && { email: "Email inválido" }),
+      ...(metaUf.trim() !== "" && (uf === null || uf < 0) && { metaUf: "UF inválida" }),
+      ...(metaContratos.trim() !== "" && contratos === null && { metaContratos: "Número inválido" }),
     };
     setErrores(nuevos);
     if (Object.keys(nuevos).length > 0) return;
@@ -75,7 +92,13 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
     setGuardando(true);
     setError(null);
     try {
-      await guardar({ nombre: nombre.trim(), telefono: tel, email: email.trim() || null });
+      await guardar({
+        nombre: nombre.trim(),
+        telefono: tel,
+        email: email.trim() || null,
+        metaUfMes: uf,
+        metaContratosMes: contratos,
+      });
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar");
@@ -115,6 +138,25 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
         aria-invalid={Boolean(errores.email)}
         ayuda={ayuda(errores.email)}
         autoComplete="email"
+      />
+      <Campo
+        label="Meta de UF cerradas al mes"
+        sufijo="UF"
+        inputMode="decimal"
+        placeholder="10,0000"
+        value={metaUf}
+        onChange={(e) => setMetaUf(e.target.value)}
+        aria-invalid={Boolean(errores.metaUf)}
+        ayuda={ayuda(errores.metaUf)}
+      />
+      <Campo
+        label="Meta de contratos al mes"
+        inputMode="numeric"
+        placeholder="8"
+        value={metaContratos}
+        onChange={(e) => setMetaContratos(e.target.value.replace(/\D/g, ""))}
+        aria-invalid={Boolean(errores.metaContratos)}
+        ayuda={ayuda(errores.metaContratos)}
       />
       {error && (
         <p role="alert" className="text-sm text-destructive">

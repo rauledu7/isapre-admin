@@ -31,7 +31,13 @@ function propuesta(extra: Partial<Propuesta> = {}, precioPlanActualUF: number | 
   return {
     clienteNombre: "Juan Pérez",
     isapreActual: "banmedica",
-    asesor: { nombre: "Raúl Febres", telefono: "+56912345678", email: "raul@ejemplo.cl" },
+    asesor: {
+      nombre: "Raúl Febres",
+      telefono: "+56912345678",
+      email: "raul@ejemplo.cl",
+      metaUfMes: null,
+      metaContratosMes: null,
+    },
     valorUF: { valor: VALOR_UF, fecha: "2026-10-08", fuente: "mindicador" },
     topeImponibleUF: 90,
     resultado,

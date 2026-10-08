@@ -12,6 +12,9 @@ const FORM: ProspectoForm = {
   isapreActual: "colmena",
   cargas: ["6", "34"],
   etapaId: "etapa-1",
+  proximoContacto: "",
+  ufCierre: "",
+  cerradoEn: "",
 };
 
 describe("leerProspecto", () => {
@@ -28,6 +31,9 @@ describe("leerProspecto", () => {
         rentaImponibleCLP: 1_800_000,
         isapreActual: "colmena",
         cargas: [6, 34],
+        proximoContacto: null,
+        ufCierre: null,
+        cerradoEn: null,
       },
     });
   });

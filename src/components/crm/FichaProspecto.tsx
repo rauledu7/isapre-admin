@@ -8,7 +8,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProspectos } from "@/hooks/useProspectos";
-import { formatCLP } from "@/lib/format";
+import { Campo } from "@/components/calculator/Campo";
+import { formatFecha } from "@/lib/fecha";
+import { formatCLP, parseDecimal } from "@/lib/format";
 import { formatearRut } from "@/lib/rut";
 import { formatearTelefono } from "@/lib/telefono";
 import { useCotizadorStore } from "@/store/cotizadorStore";
@@ -34,10 +36,13 @@ export function FichaProspecto() {
   const router = useRouter();
   const { estado, error, etapas, prospectos } = useProspectos();
   const mover = useProspectosStore((s) => s.moverProspecto);
+  const actualizar = useProspectosStore((s) => s.actualizarProspecto);
   const eliminar = useProspectosStore((s) => s.eliminarProspecto);
   const cargarEnCotizador = useCotizadorStore((s) => s.cargarDesdeProspecto);
   const [editando, setEditando] = useState(false);
   const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
+  const [ufCierre, setUfCierre] = useState("");
+  const [ufLista, setUfLista] = useState<number | null>(null);
 
   if (estado === "inicial" || estado === "cargando") {
     return <p className="text-sm text-muted-foreground">Cargando…</p>;
@@ -45,6 +50,10 @@ export function FichaProspecto() {
   if (estado === "error") return <p className="text-sm text-destructive">{error}</p>;
 
   const prospecto = prospectos.find((p) => p.id === id);
+  if (prospecto && prospecto.ufCierre !== ufLista) {
+    setUfLista(prospecto.ufCierre);
+    setUfCierre(prospecto.ufCierre === null ? "" : String(prospecto.ufCierre).replace(".", ","));
+  }
   if (!prospecto) {
     return (
       <div className="flex flex-col items-start gap-3">
@@ -129,6 +138,48 @@ export function FichaProspecto() {
                   }
                 />
               </dl>
+              <div className="mt-4 flex flex-col gap-3 border-t pt-4">
+                <Campo
+                  label="Próximo contacto"
+                  type="date"
+                  value={prospecto.proximoContacto ?? ""}
+                  onChange={(e) =>
+                    void actualizar(prospecto.id, { proximoContacto: e.target.value || null }).catch((err: Error) =>
+                      setErrorEliminar(err.message),
+                    )
+                  }
+                  ayuda="Aparece en el calendario de seguimientos."
+                />
+                {etapas.find((e) => e.id === prospecto.etapaId)?.tipo === "ganada" && (
+                  <>
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">Cerrado el </span>
+                      <span className="tabular-nums">
+                        {prospecto.cerradoEn ? formatFecha(prospecto.cerradoEn) : "—"}
+                      </span>
+                    </p>
+                    <Campo
+                      label="UF del plan cerrado"
+                      sufijo="UF"
+                      inputMode="decimal"
+                      placeholder="3,2000"
+                      value={ufCierre}
+                      onChange={(e) => setUfCierre(e.target.value)}
+                      onBlur={() => {
+                        const valor = ufCierre.trim() === "" ? null : parseDecimal(ufCierre);
+                        if (ufCierre.trim() !== "" && valor === null) {
+                          setErrorEliminar("UF del plan cerrado inválida");
+                          return;
+                        }
+                        void actualizar(prospecto.id, { ufCierre: valor }).catch((err: Error) =>
+                          setErrorEliminar(err.message),
+                        );
+                      }}
+                      ayuda="Suma a la meta de UF del mes en que se cerró."
+                    />
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
           <NotasProspecto prospectoId={prospecto.id} />

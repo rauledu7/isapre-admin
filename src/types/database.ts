@@ -44,6 +44,9 @@ export interface Database {
           renta_imponible_clp: number | null;
           isapre_actual: string | null;
           cargas: Json;
+          proximo_contacto: string | null;
+          cerrado_en: string | null;
+          uf_cierre: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -59,6 +62,9 @@ export interface Database {
           renta_imponible_clp?: number | null;
           isapre_actual?: string | null;
           cargas?: Json;
+          proximo_contacto?: string | null;
+          cerrado_en?: string | null;
+          uf_cierre?: number | null;
         };
         Update: {
           etapa_id?: string;
@@ -70,6 +76,9 @@ export interface Database {
           renta_imponible_clp?: number | null;
           isapre_actual?: string | null;
           cargas?: Json;
+          proximo_contacto?: string | null;
+          cerrado_en?: string | null;
+          uf_cierre?: number | null;
         };
         Relationships: [
           {
@@ -149,6 +158,8 @@ export interface Database {
           nombre: string;
           telefono: string | null;
           email: string | null;
+          meta_uf_mes: number | null;
+          meta_contratos_mes: number | null;
           updated_at: string;
         };
         Insert: {
@@ -156,11 +167,15 @@ export interface Database {
           nombre: string;
           telefono?: string | null;
           email?: string | null;
+          meta_uf_mes?: number | null;
+          meta_contratos_mes?: number | null;
         };
         Update: {
           nombre?: string;
           telefono?: string | null;
           email?: string | null;
+          meta_uf_mes?: number | null;
+          meta_contratos_mes?: number | null;
         };
         Relationships: [];
       };

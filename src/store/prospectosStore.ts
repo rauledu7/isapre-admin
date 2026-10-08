@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
 import { intercambiarOrden, siguienteOrden } from "@/lib/embudo";
+import { fechaHoy } from "@/lib/fecha";
+import { cierreAlCambiarEtapa, cierreAlCrear } from "@/lib/metas";
 import type { ProspectoDatos } from "@/lib/prospectoForm";
 import { getSupabase } from "@/lib/supabase/client";
 import * as db from "@/lib/supabase/prospectos";
@@ -48,13 +50,19 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
   },
 
   crearProspecto: async (datos) => {
-    const p = await db.crearProspecto(getSupabase(), datos);
+    const cerradoEn = datos.cerradoEn ?? cierreAlCrear(datos.etapaId, get().etapas, fechaHoy(new Date()));
+    const p = await db.crearProspecto(getSupabase(), { ...datos, cerradoEn });
     set((s) => ({ prospectos: [p, ...s.prospectos] }));
     return p;
   },
 
   actualizarProspecto: async (id, cambios) => {
-    const p = await db.actualizarProspecto(getSupabase(), id, cambios);
+    const anterior = get().prospectos.find((p) => p.id === id);
+    const cierre =
+      anterior && cambios.etapaId
+        ? cierreAlCambiarEtapa(anterior, cambios.etapaId, get().etapas, fechaHoy(new Date()))
+        : null;
+    const p = await db.actualizarProspecto(getSupabase(), id, cierre ? { ...cambios, ...cierre } : cambios);
     set((s) => ({ prospectos: reemplazar(s.prospectos, p) }));
     return p;
   },
@@ -62,9 +70,11 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
   moverProspecto: async (id, etapaId) => {
     const anterior = get().prospectos.find((p) => p.id === id);
     if (!anterior || anterior.etapaId === etapaId) return;
-    set((s) => ({ prospectos: reemplazar(s.prospectos, { ...anterior, etapaId }) }));
+    const cierre = cierreAlCambiarEtapa(anterior, etapaId, get().etapas, fechaHoy(new Date()));
+    const cambios = { etapaId, ...cierre };
+    set((s) => ({ prospectos: reemplazar(s.prospectos, { ...anterior, ...cambios }) }));
     try {
-      const p = await db.actualizarProspecto(getSupabase(), id, { etapaId });
+      const p = await db.actualizarProspecto(getSupabase(), id, cambios);
       set((s) => ({ prospectos: reemplazar(s.prospectos, p) }));
     } catch (e) {
       set((s) => ({ prospectos: reemplazar(s.prospectos, anterior), error: mensaje(e) }));

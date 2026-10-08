@@ -1,5 +1,6 @@
 import { EDAD_MAXIMA } from "@/lib/cotizadorForm";
-import { parseEntero } from "@/lib/format";
+import { esFechaISO } from "@/lib/fecha";
+import { parseDecimal, parseEntero } from "@/lib/format";
 import { normalizarRut } from "@/lib/rut";
 import { normalizarTelefono } from "@/lib/telefono";
 import type { IsapreId, Prospecto } from "@/types/isapre";
@@ -14,6 +15,9 @@ export interface ProspectoForm {
   isapreActual: IsapreId | null;
   cargas: string[];
   etapaId: string;
+  proximoContacto: string;
+  ufCierre: string;
+  cerradoEn: string;
 }
 
 export type ProspectoDatos = Omit<Prospecto, "id" | "creadoEn" | "actualizadoEn">;
@@ -62,6 +66,12 @@ export function leerProspecto(form: ProspectoForm): LecturaProspecto {
 
   if (!form.etapaId) errores.etapaId = "Selecciona una etapa";
 
+  const contacto = form.proximoContacto.trim();
+  if (contacto && !esFechaISO(contacto)) errores.proximoContacto = "Fecha inválida";
+
+  const uf = form.ufCierre.trim() === "" ? null : parseDecimal(form.ufCierre);
+  if (form.ufCierre.trim() !== "" && (uf === null || uf < 0)) errores.ufCierre = "UF inválida";
+
   if (Object.keys(errores).length > 0) return { ok: false, errores };
 
   return {
@@ -76,6 +86,9 @@ export function leerProspecto(form: ProspectoForm): LecturaProspecto {
       rentaImponibleCLP: renta,
       isapreActual: form.isapreActual,
       cargas: cargas as number[],
+      proximoContacto: contacto || null,
+      ufCierre: uf,
+      cerradoEn: esFechaISO(form.cerradoEn) ? form.cerradoEn : null,
     },
   };
 }

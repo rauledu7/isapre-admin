@@ -10,8 +10,10 @@ El plan anterior (etapas 1 a 5) quedó en `PLAN-EJECUTADO-v1.md`.
 - [x] Dashboard principal con el embudo en gráfico (Recharts).
 
 ### Paso 2: Metas y calendario de seguimientos
-- [ ] Meta de UF cerradas al mes y meta de contratos / afiliados, configurables en el perfil del asesor.
-- [ ] Fechas de contacto o seguimiento por prospecto, sincronizadas con un calendario.
+- [x] Meta de UF cerradas al mes y meta de contratos / afiliados, configurables en el perfil del asesor.
+- [x] Fechas de contacto o seguimiento por prospecto, sincronizadas con un calendario.
+- La UF cerrada es el precio del plan afiliado, ingresado en la ficha. El contrato cuenta en el mes en que el prospecto pasa a una etapa ganada. El calendario lee `proximo_contacto`; no hay una agenda aparte.
+- [x] Verificación contra Supabase (correr `supabase/migrations/20261008220000_paso2_metas_calendario.sql`).
 
 ### Paso 3: Importación masiva (CSV / XLS)
 - [ ] Modal de carga con drag-and-drop.

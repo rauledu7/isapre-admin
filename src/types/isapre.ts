@@ -88,6 +88,12 @@ export interface Prospecto {
   isapreActual: IsapreId | null;
   /** Edades de las cargas. */
   cargas: number[];
+  /** Próximo contacto, YYYY-MM-DD. El calendario lee esta fecha. */
+  proximoContacto: string | null;
+  /** Día en que pasó a una etapa ganada. */
+  cerradoEn: string | null;
+  /** UF del plan afiliado. Cuenta para la meta del mes de `cerradoEn`. */
+  ufCierre: number | null;
   creadoEn: string;
   actualizadoEn: string;
 }
@@ -173,4 +179,8 @@ export interface PerfilAsesor {
   /** Normalizado "+56XXXXXXXXX". */
   telefono: string | null;
   email: string | null;
+  /** Meta de UF cerradas en el mes. `null` si no definió meta. */
+  metaUfMes: number | null;
+  /** Meta de contratos o afiliados en el mes. */
+  metaContratosMes: number | null;
 }
