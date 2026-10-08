@@ -19,7 +19,7 @@
 - [x] Crear vista de Kanban / Lista de Prospectos con 8 etapas editables por el asesor.
 - [x] Ficha de prospecto con historial de cotizaciones asociadas y notas rápidas.
 - [x] "Guardar en prospecto" desde el Cotizador y "Cotizar" desde la ficha.
-- [ ] Verificación end-to-end contra el proyecto Supabase real (pendiente de configurar `.env.local` y correr la migración).
+- [x] Conexión, migración y login verificados contra el proyecto Supabase real.
 
 ### Etapa 4: Herramienta de Cierre (Exportación y WhatsApp)
 - [ ] Implementar generador de mensaje con formato predeterminado para WhatsApp con la propuesta económica.

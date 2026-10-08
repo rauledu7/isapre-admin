@@ -29,9 +29,11 @@ export function LoginForm() {
     const { error } = await getSupabase().auth.signInWithPassword({ email, password });
     if (error) {
       setError(
-        error.message === "Invalid login credentials"
+        error.code === "invalid_credentials"
           ? "Email o contraseña incorrectos"
-          : "No se pudo iniciar sesión. Intenta nuevamente.",
+          : error.code === "email_not_confirmed"
+            ? "Tu email aún no está confirmado. Pide que confirmen tu usuario en Supabase."
+            : "No se pudo conectar con el servidor. Intenta nuevamente.",
       );
       setEnviando(false);
       return;
