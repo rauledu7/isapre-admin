@@ -25,7 +25,9 @@
    - Ingreso rápido: Renta imponible (CLP), Edad del titular, Número y edades de cargas familiares, Isapre actual.
    - Cálculo automático de su 7% obligatorio convertido a UF (usando valor UF dinámico o configurable).
 2. **CRM / Pipeline de Prospectos para Asesores:**
-   - Embudo simple: *Nuevo Contacto -> Evaluación / Evaluando -> Cotización Enviada -> En Firma de FUN -> Afiliado / Cerrado*.
+   - Embudo por defecto (editable por cada asesor: agregar, renombrar, reordenar o quitar etapas): *Nuevo -> Pendiente de reunión -> No contestó -> Contactar después -> Cotizado -> Pendiente de firma FUN -> Cerrado (afiliado) | Perdido / Descartado*.
+   - Datos obligatorios del prospecto: Nombre, Teléfono y RUT (validado con dígito verificador).
+   - Cada asesor ve solo sus prospectos (Supabase Auth + RLS).
 3. **Generador de Comparativas Expres en PDF/Imagen:**
    - Botón para exportar un resumen limpio en PDF o imagen para enviar por WhatsApp al cliente (*"Mira cómo queda tu plan actual vs. la propuesta"*).
 

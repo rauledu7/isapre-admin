@@ -1,0 +1,28 @@
+import { PhoneIcon } from "lucide-react";
+
+import { ISAPRES } from "@/config/isapres";
+import { formatCLP } from "@/lib/format";
+import { formatearRut } from "@/lib/rut";
+import { formatearTelefono } from "@/lib/telefono";
+import type { Prospecto } from "@/types/isapre";
+
+export function nombreIsapre(id: Prospecto["isapreActual"]): string {
+  return ISAPRES.find((i) => i.id === id)?.nombre ?? "Sin Isapre";
+}
+
+/** Línea secundaria compacta: RUT, teléfono, Isapre y renta. */
+export function ProspectoResumen({ prospecto }: { prospecto: Prospecto }) {
+  return (
+    <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+      <span className="tabular-nums">{formatearRut(prospecto.rut)}</span>
+      <span className="flex items-center gap-1 tabular-nums">
+        <PhoneIcon className="size-3" aria-hidden />
+        {formatearTelefono(prospecto.telefono)}
+      </span>
+      <span>
+        {nombreIsapre(prospecto.isapreActual)}
+        {prospecto.rentaImponibleCLP !== null && ` · ${formatCLP(prospecto.rentaImponibleCLP)}`}
+      </span>
+    </div>
+  );
+}

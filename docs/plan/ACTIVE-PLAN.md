@@ -15,9 +15,11 @@
 - [~] Carga de planes desde PDF: **postergada** hasta definir el formato de los PDF y los datos a extraer.
 
 ### Etapa 3: Embudo de Prospectos (CRM Liviano)
-- [ ] Configurar cliente de Supabase (o Mock Store con Zustand en Fase 1) para guardar prospectos.
-- [ ] Crear vista de Kanban / Lista de Prospectos con estados (*Nuevo, Cotizado, Firma FUN, Cerrado*).
-- [ ] Ficha de prospecto con historial de cotizaciones asociadas y notas rápidas.
+- [x] Configurar cliente de Supabase (Auth email + contraseña, RLS por asesor, migración en `supabase/migrations/`).
+- [x] Crear vista de Kanban / Lista de Prospectos con 8 etapas editables por el asesor.
+- [x] Ficha de prospecto con historial de cotizaciones asociadas y notas rápidas.
+- [x] "Guardar en prospecto" desde el Cotizador y "Cotizar" desde la ficha.
+- [ ] Verificación end-to-end contra el proyecto Supabase real (pendiente de configurar `.env.local` y correr la migración).
 
 ### Etapa 4: Herramienta de Cierre (Exportación y WhatsApp)
 - [ ] Implementar generador de mensaje con formato predeterminado para WhatsApp con la propuesta económica.

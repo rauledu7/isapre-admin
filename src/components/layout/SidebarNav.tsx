@@ -3,6 +3,7 @@
 import { CalculatorIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -16,16 +17,30 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
-  { href: "/prospectos", label: "Prospectos", icon: UsersIcon, proximamente: true },
+  { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
 ];
 
-export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
+interface SidebarNavProps {
+  onNavigate?: () => void;
+}
 
+export function SidebarNav(props: SidebarNavProps) {
+  return (
+    <Suspense fallback={<NavLista pathname={null} {...props} />}>
+      <SidebarNavActivo {...props} />
+    </Suspense>
+  );
+}
+
+function SidebarNavActivo(props: SidebarNavProps) {
+  return <NavLista pathname={usePathname()} {...props} />;
+}
+
+function NavLista({ pathname, onNavigate }: SidebarNavProps & { pathname: string | null }) {
   return (
     <nav className="flex flex-col gap-1">
       {NAV_ITEMS.map(({ href, label, icon: Icon, proximamente }) => {
-        const activo = pathname.startsWith(href);
+        const activo = pathname?.startsWith(href) ?? false;
         const clases = cn(
           "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
           activo

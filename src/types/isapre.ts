@@ -1,3 +1,6 @@
+import type { ResultadoEvaluacion } from "@/lib/calculators/cotizador";
+import type { DatosCotizacion } from "@/lib/cotizadorForm";
+
 export type IsapreId =
   | "banmedica"
   | "consalud"
@@ -61,32 +64,39 @@ export interface Plan {
   coberturas: CoberturaAdicional[];
 }
 
-export type EstadoProspecto =
-  | "nuevo_contacto"
-  | "evaluando"
-  | "cotizacion_enviada"
-  | "en_firma_fun"
-  | "afiliado";
+export type TipoEtapa = "abierta" | "ganada" | "perdida";
 
-export interface CanalContacto {
-  telefono: string;
-  whatsapp?: string;
-  email?: string;
+/** Etapa del embudo; editable por cada asesor. */
+export interface EtapaEmbudo {
+  id: string;
+  nombre: string;
+  orden: number;
+  tipo: TipoEtapa;
 }
 
 export interface Prospecto {
   id: string;
+  etapaId: string;
   nombre: string;
-  rut?: string;
-  contacto: CanalContacto;
-  edad: number;
-  rentaImponibleCLP: number;
+  /** Normalizado "12345678-5". */
+  rut: string;
+  /** Normalizado "+56XXXXXXXXX". Obligatorio: sin canal de contacto no se guarda. */
+  telefono: string;
+  email: string | null;
+  edad: number | null;
+  rentaImponibleCLP: number | null;
   isapreActual: IsapreId | null;
-  cargas: Carga[];
-  estado: EstadoProspecto;
-  notas: string;
+  /** Edades de las cargas. */
+  cargas: number[];
   creadoEn: string;
   actualizadoEn: string;
+}
+
+export interface NotaProspecto {
+  id: string;
+  prospectoId: string;
+  contenido: string;
+  creadaEn: string;
 }
 
 export interface ValorUF {
@@ -146,11 +156,13 @@ export interface ResultadoCotizacion {
   diferencia: ResultadoDiferencia;
 }
 
+/** Snapshot inmutable de una cotización asociada a un prospecto. */
 export interface Cotizacion {
   id: string;
   prospectoId: string;
-  planId: string;
   valorUF: ValorUF;
-  resultado: ResultadoCotizacion;
+  topeImponibleUF: number;
+  entrada: DatosCotizacion;
+  resultado: ResultadoEvaluacion;
   creadaEn: string;
 }

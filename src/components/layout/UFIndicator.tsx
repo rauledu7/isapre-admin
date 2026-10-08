@@ -4,14 +4,9 @@ import { TriangleAlertIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { formatCLP, parseMontoCL } from "@/lib/format";
+import { formatValorUF, parseMontoCL } from "@/lib/format";
 import { useUFStore } from "@/store/ufStore";
 import type { ValorUF } from "@/types/isapre";
-
-const ufFormatter = new Intl.NumberFormat("es-CL", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
 
 function formatFecha(fechaISO: string): string {
   const [anio, mes, dia] = fechaISO.split("-");
@@ -32,7 +27,7 @@ export function UFIndicator({ ufOficial }: { ufOficial: ValorUF | null }) {
     return (
       <div className="text-right leading-tight">
         <p className="text-sm font-semibold tabular-nums">
-          UF ${ufFormatter.format(ufOficial.valor)}
+          UF {formatValorUF(ufOficial.valor)}
         </p>
         <p className="text-xs text-muted-foreground">
           {formatFecha(ufOficial.fecha)} · mindicador.cl
@@ -62,7 +57,7 @@ export function UFIndicator({ ufOficial }: { ufOficial: ValorUF | null }) {
       </label>
       {manual && (
         <span className="hidden text-xs tabular-nums text-muted-foreground lg:inline">
-          = {formatCLP(manual.valor)} por UF
+          = {formatValorUF(manual.valor)} por UF
         </span>
       )}
     </div>

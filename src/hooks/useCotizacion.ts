@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { TABLA_FACTORES, TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
 import { evaluarCotizacion, type ResultadoEvaluacion } from "@/lib/calculators/cotizador";
-import { leerFormulario } from "@/lib/cotizadorForm";
+import { leerFormulario, type DatosCotizacion } from "@/lib/cotizadorForm";
 import { useCotizadorStore } from "@/store/cotizadorStore";
 import { useValorUF } from "@/store/ufStore";
 import type { ValorUF } from "@/types/isapre";
@@ -16,6 +16,7 @@ export type EstadoCotizacion =
   | {
       estado: "listo";
       valorUF: ValorUF;
+      datos: DatosCotizacion;
       resultado: ResultadoEvaluacion;
       planesIncompletos: string[];
     };
@@ -42,7 +43,13 @@ export function useCotizacion(): EstadoCotizacion {
         topeImponibleUF: TOPE_IMPONIBLE_SALUD_UF,
         tabla: TABLA_FACTORES,
       });
-      return { estado: "listo", valorUF, resultado, planesIncompletos: lectura.planesIncompletos };
+      return {
+        estado: "listo",
+        valorUF,
+        datos: lectura.datos,
+        resultado,
+        planesIncompletos: lectura.planesIncompletos,
+      };
     } catch (e) {
       return { estado: "error", mensaje: e instanceof Error ? e.message : "Error de cálculo" };
     }

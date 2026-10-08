@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
+import { formatEnteroInput } from "@/lib/format";
 import type { CargaForm, ClienteForm, PlanForm } from "@/types/cotizador";
+import type { Prospecto } from "@/types/isapre";
 
 export const MAX_PLANES = 3;
 
@@ -26,6 +28,8 @@ const planVacio = (): PlanForm => ({
 });
 
 interface CotizadorState {
+  /** Prospecto al que se asociará la cotización al guardarla. */
+  prospectoId: string | null;
   cliente: ClienteForm;
   cargas: CargaForm[];
   planes: PlanForm[];
@@ -37,9 +41,12 @@ interface CotizadorState {
   actualizarPlan: (id: string, cambios: Partial<Omit<PlanForm, "id">>) => void;
   eliminarPlan: (id: string) => void;
   reiniciar: () => void;
+  cargarDesdeProspecto: (prospecto: Prospecto) => void;
+  asociarProspecto: (prospectoId: string | null) => void;
 }
 
 export const useCotizadorStore = create<CotizadorState>()((set) => ({
+  prospectoId: null,
   cliente: clienteInicial(),
   cargas: [],
   planes: [planVacio()],
@@ -55,5 +62,20 @@ export const useCotizadorStore = create<CotizadorState>()((set) => ({
     set((s) => ({ planes: s.planes.map((p) => (p.id === id ? { ...p, ...cambios } : p)) })),
   eliminarPlan: (id) =>
     set((s) => (s.planes.length <= 1 ? s : { planes: s.planes.filter((p) => p.id !== id) })),
-  reiniciar: () => set({ cliente: clienteInicial(), cargas: [], planes: [planVacio()] }),
+  reiniciar: () =>
+    set({ prospectoId: null, cliente: clienteInicial(), cargas: [], planes: [planVacio()] }),
+  cargarDesdeProspecto: (p) =>
+    set({
+      prospectoId: p.id,
+      cliente: {
+        rentaImponibleCLP:
+          p.rentaImponibleCLP === null ? "" : formatEnteroInput(String(p.rentaImponibleCLP)),
+        edadTitular: p.edad?.toString() ?? "",
+        isapreActual: p.isapreActual,
+        precioPlanActualUF: "",
+      },
+      cargas: p.cargas.map((edad) => ({ id: nuevoId("carga"), edad: String(edad) })),
+      planes: [planVacio()],
+    }),
+  asociarProspecto: (prospectoId) => set({ prospectoId }),
 }));

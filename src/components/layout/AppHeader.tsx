@@ -5,6 +5,7 @@ import { obtenerValorUFOpcional } from "@/lib/indicators/uf";
 
 import { MobileNav } from "./MobileNav";
 import { UFIndicator } from "./UFIndicator";
+import { UserMenu } from "./UserMenu";
 
 const topeFormatter = new Intl.NumberFormat("es-CL", { minimumFractionDigits: 1 });
 
@@ -28,6 +29,8 @@ export function AppHeader() {
       <Suspense fallback={<p className="text-xs text-muted-foreground">Obteniendo UF…</p>}>
         <UFOficial />
       </Suspense>
+      <div className="h-8 w-px bg-border" />
+      <UserMenu />
     </header>
   );
 }

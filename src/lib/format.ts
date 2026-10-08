@@ -20,6 +20,26 @@ const factorFormatter = new Intl.NumberFormat("es-CL", {
   maximumFractionDigits: 2,
 });
 
+const fechaHoraFormatter = new Intl.DateTimeFormat("es-CL", {
+  timeZone: "America/Santiago",
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
+const valorUFFormatter = new Intl.NumberFormat("es-CL", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/** Valor de 1 UF en pesos: "$41.122,74". */
+export function formatValorUF(pesos: number): string {
+  return `$${valorUFFormatter.format(pesos)}`;
+}
+
+export function formatFechaHora(iso: string): string {
+  return fechaHoraFormatter.format(new Date(iso));
+}
+
 export function formatUF(valor: number): string {
   return `${ufFormatter.format(valor)} UF`;
 }
