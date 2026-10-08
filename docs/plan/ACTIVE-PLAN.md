@@ -12,7 +12,7 @@
 - [x] Diseñar Sidebar funcional y Header con indicador del valor de la UF personalizable.
 - [x] Crear formulario del **Cotizador Rápido** (Sueldo, Edad, Cargas, Isapre actual).
 - [x] Construir panel de resultados interactivo: Muestra 7% en UF vs. alternativas de planes y si genera excedentes o adicional.
-- [ ] Carga de planes desde PDF (pendiente definir qué datos extraer y PDFs de ejemplo).
+- [~] Carga de planes desde PDF: **postergada** hasta definir el formato de los PDF y los datos a extraer.
 
 ### Etapa 3: Embudo de Prospectos (CRM Liviano)
 - [ ] Configurar cliente de Supabase (o Mock Store con Zustand en Fase 1) para guardar prospectos.
