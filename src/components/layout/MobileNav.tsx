@@ -19,7 +19,10 @@ export function MobileNav() {
       >
         <MenuIcon />
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 bg-sidebar">
+      <SheetContent
+        side="left"
+        className="w-72 border-sidebar-border bg-sidebar text-sidebar-foreground [&_[data-slot=sheet-close]]:text-sidebar-foreground"
+      >
         <SheetHeader className="px-0">
           <SheetTitle className="sr-only">Menú</SheetTitle>
           <Brand />

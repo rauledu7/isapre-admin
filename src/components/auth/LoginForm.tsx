@@ -11,7 +11,7 @@ import { getSupabase } from "@/lib/supabase/client";
 
 /** Evita open redirects: solo rutas internas. */
 function destinoSeguro(next: string | null): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/cotizador";
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
 export function LoginForm() {

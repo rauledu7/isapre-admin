@@ -3,7 +3,9 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { CLASE_PUNTO_ETAPA } from "@/config/ui";
 import { agruparPorEtapa } from "@/lib/embudo";
+import { cn } from "@/lib/utils";
 import { useProspectosStore } from "@/store/prospectosStore";
 import type { EtapaEmbudo, Prospecto } from "@/types/isapre";
 
@@ -20,6 +22,7 @@ export function ListaProspectos({ etapas, prospectos }: { etapas: EtapaEmbudo[];
         .map(({ etapa, prospectos: lista }) => (
           <section key={etapa.id} aria-label={etapa.nombre} className="flex flex-col gap-2">
             <h2 className="flex items-center gap-2 text-sm font-medium">
+              <span aria-hidden className={cn("size-2 shrink-0 rounded-full", CLASE_PUNTO_ETAPA[etapa.tipo])} />
               {etapa.nombre}
               <Badge variant="secondary" className="tabular-nums">
                 {lista.length}

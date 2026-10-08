@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type DragEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { CLASE_PUNTO_ETAPA } from "@/config/ui";
 import { agruparPorEtapa } from "@/lib/embudo";
 import { cn } from "@/lib/utils";
 import { useProspectosStore } from "@/store/prospectosStore";
@@ -43,7 +44,10 @@ export function KanbanBoard({ etapas, prospectos }: { etapas: EtapaEmbudo[]; pro
           )}
         >
           <header className="flex items-center justify-between px-1 py-1">
-            <h2 className="truncate text-sm font-medium">{etapa.nombre}</h2>
+            <h2 className="flex min-w-0 items-center gap-2 text-sm font-medium">
+              <span aria-hidden className={cn("size-2 shrink-0 rounded-full", CLASE_PUNTO_ETAPA[etapa.tipo])} />
+              <span className="truncate">{etapa.nombre}</span>
+            </h2>
             <Badge variant="secondary" className="tabular-nums">
               {lista.length}
             </Badge>

@@ -26,6 +26,42 @@ export function intercambiarOrden(
   ];
 }
 
+export interface ConteoEtapa {
+  etapaId: string;
+  nombre: string;
+  tipo: EtapaEmbudo["tipo"];
+  cantidad: number;
+}
+
+export function contarPorEtapa(etapas: EtapaEmbudo[], prospectos: Prospecto[]): ConteoEtapa[] {
+  return agruparPorEtapa(etapas, prospectos).map(({ etapa, prospectos: lista }) => ({
+    etapaId: etapa.id,
+    nombre: etapa.nombre,
+    tipo: etapa.tipo,
+    cantidad: lista.length,
+  }));
+}
+
+export interface TotalesEmbudo {
+  total: number;
+  abiertos: number;
+  cerrados: number;
+  perdidos: number;
+}
+
+export function totalesEmbudo(conteos: ConteoEtapa[]): TotalesEmbudo {
+  return conteos.reduce<TotalesEmbudo>(
+    (acc, c) => {
+      acc.total += c.cantidad;
+      if (c.tipo === "ganada") acc.cerrados += c.cantidad;
+      else if (c.tipo === "perdida") acc.perdidos += c.cantidad;
+      else acc.abiertos += c.cantidad;
+      return acc;
+    },
+    { total: 0, abiertos: 0, cerrados: 0, perdidos: 0 },
+  );
+}
+
 export function siguienteOrden(etapas: EtapaEmbudo[]): number {
   return etapas.reduce((max, e) => Math.max(max, e.orden), 0) + 1;
 }

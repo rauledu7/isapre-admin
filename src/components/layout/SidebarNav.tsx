@@ -1,6 +1,6 @@
 "use client";
 
-import { CalculatorIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { CalculatorIcon, LayoutDashboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
@@ -16,6 +16,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboardIcon },
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
   { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
 ];
@@ -40,7 +41,7 @@ function NavLista({ pathname, onNavigate }: SidebarNavProps & { pathname: string
   return (
     <nav className="flex flex-col gap-1">
       {NAV_ITEMS.map(({ href, label, icon: Icon, proximamente }) => {
-        const activo = pathname?.startsWith(href) ?? false;
+        const activo = href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false);
         const clases = cn(
           "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
           activo

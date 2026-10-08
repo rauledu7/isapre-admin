@@ -44,7 +44,7 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
     return redirigir(destino);
   }
   if (autenticado && esPublica) {
-    return redirigir(new URL("/cotizador", request.url));
+    return redirigir(new URL("/", request.url));
   }
   return response;
 }

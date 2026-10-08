@@ -41,8 +41,8 @@ function Fila({ etiqueta, detalle, children }: { etiqueta: string; detalle?: str
 
 function BadgeDiferencia({ diferencia }: { diferencia: ResultadoDiferencia }) {
   const config = {
-    excedente: { texto: "Genera excedentes", clase: "bg-emerald-100 text-emerald-800" },
-    adicional: { texto: "Requiere cotización adicional", clase: "bg-amber-100 text-amber-900" },
+    excedente: { texto: "Genera excedentes", clase: "bg-exito/15 text-emerald-950" },
+    adicional: { texto: "Requiere cotización adicional", clase: "bg-pendiente/20 text-amber-950" },
     sin_diferencia: { texto: "Cubierto exacto por el 7%", clase: "bg-secondary text-secondary-foreground" },
   }[diferencia.tipo];
   return <Badge className={config.clase}>{config.texto}</Badge>;

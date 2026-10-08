@@ -8,7 +8,7 @@ export function Brand() {
       </span>
       <div className="leading-tight">
         <p className="text-sm font-semibold">IsapreAssistant</p>
-        <p className="text-xs text-muted-foreground">Copiloto del asesor</p>
+        <p className="text-xs text-current/70">Copiloto del asesor</p>
       </div>
     </div>
   );
