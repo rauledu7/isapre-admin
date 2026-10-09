@@ -18,21 +18,11 @@ function responder(origen: string | null, body: unknown, status: number) {
   return NextResponse.json(body, { status, headers });
 }
 
-/** Preflight del formulario en la página del asesor. */
+/** El navegador pregunta antes de enviar el formulario. La página se valida en el POST. */
 export async function OPTIONS(request: Request) {
   const origen = request.headers.get("origin");
-  const sitio = await sitioDelOrigen(origen);
-  if (!sitio || !origen) return new NextResponse(null, { status: 403 });
-  return new NextResponse(null, { status: 204, headers: cors(origen) });
-}
-
-async function sitioDelOrigen(origen: string | null): Promise<string | null> {
-  const sitio = normalizarSitio(origen ?? "");
-  if (!sitio) return null;
-  const admin = supabaseAdmin();
-  if (!admin) return null;
-  const { data } = await admin.from("perfiles_asesor").select("sitio_web").eq("sitio_web", sitio).maybeSingle();
-  return data?.sitio_web && mismoSitio(origen, data.sitio_web) ? data.sitio_web : null;
+  const headers = origen && normalizarSitio(origen) ? cors(origen) : undefined;
+  return new NextResponse(null, { status: 204, headers });
 }
 
 export async function POST(request: Request) {

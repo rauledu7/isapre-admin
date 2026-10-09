@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { normalizarSitio } from "@/lib/sitioWeb";
 import type { Database } from "@/types/database";
 
 import { supabaseEnv } from "./env";
@@ -8,8 +9,28 @@ import { supabaseEnv } from "./env";
 const RUTAS_PUBLICAS = ["/login"];
 const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads"];
 
+function corsLeads(origen: string | null): Headers {
+  const headers = new Headers();
+  if (origen && normalizarSitio(origen)) {
+    headers.set("Access-Control-Allow-Origin", origen);
+    headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    headers.set("Access-Control-Allow-Headers", "Content-Type");
+    headers.set("Vary", "Origin");
+  }
+  return headers;
+}
+
 /** Refresca la sesión en cada request y redirige según autenticación. */
 export async function actualizarSesion(request: NextRequest): Promise<NextResponse> {
+  const { pathname } = request.nextUrl;
+  if (pathname === "/api/v1/leads" || pathname.startsWith("/api/v1/leads/")) {
+    const headers = corsLeads(request.headers.get("origin"));
+    if (request.method === "OPTIONS") return new NextResponse(null, { status: 204, headers });
+    const paso = NextResponse.next({ request });
+    headers.forEach((valor, nombre) => paso.headers.set(nombre, valor));
+    return paso;
+  }
+
   let response = NextResponse.next({ request });
   let url: string;
   let key: string;
@@ -37,7 +58,7 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
   // getClaims valida el JWT; no ejecutar código entre createServerClient y esta llamada.
   const { data } = await supabase.auth.getClaims();
   const autenticado = Boolean(data?.claims);
-  const { pathname, search } = request.nextUrl;
+  const { search } = request.nextUrl;
   if (RUTAS_ABIERTAS.some((r) => pathname === r || pathname.startsWith(`${r}/`))) return response;
 
   const esPublica = RUTAS_PUBLICAS.some((r) => pathname.startsWith(r));

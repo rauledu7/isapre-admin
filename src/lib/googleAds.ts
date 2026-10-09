@@ -88,6 +88,12 @@ export function mensajeErrorGoogle(body: unknown, status: number): string {
       const mensaje = (error as { message?: unknown }).message;
       if (typeof mensaje === "string" && mensaje.trim() && mensaje !== "Unauthorized") return mensaje;
     }
+    const codigo = typeof error === "string" ? error : "";
+    if (codigo === "unauthorized_client") {
+      return "El refresh token no pertenece a este Client ID. Genera uno nuevo con ese mismo cliente de Google.";
+    }
+    if (codigo === "invalid_client") return "El client secret no corresponde a ese Client ID.";
+    if (codigo === "invalid_grant") return "El refresh token venció o fue revocado. Genera uno nuevo.";
     const descripcion = (body as { error_description?: unknown }).error_description;
     if (typeof descripcion === "string" && descripcion.trim() && descripcion !== "Unauthorized") return descripcion;
   }

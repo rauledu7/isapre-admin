@@ -35,6 +35,9 @@ describe("mensajeErrorGoogle", () => {
       ),
     ).toBe("The developer token is invalid.");
     expect(mensajeErrorGoogle({ error: { message: "Unauthorized" } }, 401)).toBe("Google rechazó las credenciales de la cuenta.");
+    expect(mensajeErrorGoogle({ error: "unauthorized_client", error_description: "Unauthorized" }, 401)).toBe(
+      "El refresh token no pertenece a este Client ID. Genera uno nuevo con ese mismo cliente de Google.",
+    );
   });
 });
 
