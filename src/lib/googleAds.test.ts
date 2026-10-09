@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { rangoMetricasAds, sumarMetricasAds } from "./googleAds";
+import { mensajeErrorGoogle, rangoMetricasAds, sumarMetricasAds, versionAds } from "./googleAds";
 
 describe("rangoMetricasAds", () => {
   it("usa los últimos 30 días si no hay fechas", () => {
@@ -11,6 +11,30 @@ describe("rangoMetricasAds", () => {
     expect(rangoMetricasAds("2026-10-09", "2026-03-12", "2026-10-09")).toEqual({
       error: "La fecha inicial es posterior a la final",
     });
+  });
+});
+
+describe("versionAds", () => {
+  it("cambia la versión apagada por la vigente", () => {
+    expect(versionAds("v21")).toBe("v25");
+    expect(versionAds("v25")).toBe("v25");
+  });
+});
+
+describe("mensajeErrorGoogle", () => {
+  it("usa el detalle de Google y no el Unauthorized genérico", () => {
+    expect(
+      mensajeErrorGoogle(
+        {
+          error: {
+            message: "Unauthorized",
+            details: [{ errors: [{ message: "The developer token is invalid." }] }],
+          },
+        },
+        401,
+      ),
+    ).toBe("The developer token is invalid.");
+    expect(mensajeErrorGoogle({ error: { message: "Unauthorized" } }, 401)).toBe("Google rechazó las credenciales de la cuenta.");
   });
 });
 

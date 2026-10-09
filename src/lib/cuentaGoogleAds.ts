@@ -45,7 +45,7 @@ const VACIA: VistaCuentaGoogleAds = {
   loginCustomerId: "",
   conversionActionId: "",
   currency: "CLF",
-  apiVersion: "v21",
+  apiVersion: "v25",
   tieneDeveloperToken: false,
   tieneClientSecret: false,
   tieneRefreshToken: false,
@@ -116,7 +116,7 @@ export function fusionarCuenta(
   const loginCustomerId = digitos(form.loginCustomerId);
   const conversionActionId = digitos(form.conversionActionId);
   const currency = (form.currency.trim() || "CLF").toUpperCase();
-  const apiVersion = form.apiVersion.trim() || "v21";
+  const apiVersion = form.apiVersion.trim() || "v25";
 
   if (!developerToken) errores.developerToken = "Falta el developer token";
   else if (developerToken.length > 200) errores.developerToken = "El developer token es demasiado largo";
@@ -132,7 +132,7 @@ export function fusionarCuenta(
   if (!conversionActionId) errores.conversionActionId = "Falta el ID de la acción de conversión";
   else if (conversionActionId.length > 20) errores.conversionActionId = "El ID de conversión es demasiado largo";
   if (!/^[A-Z]{3}$/.test(currency)) errores.currency = "Usa un código de 3 letras, por ejemplo CLF";
-  if (!/^v\d{1,3}$/.test(apiVersion)) errores.apiVersion = "La versión debe verse como v21";
+  if (!/^v\d{1,3}$/.test(apiVersion)) errores.apiVersion = "La versión debe verse como v25";
 
   if (Object.keys(errores).length > 0) return { ok: false, errores };
   return {

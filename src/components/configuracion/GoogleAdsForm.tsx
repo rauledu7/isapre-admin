@@ -22,7 +22,7 @@ const VACIO = {
   loginCustomerId: "",
   conversionActionId: "",
   currency: "CLF",
-  apiVersion: "v21",
+  apiVersion: "v25",
 };
 
 export function GoogleAdsForm() {
@@ -52,7 +52,7 @@ export function GoogleAdsForm() {
           loginCustomerId: json.loginCustomerId,
           conversionActionId: json.conversionActionId,
           currency: json.currency || "CLF",
-          apiVersion: json.apiVersion || "v21",
+          apiVersion: json.apiVersion || "v25",
         }));
       })
       .catch(() => {
@@ -81,7 +81,7 @@ export function GoogleAdsForm() {
           loginCustomerId: form.loginCustomerId || null,
           conversionActionId: form.conversionActionId,
           currency: form.currency || "CLF",
-          apiVersion: form.apiVersion || "v21",
+          apiVersion: form.apiVersion || "v25",
         }
       : null;
     const lectura = fusionarCuenta(anterior, formularioDesde(form));

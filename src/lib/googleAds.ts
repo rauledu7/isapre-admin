@@ -63,6 +63,39 @@ export function sumarMetricasAds(filas: FilaAds[], monedaPorDefecto: string): Re
   };
 }
 
+/** v21 quedó fuera de servicio el 5 de agosto de 2026. v22 cierra en octubre de 2026. */
+const VERSIONES_VIGENTES = new Set(["v23", "v24", "v25"]);
+
+export function versionAds(guardada: string): string {
+  return VERSIONES_VIGENTES.has(guardada) ? guardada : "v25";
+}
+
+export function mensajeErrorGoogle(body: unknown, status: number): string {
+  if (body && typeof body === "object") {
+    const error = (body as { error?: unknown }).error;
+    if (error && typeof error === "object") {
+      const detalles = (error as { details?: unknown }).details;
+      if (Array.isArray(detalles)) {
+        for (const detalle of detalles) {
+          const errores = detalle && typeof detalle === "object" ? (detalle as { errors?: unknown }).errors : undefined;
+          if (!Array.isArray(errores)) continue;
+          for (const item of errores) {
+            const mensaje = item && typeof item === "object" ? (item as { message?: unknown }).message : undefined;
+            if (typeof mensaje === "string" && mensaje.trim()) return mensaje;
+          }
+        }
+      }
+      const mensaje = (error as { message?: unknown }).message;
+      if (typeof mensaje === "string" && mensaje.trim() && mensaje !== "Unauthorized") return mensaje;
+    }
+    const descripcion = (body as { error_description?: unknown }).error_description;
+    if (typeof descripcion === "string" && descripcion.trim() && descripcion !== "Unauthorized") return descripcion;
+  }
+  if (status === 401) return "Google rechazó las credenciales de la cuenta.";
+  if (status === 404) return "Google ya no acepta esta versión de la API.";
+  return "Google Ads no entregó las cifras";
+}
+
 /** "yyyy-mm-dd HH:mm:ss±HH:mm" en hora de Chile, el formato que pide Google Ads. */
 export function fechaConversionAds(ahora: Date): string {
   const partes = new Intl.DateTimeFormat("en-CA", {
@@ -96,9 +129,9 @@ async function accessToken(cuenta: CuentaGoogleAds): Promise<string> {
       grant_type: "refresh_token",
     }),
   });
-  const json = (await respuesta.json()) as { access_token?: string; error_description?: string };
-  if (!respuesta.ok || !json.access_token) {
-    throw new Error(json.error_description || "No se pudo renovar el token de Google Ads");
+  const json = (await respuesta.json().catch(() => null)) as { access_token?: string } | null;
+  if (!respuesta.ok || !json?.access_token) {
+    throw new Error(mensajeErrorGoogle(json, respuesta.status));
   }
   return json.access_token;
 }
@@ -119,7 +152,7 @@ export async function enviarConversionOffline(
 ): Promise<void> {
   const id = cuenta.customerId;
   const token = await accessToken(cuenta);
-  const respuesta = await fetch(`https://googleads.googleapis.com/${cuenta.apiVersion}/customers/${id}:uploadClickConversions`, {
+  const respuesta = await fetch(`https://googleads.googleapis.com/${versionAds(cuenta.apiVersion)}/customers/${id}:uploadClickConversions`, {
     method: "POST",
     headers: headers(cuenta, token),
     body: JSON.stringify({
@@ -135,31 +168,25 @@ export async function enviarConversionOffline(
       ],
     }),
   });
-  const json = (await respuesta.json()) as {
-    error?: { message?: string };
-    partialFailureError?: { message?: string };
-  };
-  if (!respuesta.ok || json.partialFailureError) {
-    throw new Error(json.partialFailureError?.message || json.error?.message || "Google Ads rechazó la conversión");
+  const json = (await respuesta.json().catch(() => null)) as { partialFailureError?: { message?: string } } | null;
+  if (!respuesta.ok || json?.partialFailureError) {
+    throw new Error(json?.partialFailureError?.message || mensajeErrorGoogle(json, respuesta.status));
   }
 }
 
 export async function resumenCuentaAds(cuenta: CuentaGoogleAds, desde: string, hasta: string): Promise<ResumenAds> {
   const id = cuenta.customerId;
   const token = await accessToken(cuenta);
-  const respuesta = await fetch(`https://googleads.googleapis.com/${cuenta.apiVersion}/customers/${id}/googleAds:search`, {
+  const respuesta = await fetch(`https://googleads.googleapis.com/${versionAds(cuenta.apiVersion)}/customers/${id}/googleAds:search`, {
     method: "POST",
     headers: headers(cuenta, token),
     body: JSON.stringify({
       query: `SELECT customer.currency_code, metrics.impressions, metrics.clicks, metrics.interactions, metrics.conversions, metrics.cost_micros FROM customer WHERE segments.date BETWEEN '${desde}' AND '${hasta}'`,
     }),
   });
-  const json = (await respuesta.json()) as {
-    error?: { message?: string };
-    results?: FilaAds[];
-  };
-  if (!respuesta.ok) {
-    throw new Error(json.error?.message || "Google Ads no entregó las cifras");
+  const json = (await respuesta.json().catch(() => null)) as { results?: FilaAds[] } | null;
+  if (!respuesta.ok || !json) {
+    throw new Error(mensajeErrorGoogle(json, respuesta.status));
   }
   return sumarMetricasAds(json.results ?? [], cuenta.currency);
 }

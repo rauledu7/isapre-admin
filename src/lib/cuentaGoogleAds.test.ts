@@ -11,7 +11,7 @@ const COMPLETA: CuentaGoogleAds = {
   loginCustomerId: null,
   conversionActionId: "99",
   currency: "CLF",
-  apiVersion: "v21",
+  apiVersion: "v25",
 };
 
 describe("fusionarCuenta", () => {
