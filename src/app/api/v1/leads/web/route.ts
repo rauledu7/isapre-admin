@@ -43,7 +43,13 @@ export async function POST(request: Request) {
     return responder(origen, { error: "Esta página no está vinculada a un asesor." }, 403);
   }
 
-  const body = await request.json().catch(() => null);
+  const texto = await request.text().catch(() => "");
+  let body: unknown = null;
+  try {
+    body = texto.trim() ? JSON.parse(texto) : null;
+  } catch {
+    body = null;
+  }
   const lectura = leerLead(body);
   if (!lectura.ok) return responder(origen, { errores: lectura.errores }, 422);
 
