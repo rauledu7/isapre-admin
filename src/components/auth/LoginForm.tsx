@@ -43,12 +43,12 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Ingresar</CardTitle>
-        <CardDescription>Accede con tu cuenta de asesor.</CardDescription>
+    <Card className="border-0 bg-transparent shadow-none ring-0">
+      <CardHeader className="px-0">
+        <CardTitle className="text-2xl tracking-tight">Ingresar</CardTitle>
+        <CardDescription>Usa el correo y la contraseña de tu cuenta.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { UFOficial } from "@/components/layout/UFOficial";
 import { VistaPropuesta } from "@/components/propuesta/VistaPropuesta";
 
-export const metadata: Metadata = { title: "Propuesta · IsapreAssistant" };
+export const metadata: Metadata = { title: "Propuesta" };
 
 export default function PropuestaPage() {
   return (

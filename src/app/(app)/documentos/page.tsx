@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { DocumentosView } from "@/components/documentos/DocumentosView";
 
-export const metadata: Metadata = { title: "Documentos · IsapreAssistant" };
+export const metadata: Metadata = { title: "Documentos" };
 
 export default function DocumentosPage() {
   return (

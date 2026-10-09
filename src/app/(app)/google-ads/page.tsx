@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { GoogleAdsForm } from "@/components/configuracion/GoogleAdsForm";
 
-export const metadata: Metadata = { title: "Google Ads · IsapreAssistant" };
+export const metadata: Metadata = { title: "Google Ads" };
 
 export default function GoogleAdsPage() {
   return (

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { FichaProspecto } from "@/components/crm/FichaProspecto";
 
-export const metadata: Metadata = { title: "Ficha de prospecto · IsapreAssistant" };
+export const metadata: Metadata = { title: "Ficha de prospecto" };
 
 export default function FichaProspectoPage() {
   return (

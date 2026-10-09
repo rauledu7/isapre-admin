@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { Cotizador } from "@/components/calculator/Cotizador";
 
-export const metadata: Metadata = { title: "Cotizador Rápido · IsapreAssistant" };
+export const metadata: Metadata = { title: "Cotizador Rápido" };
 
 export default function CotizadorPage() {
   return (

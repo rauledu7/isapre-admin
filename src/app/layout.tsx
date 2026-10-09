@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { MARCA, MARCA_DESCRIPCION } from "@/config/marca";
 import { envPublico } from "@/lib/supabase/env";
 
 import "./globals.css";
@@ -18,8 +19,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IsapreAssistant",
-  description: "Copiloto comercial para asesores de Isapre",
+  title: { default: MARCA, template: `%s · ${MARCA}` },
+  description: MARCA_DESCRIPCION,
+  applicationName: MARCA,
 };
 
 async function VariablesPublicas() {

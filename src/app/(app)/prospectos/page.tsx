@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { ProspectosView } from "@/components/crm/ProspectosView";
 
-export const metadata: Metadata = { title: "Prospectos · IsapreAssistant" };
+export const metadata: Metadata = { title: "Prospectos" };
 
 export default function ProspectosPage() {
   return (
