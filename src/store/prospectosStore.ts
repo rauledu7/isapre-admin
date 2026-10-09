@@ -17,6 +17,7 @@ interface ProspectosState {
   prospectos: Prospecto[];
   cargar: (forzar?: boolean) => Promise<void>;
   crearProspecto: (datos: ProspectoDatos) => Promise<Prospecto>;
+  importarProspectos: (lista: ProspectoDatos[]) => Promise<Prospecto[]>;
   actualizarProspecto: (id: string, cambios: Partial<ProspectoDatos>) => Promise<Prospecto>;
   moverProspecto: (id: string, etapaId: string) => Promise<void>;
   eliminarProspecto: (id: string) => Promise<void>;
@@ -54,6 +55,18 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
     const p = await db.crearProspecto(getSupabase(), { ...datos, cerradoEn });
     set((s) => ({ prospectos: [p, ...s.prospectos] }));
     return p;
+  },
+
+  importarProspectos: async (lista) => {
+    const hoy = fechaHoy(new Date());
+    const etapas = get().etapas;
+    const conCierre = lista.map((datos) => ({
+      ...datos,
+      cerradoEn: datos.cerradoEn ?? cierreAlCrear(datos.etapaId, etapas, hoy),
+    }));
+    const creados = await db.crearProspectos(getSupabase(), conCierre);
+    set((s) => ({ prospectos: [...creados, ...s.prospectos] }));
+    return creados;
   },
 
   actualizarProspecto: async (id, cambios) => {

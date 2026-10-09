@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnsIcon, ListIcon, PlusIcon, SearchIcon, Settings2Icon, XIcon } from "lucide-react";
+import { ColumnsIcon, FileUpIcon, ListIcon, PlusIcon, SearchIcon, Settings2Icon, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -12,6 +12,7 @@ import { filtrarProspectos } from "@/lib/busqueda";
 import { cn } from "@/lib/utils";
 
 import { EtapasDialog } from "./EtapasDialog";
+import { ImportarDialog } from "./ImportarDialog";
 import { KanbanBoard } from "./KanbanBoard";
 import { ListaProspectos } from "./ListaProspectos";
 import { ProspectoFormDialog } from "./ProspectoFormDialog";
@@ -23,6 +24,7 @@ export function ProspectosView() {
   const { estado, error, etapas, prospectos, recargar } = useProspectos();
   const [vista, setVista] = useState<Vista>("kanban");
   const [nuevoAbierto, setNuevoAbierto] = useState(false);
+  const [importarAbierto, setImportarAbierto] = useState(false);
   const [etapasAbierto, setEtapasAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const filtrados = useMemo(() => filtrarProspectos(prospectos, busqueda), [prospectos, busqueda]);
@@ -48,6 +50,9 @@ export function ProspectosView() {
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={() => setNuevoAbierto(true)}>
           <PlusIcon /> Nuevo prospecto
+        </Button>
+        <Button variant="outline" onClick={() => setImportarAbierto(true)}>
+          <FileUpIcon /> Importar
         </Button>
         <Button variant="outline" onClick={() => setEtapasAbierto(true)}>
           <Settings2Icon /> Etapas
@@ -105,7 +110,7 @@ export function ProspectosView() {
       {prospectos.length === 0 ? (
         <Card>
           <CardContent className="py-6 text-center text-sm text-muted-foreground">
-            Aún no tienes prospectos. Crea el primero o guarda una cotización desde el Cotizador.
+            Aún no tienes prospectos. Crea el primero, impórtalos o guarda una cotización desde el Cotizador.
           </CardContent>
         </Card>
       ) : filtrados.length === 0 ? (
@@ -135,6 +140,7 @@ export function ProspectosView() {
         onOpenChange={setNuevoAbierto}
         onGuardado={(p) => router.push(`/prospectos/${p.id}`)}
       />
+      <ImportarDialog open={importarAbierto} onOpenChange={setImportarAbierto} />
       <EtapasDialog open={etapasAbierto} onOpenChange={setEtapasAbierto} />
     </div>
   );

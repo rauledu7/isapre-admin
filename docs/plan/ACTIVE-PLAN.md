@@ -1,6 +1,6 @@
 # PLAN ACTIVO: IsapreAssistant
 
-## Estado: [IN_PROGRESS]
+## Estado: [COMPLETADO]
 
 El plan anterior (etapas 1 a 5) quedó en `PLAN-EJECUTADO-v1.md`.
 
@@ -16,6 +16,7 @@ El plan anterior (etapas 1 a 5) quedó en `PLAN-EJECUTADO-v1.md`.
 - [x] Verificación contra Supabase (correr `supabase/migrations/20261008220000_paso2_metas_calendario.sql`).
 
 ### Paso 3: Importación masiva (CSV / XLS)
-- [ ] Modal de carga con drag-and-drop.
-- [ ] Campos: Nombre, RUT, Teléfono, Email, Renta imponible, Isapre actual, Cargas, Etapa inicial.
-- [ ] Validación con reporte previo: ignorar filas corruptas o sin nombre y teléfono.
+- [x] Modal de carga con drag-and-drop.
+- [x] Campos: Nombre, RUT, Teléfono, Email, Renta imponible, Isapre actual, Cargas, Etapa inicial.
+- [x] Validación con reporte previo: ignorar filas corruptas o sin nombre y teléfono.
+- El RUT es obligatorio: sin él la fila no se puede guardar. La etapa vacía usa la primera del embudo. Una etapa ganada cuenta el contrato en el mes de la importación.

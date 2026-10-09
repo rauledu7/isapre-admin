@@ -147,6 +147,14 @@ export async function crearProspecto(sb: Supabase, datos: ProspectoDatos): Promi
   return aProspecto(data);
 }
 
+export async function crearProspectos(sb: Supabase, lista: ProspectoDatos[]): Promise<Prospecto[]> {
+  if (lista.length === 0) return [];
+  const filas = lista.map((datos) => aFila(datos) as Tablas["prospectos"]["Insert"]);
+  const { data, error } = await sb.from("prospectos").insert(filas).select();
+  if (error) fallar(error, "No se pudieron importar los prospectos");
+  return data.map(aProspecto);
+}
+
 export async function actualizarProspecto(
   sb: Supabase,
   id: string,
