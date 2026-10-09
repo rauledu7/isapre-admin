@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { esFechaISO, fechaISO, formatFecha, instanteEnChile } from "./fecha";
+import { esFechaISO, fechaISO, formatFecha, instanteEnChile, sumarDias } from "./fecha";
 
 describe("fecha", () => {
   it("usa el día en Chile, no el del UTC", () => {
@@ -22,6 +22,11 @@ describe("fecha", () => {
       hourCycle: "h23",
     }).format(instante);
     expect(hora).toBe("10:15");
+  });
+
+  it("suma días de calendario sin correr la zona", () => {
+    expect(sumarDias("2026-10-09", -29)).toBe("2026-09-10");
+    expect(sumarDias("2026-03-01", -1)).toBe("2026-02-28");
   });
 
   it("rechaza fechas imposibles", () => {

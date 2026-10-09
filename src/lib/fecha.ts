@@ -48,6 +48,16 @@ export function esHora(valor: string): boolean {
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(valor);
 }
 
+/** Suma días de calendario a una fecha YYYY-MM-DD, sin interpretarla en hora local. */
+export function sumarDias(iso: string, dias: number): string {
+  if (!esFechaISO(iso)) return iso;
+  const [anio, mes, dia] = iso.split("-").map(Number) as [number, number, number];
+  const fecha = new Date(Date.UTC(anio, mes - 1, dia + dias));
+  const mesNuevo = String(fecha.getUTCMonth() + 1).padStart(2, "0");
+  const diaNuevo = String(fecha.getUTCDate()).padStart(2, "0");
+  return `${fecha.getUTCFullYear()}-${mesNuevo}-${diaNuevo}`;
+}
+
 export function esFechaISO(valor: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
   const [anio, mes, dia] = valor.split("-").map(Number) as [number, number, number];

@@ -112,7 +112,7 @@ export function DashboardView() {
         </CardContent>
       </Card>
 
-      <CampanasAds etapas={etapas} prospectos={prospectos} />
+      <CampanasAds />
     </div>
   );
 }

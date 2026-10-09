@@ -1,9 +1,66 @@
 import type { CuentaGoogleAds } from "@/lib/cuentaGoogleAds";
+import { esFechaISO, sumarDias } from "@/lib/fecha";
 
-export interface MetricaGoogle {
-  nombre: string;
+export interface ResumenAds {
+  moneda: string;
+  impresiones: number;
   clics: number;
-  gasto: number;
+  interacciones: number;
+  conversiones: number;
+  costo: number;
+  cpc: number | null;
+}
+
+interface FilaAds {
+  customer?: { currencyCode?: string };
+  metrics?: {
+    impressions?: string;
+    clicks?: string;
+    interactions?: string;
+    conversions?: string | number;
+    costMicros?: string;
+  };
+}
+
+/** Rango inclusivo. Sin fechas, los últimos 30 días hasta `hoy`. */
+export function rangoMetricasAds(
+  desde: string | null,
+  hasta: string | null,
+  hoy: string,
+): { desde: string; hasta: string } | { error: string } {
+  if (!esFechaISO(hoy)) return { error: "Fecha inválida" };
+  const fin = hasta == null || hasta === "" ? hoy : hasta;
+  const inicio = desde == null || desde === "" ? sumarDias(fin, -29) : desde;
+  if (!esFechaISO(inicio) || !esFechaISO(fin)) return { error: "Fecha inválida" };
+  if (inicio > fin) return { error: "La fecha inicial es posterior a la final" };
+  return { desde: inicio, hasta: fin };
+}
+
+export function sumarMetricasAds(filas: FilaAds[], monedaPorDefecto: string): ResumenAds {
+  let impresiones = 0;
+  let clics = 0;
+  let interacciones = 0;
+  let conversiones = 0;
+  let costoMicros = 0;
+  let moneda = monedaPorDefecto;
+  for (const fila of filas) {
+    impresiones += Number(fila.metrics?.impressions ?? 0);
+    clics += Number(fila.metrics?.clicks ?? 0);
+    interacciones += Number(fila.metrics?.interactions ?? 0);
+    conversiones += Number(fila.metrics?.conversions ?? 0);
+    costoMicros += Number(fila.metrics?.costMicros ?? 0);
+    if (fila.customer?.currencyCode) moneda = fila.customer.currencyCode;
+  }
+  const costo = costoMicros / 1_000_000;
+  return {
+    moneda,
+    impresiones,
+    clics,
+    interacciones,
+    conversiones,
+    costo,
+    cpc: clics > 0 ? costo / clics : null,
+  };
 }
 
 /** "yyyy-mm-dd HH:mm:ss±HH:mm" en hora de Chile, el formato que pide Google Ads. */
@@ -87,29 +144,22 @@ export async function enviarConversionOffline(
   }
 }
 
-export async function metricasCampanas(cuenta: CuentaGoogleAds): Promise<MetricaGoogle[] | null> {
+export async function resumenCuentaAds(cuenta: CuentaGoogleAds, desde: string, hasta: string): Promise<ResumenAds> {
   const id = cuenta.customerId;
   const token = await accessToken(cuenta);
   const respuesta = await fetch(`https://googleads.googleapis.com/${cuenta.apiVersion}/customers/${id}/googleAds:search`, {
     method: "POST",
     headers: headers(cuenta, token),
     body: JSON.stringify({
-      query:
-        "SELECT campaign.name, metrics.clicks, metrics.cost_micros FROM campaign WHERE segments.date DURING THIS_MONTH",
+      query: `SELECT customer.currency_code, metrics.impressions, metrics.clicks, metrics.interactions, metrics.conversions, metrics.cost_micros FROM customer WHERE segments.date BETWEEN '${desde}' AND '${hasta}'`,
     }),
   });
-  if (!respuesta.ok) return null;
   const json = (await respuesta.json()) as {
-    results?: { campaign?: { name?: string }; metrics?: { clicks?: string; costMicros?: string } }[];
+    error?: { message?: string };
+    results?: FilaAds[];
   };
-  const porNombre = new Map<string, MetricaGoogle>();
-  for (const fila of json.results ?? []) {
-    const nombre = fila.campaign?.name?.trim();
-    if (!nombre) continue;
-    const actual = porNombre.get(nombre) ?? { nombre, clics: 0, gasto: 0 };
-    actual.clics += Number(fila.metrics?.clicks ?? 0);
-    actual.gasto += Number(fila.metrics?.costMicros ?? 0) / 1_000_000;
-    porNombre.set(nombre, actual);
+  if (!respuesta.ok) {
+    throw new Error(json.error?.message || "Google Ads no entregó las cifras");
   }
-  return [...porNombre.values()];
+  return sumarMetricasAds(json.results ?? [], cuenta.currency);
 }

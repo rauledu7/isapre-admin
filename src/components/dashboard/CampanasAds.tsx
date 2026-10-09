@@ -1,86 +1,119 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { conMetricas, costoPorLead, resumenCampanas, type MetricaGoogle } from "@/lib/adquisicion";
-import { formatUF } from "@/lib/format";
-import type { EtapaEmbudo, Prospecto } from "@/types/isapre";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useFechaHoy } from "@/hooks/useFechaHoy";
+import { sumarDias } from "@/lib/fecha";
+import type { ResumenAds } from "@/lib/googleAds";
 
-const numero = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 0 });
-const dinero = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 2 });
+const entero = new Intl.NumberFormat("es-CL", { maximumFractionDigits: 0 });
+const conversiones = new Intl.NumberFormat("es-CL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function celda(valor: number | null): string {
-  return valor === null ? "—" : numero.format(valor);
+function dinero(valor: number, moneda: string): string {
+  try {
+    return new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: moneda,
+      maximumFractionDigits: moneda === "CLP" ? 0 : 2,
+    }).format(valor);
+  } catch {
+    return `${moneda} ${entero.format(valor)}`;
+  }
 }
 
-export function CampanasAds({ etapas, prospectos }: { etapas: EtapaEmbudo[]; prospectos: Prospecto[] }) {
-  const [google, setGoogle] = useState<MetricaGoogle[] | null>(null);
+export function CampanasAds() {
+  const hoy = useFechaHoy();
+  const [elegido, setElegido] = useState<{ desde: string; hasta: string } | null>(null);
+  const desde = elegido?.desde ?? (hoy ? sumarDias(hoy, -29) : "");
+  const hasta = elegido?.hasta ?? hoy ?? "";
+  const [resumen, setResumen] = useState<ResumenAds | null>(null);
+  const [conectado, setConectado] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!desde || !hasta || desde > hasta) return;
     let vivo = true;
-    void fetch("/api/ads/metricas")
-      .then((respuesta) => (respuesta.ok ? respuesta.json() : null))
-      .then((json: { conectado?: boolean; metricas?: MetricaGoogle[] } | null) => {
-        if (!vivo || !json?.conectado) return;
-        setGoogle(json.metricas ?? []);
+    void fetch(`/api/ads/metricas?desde=${desde}&hasta=${hasta}`)
+      .then((respuesta) => respuesta.json())
+      .then((json: { conectado?: boolean; resumen?: ResumenAds; error?: string }) => {
+        if (!vivo) return;
+        setConectado(Boolean(json.conectado));
+        setResumen(json.resumen ?? null);
+        setError(json.error ?? null);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (vivo) setError("No se pudo leer Google Ads");
+      });
     return () => {
       vivo = false;
     };
-  }, []);
+  }, [desde, hasta]);
 
-  const filas = conMetricas(resumenCampanas(prospectos, etapas), google);
+  const celdas = resumen
+    ? [
+        { etiqueta: "Conversiones", valor: conversiones.format(resumen.conversiones) },
+        { etiqueta: "Impresiones", valor: entero.format(resumen.impresiones) },
+        { etiqueta: "Costo", valor: dinero(resumen.costo, resumen.moneda) },
+        { etiqueta: "Clics", valor: entero.format(resumen.clics) },
+        { etiqueta: "Interacciones", valor: entero.format(resumen.interacciones) },
+        { etiqueta: "CPC promedio", valor: resumen.cpc === null ? "—" : dinero(resumen.cpc, resumen.moneda) },
+      ]
+    : [];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Campañas</CardTitle>
-        <CardDescription>
-          Leads y UF cerradas por campaña. Clics y gasto salen de Google Ads del mes en curso; sin la cuenta
-          conectada quedan en —.
-        </CardDescription>
+        <CardTitle>Google Ads</CardTitle>
+        <CardDescription>Cifras de la cuenta en el rango elegido. No usa los prospectos.</CardDescription>
       </CardHeader>
-      <CardContent>
-        {filas.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Todavía no hay prospectos para agrupar.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="py-2 pr-3 font-medium">Campaña</th>
-                  <th className="py-2 pr-3 text-right font-medium">Clics</th>
-                  <th className="py-2 pr-3 text-right font-medium">Leads</th>
-                  <th className="py-2 pr-3 text-right font-medium">Gasto</th>
-                  <th className="py-2 pr-3 text-right font-medium">Costo por lead</th>
-                  <th className="py-2 pr-3 text-right font-medium">Cierres</th>
-                  <th className="py-2 text-right font-medium">UF cerradas</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filas.map((fila) => {
-                  const costo = costoPorLead(fila.gasto, fila.leads);
-                  return (
-                    <tr key={fila.campana} className="border-b last:border-0">
-                      <td className="py-2 pr-3">{fila.campana}</td>
-                      <td className="py-2 pr-3 text-right tabular-nums">{celda(fila.clics)}</td>
-                      <td className="py-2 pr-3 text-right tabular-nums">{numero.format(fila.leads)}</td>
-                      <td className="py-2 pr-3 text-right tabular-nums">
-                        {fila.gasto === null ? "—" : dinero.format(fila.gasto)}
-                      </td>
-                      <td className="py-2 pr-3 text-right tabular-nums">
-                        {costo === null ? "—" : dinero.format(costo)}
-                      </td>
-                      <td className="py-2 pr-3 text-right tabular-nums">{numero.format(fila.cierres)}</td>
-                      <td className="py-2 text-right tabular-nums">{formatUF(fila.ufCerradas)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="ads-desde">Desde</Label>
+            <Input
+              id="ads-desde"
+              type="date"
+              value={desde}
+              max={hasta || undefined}
+              onChange={(e) => setElegido({ desde: e.target.value, hasta })}
+            />
           </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="ads-hasta">Hasta</Label>
+            <Input
+              id="ads-hasta"
+              type="date"
+              value={hasta}
+              min={desde || undefined}
+              max={hoy || undefined}
+              onChange={(e) => setElegido({ desde, hasta: e.target.value })}
+            />
+          </div>
+        </div>
+        {desde > hasta && <p className="text-sm text-destructive">La fecha inicial es posterior a la final.</p>}
+        {conectado === false && (
+          <p className="text-sm text-muted-foreground">
+            Conecta la cuenta en <Link href="/google-ads" className="underline">Google Ads</Link> para ver estas cifras.
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        {celdas.length > 0 && (
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {celdas.map((celda) => (
+              <div key={celda.etiqueta} className="rounded-lg border px-3 py-2">
+                <dt className="text-xs text-muted-foreground">{celda.etiqueta}</dt>
+                <dd className="mt-1 text-lg font-semibold tabular-nums">{celda.valor}</dd>
+              </div>
+            ))}
+          </dl>
         )}
       </CardContent>
     </Card>
