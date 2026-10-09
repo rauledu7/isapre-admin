@@ -25,7 +25,7 @@ export interface ProspectoForm {
   utmKw: string;
 }
 
-export type ProspectoDatos = Omit<Prospecto, "id" | "creadoEn" | "actualizadoEn" | "adsConversionEn">;
+export type ProspectoDatos = Omit<Prospecto, "id" | "creadoEn" | "actualizadoEn" | "adsConversionEn" | "origen">;
 
 export type ErroresProspecto = Partial<Record<keyof ProspectoForm, string>>;
 

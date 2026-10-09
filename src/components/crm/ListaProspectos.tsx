@@ -10,7 +10,7 @@ import { useProspectosStore } from "@/store/prospectosStore";
 import type { EtapaEmbudo, Prospecto } from "@/types/isapre";
 
 import { EtapaSelect } from "./EtapaSelect";
-import { ProspectoResumen } from "./ProspectoResumen";
+import { MarcaWeb, ProspectoResumen } from "./ProspectoResumen";
 
 export function ListaProspectos({ etapas, prospectos }: { etapas: EtapaEmbudo[]; prospectos: Prospecto[] }) {
   const mover = useProspectosStore((s) => s.moverProspecto);
@@ -32,7 +32,10 @@ export function ListaProspectos({ etapas, prospectos }: { etapas: EtapaEmbudo[];
               {lista.map((p) => (
                 <li key={p.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <Link href={`/prospectos/${p.id}`} className="flex flex-col gap-1 hover:underline">
-                    <span className="text-sm font-medium">{p.nombre}</span>
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      {p.nombre}
+                      <MarcaWeb origen={p.origen} />
+                    </span>
                     <ProspectoResumen prospecto={p} />
                   </Link>
                   <EtapaSelect

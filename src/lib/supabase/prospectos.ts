@@ -62,6 +62,7 @@ const aProspecto = (r: ProspectoRow): Prospecto => ({
   utmCampaign: r.utm_campaign ?? null,
   utmKw: r.utm_kw ?? null,
   adsConversionEn: r.ads_conversion_en ?? null,
+  origen: r.origen === "web" ? "web" : null,
   creadoEn: r.created_at,
   actualizadoEn: r.updated_at,
 });

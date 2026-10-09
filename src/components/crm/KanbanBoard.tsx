@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { useProspectosStore } from "@/store/prospectosStore";
 import type { EtapaEmbudo, Prospecto } from "@/types/isapre";
 
-import { ProspectoResumen } from "./ProspectoResumen";
+import { MarcaWeb, ProspectoResumen } from "./ProspectoResumen";
 
 const MIME = "application/x-prospecto-id";
 
@@ -63,7 +63,10 @@ export function KanbanBoard({ etapas, prospectos }: { etapas: EtapaEmbudo[]; pro
               }}
               className="flex cursor-grab flex-col gap-1.5 rounded-lg bg-card p-3 text-sm shadow-xs ring-1 ring-foreground/10 hover:ring-foreground/25 active:cursor-grabbing"
             >
-              <span className="font-medium">{p.nombre}</span>
+              <span className="flex items-center gap-2">
+                <span className="font-medium">{p.nombre}</span>
+                <MarcaWeb origen={p.origen} />
+              </span>
               <ProspectoResumen prospecto={p} />
             </Link>
           ))}

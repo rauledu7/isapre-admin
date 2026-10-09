@@ -20,7 +20,7 @@ import { EtapaSelect } from "./EtapaSelect";
 import { HistorialCotizaciones } from "./HistorialCotizaciones";
 import { DocumentosProspecto } from "./DocumentosProspecto";
 import { NotasProspecto } from "./NotasProspecto";
-import { nombreIsapre } from "./ProspectoResumen";
+import { MarcaWeb, nombreIsapre } from "./ProspectoResumen";
 import { ProspectoFormDialog } from "./ProspectoFormDialog";
 
 function Dato({ etiqueta, valor }: { etiqueta: string; valor: string }) {
@@ -87,7 +87,10 @@ export function FichaProspecto() {
           <ArrowLeftIcon className="size-4" /> Prospectos
         </Link>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="mr-auto text-xl font-semibold tracking-tight">{prospecto.nombre}</h1>
+          <h1 className="mr-auto flex items-center gap-2 text-xl font-semibold tracking-tight">
+            {prospecto.nombre}
+            <MarcaWeb origen={prospecto.origen} />
+          </h1>
           <EtapaSelect
             etapas={etapas}
             value={prospecto.etapaId}

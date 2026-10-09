@@ -54,6 +54,7 @@ export interface Database {
           utm_kw: string | null;
           ads_conversion_en: string | null;
           ads_conversion_error: string | null;
+          origen: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -79,6 +80,7 @@ export interface Database {
           utm_kw?: string | null;
           ads_conversion_en?: string | null;
           ads_conversion_error?: string | null;
+          origen?: string | null;
         };
         Update: {
           etapa_id?: string;
@@ -100,6 +102,7 @@ export interface Database {
           utm_kw?: string | null;
           ads_conversion_en?: string | null;
           ads_conversion_error?: string | null;
+          origen?: string | null;
         };
         Relationships: [
           {
@@ -181,6 +184,7 @@ export interface Database {
           email: string | null;
           meta_uf_mes: number | null;
           meta_contratos_mes: number | null;
+          sitio_web: string | null;
           updated_at: string;
         };
         Insert: {
@@ -190,6 +194,7 @@ export interface Database {
           email?: string | null;
           meta_uf_mes?: number | null;
           meta_contratos_mes?: number | null;
+          sitio_web?: string | null;
         };
         Update: {
           nombre?: string;
@@ -197,6 +202,7 @@ export interface Database {
           email?: string | null;
           meta_uf_mes?: number | null;
           meta_contratos_mes?: number | null;
+          sitio_web?: string | null;
         };
         Relationships: [];
       };

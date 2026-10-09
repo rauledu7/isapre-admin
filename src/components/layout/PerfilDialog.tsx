@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { parseDecimal, parseEntero } from "@/lib/format";
+import { normalizarSitio } from "@/lib/sitioWeb";
 import { getSupabase } from "@/lib/supabase/client";
 import { formatearTelefono, normalizarTelefono } from "@/lib/telefono";
 import { usePerfilStore } from "@/store/perfilStore";
@@ -51,12 +52,14 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
   const [metaContratos, setMetaContratos] = useState(
     perfil?.metaContratosMes === null || perfil?.metaContratosMes === undefined ? "" : String(perfil.metaContratosMes),
   );
+  const [sitio, setSitio] = useState(perfil?.sitioWeb ?? "");
   const [errores, setErrores] = useState<{
     nombre?: string;
     telefono?: string;
     email?: string;
     metaUf?: string;
     metaContratos?: string;
+    sitio?: string;
   }>({});
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
@@ -79,12 +82,14 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
     const tel = conTelefono ? normalizarTelefono(telefono) : null;
     const uf = metaUf.trim() === "" ? null : parseDecimal(metaUf);
     const contratos = metaContratos.trim() === "" ? null : parseEntero(metaContratos);
+    const sitioWeb = normalizarSitio(sitio);
     const nuevos = {
       ...(nombre.trim() === "" && { nombre: "Ingresa tu nombre" }),
       ...(conTelefono && tel === null && { telefono: "Teléfono chileno inválido" }),
       ...(email.trim() !== "" && !EMAIL_RE.test(email.trim()) && { email: "Email inválido" }),
       ...(metaUf.trim() !== "" && (uf === null || uf < 0) && { metaUf: "UF inválida" }),
       ...(metaContratos.trim() !== "" && contratos === null && { metaContratos: "Número inválido" }),
+      ...(sitio.trim() !== "" && sitioWeb === null && { sitio: "Usa el dominio, por ejemplo cotizatuisapreya.cl" }),
     };
     setErrores(nuevos);
     if (Object.keys(nuevos).length > 0) return;
@@ -98,6 +103,7 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
         email: email.trim() || null,
         metaUfMes: uf,
         metaContratosMes: contratos,
+        sitioWeb,
       });
       onOpenChange(false);
     } catch (err) {
@@ -148,6 +154,19 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
         onChange={(e) => setMetaUf(e.target.value)}
         aria-invalid={Boolean(errores.metaUf)}
         ayuda={ayuda(errores.metaUf)}
+      />
+      <Campo
+        label="Página de leads"
+        placeholder="cotizatuisapreya.cl"
+        value={sitio}
+        onChange={(e) => setSitio(e.target.value)}
+        aria-invalid={Boolean(errores.sitio)}
+        ayuda={
+          <>
+            {ayuda(errores.sitio)}
+            <span>Opcional. Para la integración automática de leads con esta página, contacta a soporte.</span>
+          </>
+        }
       />
       <Campo
         label="Meta de contratos al mes"

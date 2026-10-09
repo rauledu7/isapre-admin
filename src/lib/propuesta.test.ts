@@ -37,6 +37,7 @@ function propuesta(extra: Partial<Propuesta> = {}, precioPlanActualUF: number | 
       email: "raul@ejemplo.cl",
       metaUfMes: null,
       metaContratosMes: null,
+      sitioWeb: null,
     },
     valorUF: { valor: VALOR_UF, fecha: "2026-10-08", fuente: "mindicador" },
     topeImponibleUF: 90,

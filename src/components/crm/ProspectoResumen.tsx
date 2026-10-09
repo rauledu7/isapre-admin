@@ -1,5 +1,6 @@
 import { PhoneIcon } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { ISAPRES } from "@/config/isapres";
 import { useFechaHoy } from "@/hooks/useFechaHoy";
 import { estaVencido } from "@/lib/calendario";
@@ -9,6 +10,11 @@ import { formatearRut } from "@/lib/rut";
 import { formatearTelefono } from "@/lib/telefono";
 import { cn } from "@/lib/utils";
 import type { Prospecto } from "@/types/isapre";
+
+export function MarcaWeb({ origen }: { origen: Prospecto["origen"] }) {
+  if (origen !== "web") return null;
+  return <Badge variant="secondary">Web</Badge>;
+}
 
 export function nombreIsapre(id: Prospecto["isapreActual"]): string {
   return ISAPRES.find((i) => i.id === id)?.nombre ?? "Sin Isapre";

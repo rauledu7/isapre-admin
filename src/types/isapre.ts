@@ -96,6 +96,8 @@ export interface Prospecto {
   cerradoEn: string | null;
   /** UF del plan afiliado. Cuenta para la meta del mes de `cerradoEn`. */
   ufCierre: number | null;
+  /** `web` si el formulario de la página del asesor lo creó. El resto entra a mano. */
+  origen: "web" | null;
   /** Google Click ID, si el lead llegó de un anuncio. */
   gclid: string | null;
   utmSource: string | null;
@@ -192,4 +194,6 @@ export interface PerfilAsesor {
   metaUfMes: number | null;
   /** Meta de contratos o afiliados en el mes. */
   metaContratosMes: number | null;
+  /** Página cuyo formulario crea prospectos. `null` si no tiene web. */
+  sitioWeb: string | null;
 }
