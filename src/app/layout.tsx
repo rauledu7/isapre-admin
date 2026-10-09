@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { connection } from "next/server";
+import { Suspense } from "react";
 
 import { envPublico } from "@/lib/supabase/env";
 
@@ -21,16 +22,22 @@ export const metadata: Metadata = {
   description: "Copiloto comercial para asesores de Isapre",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+async function VariablesPublicas() {
   await connection();
   const publico = JSON.stringify(envPublico()).replaceAll("<", "\\u003c");
+  return <script dangerouslySetInnerHTML={{ __html: `window.__ISAPRE_ENV__=${publico}` }} />;
+}
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es-CL"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full">
-        <script dangerouslySetInnerHTML={{ __html: `window.__ISAPRE_ENV__=${publico}` }} />
+        <Suspense fallback={null}>
+          <VariablesPublicas />
+        </Suspense>
         {children}
       </body>
     </html>
