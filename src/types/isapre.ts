@@ -90,6 +90,8 @@ export interface Prospecto {
   cargas: number[];
   /** Próximo contacto, YYYY-MM-DD. El calendario lee esta fecha. */
   proximoContacto: string | null;
+  /** Hora del contacto en Chile, "HH:MM". Sin hora, el aviso es del día. */
+  horaContacto: string | null;
   /** Día en que pasó a una etapa ganada. */
   cerradoEn: string | null;
   /** UF del plan afiliado. Cuenta para la meta del mes de `cerradoEn`. */

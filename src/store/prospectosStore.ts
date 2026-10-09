@@ -5,6 +5,8 @@ import { fechaHoy } from "@/lib/fecha";
 import { cierreAlCambiarEtapa, cierreAlCrear } from "@/lib/metas";
 import type { ProspectoDatos } from "@/lib/prospectoForm";
 import { getSupabase } from "@/lib/supabase/client";
+import { borrarArchivosDeProspecto } from "@/lib/supabase/documentos";
+import { avisarCambioEtapa } from "@/lib/supabase/notificaciones";
 import * as db from "@/lib/supabase/prospectos";
 import type { EtapaEmbudo, Prospecto, TipoEtapa } from "@/types/isapre";
 
@@ -77,6 +79,9 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
         : null;
     const p = await db.actualizarProspecto(getSupabase(), id, cierre ? { ...cambios, ...cierre } : cambios);
     set((s) => ({ prospectos: reemplazar(s.prospectos, p) }));
+    if (anterior && cambios.etapaId && cambios.etapaId !== anterior.etapaId) {
+      avisarCambioEtapa(anterior, cambios.etapaId, get().etapas);
+    }
     return p;
   },
 
@@ -89,12 +94,14 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
     try {
       const p = await db.actualizarProspecto(getSupabase(), id, cambios);
       set((s) => ({ prospectos: reemplazar(s.prospectos, p) }));
+      avisarCambioEtapa(anterior, etapaId, get().etapas);
     } catch (e) {
       set((s) => ({ prospectos: reemplazar(s.prospectos, anterior), error: mensaje(e) }));
     }
   },
 
   eliminarProspecto: async (id) => {
+    await borrarArchivosDeProspecto(id);
     await db.eliminarProspecto(getSupabase(), id);
     set((s) => ({ prospectos: s.prospectos.filter((p) => p.id !== id) }));
   },

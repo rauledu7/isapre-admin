@@ -13,6 +13,7 @@ const FORM: ProspectoForm = {
   cargas: ["6", "34"],
   etapaId: "etapa-1",
   proximoContacto: "",
+  horaContacto: "",
   ufCierre: "",
   cerradoEn: "",
 };
@@ -32,6 +33,7 @@ describe("leerProspecto", () => {
         isapreActual: "colmena",
         cargas: [6, 34],
         proximoContacto: null,
+        horaContacto: null,
         ufCierre: null,
         cerradoEn: null,
       },

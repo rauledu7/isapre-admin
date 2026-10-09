@@ -31,6 +31,7 @@ export function ProspectoResumen({ prospecto }: { prospecto: Prospecto }) {
       {prospecto.proximoContacto && (
         <span className={cn("tabular-nums", hoy && estaVencido(prospecto.proximoContacto, hoy) && "text-alerta")}>
           Contacto {formatFecha(prospecto.proximoContacto)}
+          {prospecto.horaContacto ? ` ${prospecto.horaContacto}` : ""}
         </span>
       )}
     </div>

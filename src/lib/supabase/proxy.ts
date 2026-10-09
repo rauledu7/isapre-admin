@@ -6,6 +6,7 @@ import type { Database } from "@/types/database";
 import { supabaseEnv } from "./env";
 
 const RUTAS_PUBLICAS = ["/login"];
+const RUTAS_ABIERTAS = ["/sw.js", "/api/cron"];
 
 /** Refresca la sesión en cada request y redirige según autenticación. */
 export async function actualizarSesion(request: NextRequest): Promise<NextResponse> {
@@ -30,6 +31,8 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
   const { data } = await supabase.auth.getClaims();
   const autenticado = Boolean(data?.claims);
   const { pathname, search } = request.nextUrl;
+  if (RUTAS_ABIERTAS.some((r) => pathname === r || pathname.startsWith(`${r}/`))) return response;
+
   const esPublica = RUTAS_PUBLICAS.some((r) => pathname.startsWith(r));
 
   const redirigir = (destino: URL) => {

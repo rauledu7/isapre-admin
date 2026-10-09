@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
 
+import { CentroNotificaciones } from "./CentroNotificaciones";
 import { MobileNav } from "./MobileNav";
 import { UFOficial } from "./UFOficial";
 import { UserMenu } from "./UserMenu";
@@ -24,6 +25,7 @@ export function AppHeader() {
         <UFOficial />
       </Suspense>
       <div className="h-8 w-px bg-border" />
+      <CentroNotificaciones />
       <UserMenu />
     </header>
   );

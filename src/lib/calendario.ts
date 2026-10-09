@@ -27,6 +27,7 @@ export interface Seguimiento {
   id: string;
   nombre: string;
   proximoContacto: string | null;
+  horaContacto?: string | null;
 }
 
 export function seguimientosDelDia<T extends Seguimiento>(prospectos: T[], fecha: string): T[] {

@@ -45,6 +45,7 @@ export interface Database {
           isapre_actual: string | null;
           cargas: Json;
           proximo_contacto: string | null;
+          hora_contacto: string | null;
           cerrado_en: string | null;
           uf_cierre: number | null;
           created_at: string;
@@ -63,6 +64,7 @@ export interface Database {
           isapre_actual?: string | null;
           cargas?: Json;
           proximo_contacto?: string | null;
+          hora_contacto?: string | null;
           cerrado_en?: string | null;
           uf_cierre?: number | null;
         };
@@ -77,6 +79,7 @@ export interface Database {
           isapre_actual?: string | null;
           cargas?: Json;
           proximo_contacto?: string | null;
+          hora_contacto?: string | null;
           cerrado_en?: string | null;
           uf_cierre?: number | null;
         };
@@ -176,6 +179,84 @@ export interface Database {
           email?: string | null;
           meta_uf_mes?: number | null;
           meta_contratos_mes?: number | null;
+        };
+        Relationships: [];
+      };
+      dispositivos_push: {
+        Row: {
+          id: string;
+          asesor_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          asesor_id?: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+        };
+        Update: {
+          endpoint?: string;
+          p256dh?: string;
+          auth?: string;
+        };
+        Relationships: [];
+      };
+      notificaciones: {
+        Row: {
+          id: string;
+          asesor_id: string;
+          tipo: string;
+          titulo: string;
+          cuerpo: string;
+          prospecto_id: string | null;
+          dedup: string;
+          leida: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          asesor_id?: string;
+          tipo: string;
+          titulo: string;
+          cuerpo: string;
+          prospecto_id?: string | null;
+          dedup: string;
+          leida?: boolean;
+        };
+        Update: {
+          leida?: boolean;
+        };
+        Relationships: [];
+      };
+      documentos: {
+        Row: {
+          id: string;
+          asesor_id: string;
+          prospecto_id: string;
+          nombre: string;
+          tipo_doc: string;
+          file_path: string;
+          mime: string;
+          tamano_bytes: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          asesor_id?: string;
+          prospecto_id: string;
+          nombre: string;
+          tipo_doc: string;
+          file_path: string;
+          mime: string;
+          tamano_bytes: number;
+        };
+        Update: {
+          nombre?: string;
+          tipo_doc?: string;
         };
         Relationships: [];
       };

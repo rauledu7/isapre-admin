@@ -1,6 +1,6 @@
 "use client";
 
-import { CalculatorIcon, CalendarIcon, LayoutDashboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { CalculatorIcon, CalendarIcon, FolderIcon, LayoutDashboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/calendario", label: "Calendario", icon: CalendarIcon },
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
   { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
+  { href: "/documentos", label: "Documentos", icon: FolderIcon },
 ];
 
 interface SidebarNavProps {

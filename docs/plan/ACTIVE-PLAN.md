@@ -1,22 +1,23 @@
-# PLAN ACTIVO: IsapreAssistant
+# PLAN ACTIVO: IsapreAssistant - Copiloto para Asesores de Isapre
 
-## Estado: [COMPLETADO]
+## Estado: [IN_PROGRESS]
 
-El plan anterior (etapas 1 a 5) quedó en `PLAN-EJECUTADO-v1.md`.
+### Etapa 8: Notificaciones Push & Sistema de Alertas
+- [x] Configurar Service Worker y registro de suscripciones Push (Web Push con claves VAPID, sin Firebase).
+- [x] Guardar la suscripción en `dispositivos_push`.
+- [x] Cron `GET /api/cron/alertas` (Bearer `CRON_SECRET`, cliente service role) y revisión cada minuto con la sesión abierta.
+- [x] Centro de notificaciones in-app para cambios de etapa, contactos, inactividad de 5 días y meta de UF al 50%, 80% y 100%.
+- La hora del contacto es opcional. Con hora, el aviso sale 15 minutos antes y a la hora. Sin hora, un aviso el día del contacto.
+- [x] Correr `supabase/migrations/20261008230000_etapa8_9_alertas_documentos.sql`. Claves VAPID en `.env.local`. El cron usa `CRON_SECRET` y `SUPABASE_SERVICE_ROLE_KEY`.
 
-### Paso 1: Identidad visual y dashboard
-- [x] Tema SaaS: contenido Indigo/Slate claro y sidebar Slate oscuro.
-- [x] Paleta por estado: éxito `#10b981`, pendiente `#f59e0b`, proceso `#3b82f6`, prioridad `#8b5cf6`, alerta `#ef4444`.
-- [x] Dashboard principal con el embudo en gráfico (Recharts).
+### Etapa 9: Centro de Documentos por Cliente (Document Vault)
+- [x] Bucket privado `prospecto-documentos` (el nombre de MUST-DO) con RLS por carpeta del asesor.
+- [x] Tabla `documentos` (`id`, `prospecto_id`, `nombre`, `tipo_doc`, `file_path`, `mime`, `tamano_bytes`, `created_at`).
+- [x] Carga drag-and-drop en la ficha: Liquidación, Cédula, Certificado AFP, FUN, Certificado de cargas y Otros.
+- [x] Vista `/documentos` por RUT, nombre o tipo, con previsualización de PDF e imagen.
 
-### Paso 2: Metas y calendario de seguimientos
-- [x] Meta de UF cerradas al mes y meta de contratos / afiliados, configurables en el perfil del asesor.
-- [x] Fechas de contacto o seguimiento por prospecto, sincronizadas con un calendario.
-- La UF cerrada es el precio del plan afiliado, ingresado en la ficha. El contrato cuenta en el mes en que el prospecto pasa a una etapa ganada. El calendario lee `proximo_contacto`; no hay una agenda aparte.
-- [x] Verificación contra Supabase (correr `supabase/migrations/20261008220000_paso2_metas_calendario.sql`).
-
-### Paso 3: Importación masiva (CSV / XLS)
-- [x] Modal de carga con drag-and-drop.
-- [x] Campos: Nombre, RUT, Teléfono, Email, Renta imponible, Isapre actual, Cargas, Etapa inicial.
-- [x] Validación con reporte previo: ignorar filas corruptas o sin nombre y teléfono.
-- El RUT es obligatorio: sin él la fila no se puede guardar. La etapa vacía usa la primera del embudo. Una etapa ganada cuenta el contrato en el mes de la importación.
+### Etapa 10: Integración con Google Ads & Métricas de Adquisición
+- [ ] Crear endpoint de API `/api/v1/leads/webhook` para recibir prospectos automáticamente desde formularios de Google Ads o Landings.
+- [ ] Captura y almacenamiento de `gclid` (Google Click ID) y UTMs en la ficha del prospecto.
+- [ ] Módulo en el Dashboard: ROI de Campañas de Google Ads (Comparativa de Clics vs. Prospectos Ingresados vs. UF Cerradas).
+- [ ] Configuración del envío de "Conversiones Offline" a Google Ads API al marcar un contrato como ganado.

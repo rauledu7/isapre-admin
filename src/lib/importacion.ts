@@ -234,6 +234,7 @@ export function revisarImportacion(
         isapreActual: isapre,
         cargas,
         proximoContacto: null,
+        horaContacto: null,
         cerradoEn: null,
         ufCierre: null,
       },

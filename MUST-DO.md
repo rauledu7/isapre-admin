@@ -1,37 +1,21 @@
----
-
-### `MUST-DO.md`
-
-```markdown
 # REGLAS OBLIGATORIAS DEL NEGOCIO Y UX/UI (MUST-DO)
 
-## 1. Tono y Posicionamiento de la App
-- **Propósito:** Ser el copiloto operativo y comercial del ejecutivo/asesor de Isapre en Chile.
-- **Enfoque de Valor:** Optimizar el tiempo del asesor, reducir errores en el cálculo de planes/excedentes y acelerar el cierre de afiliaciones/cambios de Isapre.
+## 1. Sistema de Notificaciones Push & Alertas
+- **Canal Push (Navegador/PWA):** Implementación de Web Push API / Service Workers (vía Firebase Cloud Messaging o Supabase Webhooks + Web Push).
+- **Eventos Críticos de Notificación:**
+  1. **Recordatorios de Agendamiento:** Alerta 15 minutos antes y a la hora exacta de un contacto/llamada programada en el calendario.
+  2. **Avance en el Pipeline / Cierre:** Alerta cuando un prospecto cambia de etapa (ej. pasa a "Firma de FUN" o "Cerrado") o cuando lleva +5 días estancado sin gestión.
+  3. **Alertas de Metas:** Notificación cuando el asesor alcanza el 50%, 80% o 100% de su meta mensual de UF.
 
-## 2. Reglas del Negocio Isapre (Chile)
-1. **El 7% Legal:**
-   - La cotización obligatoria de salud es el 7% de la renta imponible (con tope imponible fijado por la ley).
-   - `Diferencia = 7% Imponible (en UF) - Valor Total del Plan (en UF)`.
-   - Si `Diferencia > 0`: Genera **Excedentes**.
-   - Si `Diferencia < 0`: Requiere **Pauta Adicional de Cotización (Cotización Voluntaria/Adicional)**.
-2. **Componentes del Valor del Plan:**
-   - `Precio Final Plan = (Precio Base del Plan en UF) x (Suma de Factores de Riesgo por Edad/Rol) + Coberturas Adicionales (GES/CAEC/Seguros)`.
-3. **Isapres Soportadas:**
-   - Banmédica, Consalud, Colmena, Cruz Blanca, Nueva Masvida, Esencial.
+## 2. Gestión Documental por Prospecto (Document Vault)
+- **Almacenamiento:** Integración con **Supabase Storage** (Bucket privado `prospecto-documentos` protegido por RLS).
+- **Tipos de Documentos Clave:** Liquidaciones de sueldo, Cédula de Identidad, Certificado de Cotizaciones (AFP), FUN firmado, Certificado de Cargas / Nacimiento.
+- **Búsqueda & Acceso Rápido:** Vista centralizada `/documentos` con buscador global por RUT o Nombre, filtros por tipo de archivo e previsualización rápida en pantalla.
 
-## 3. Pilares del Producto (Features Mínimas)
-1. **Cotizador & Simulador Express:**
-   - Ingreso rápido: Renta imponible (CLP), Edad del titular, Número y edades de cargas familiares, Isapre actual.
-   - Cálculo automático de su 7% obligatorio convertido a UF (usando valor UF dinámico o configurable).
-2. **CRM / Pipeline de Prospectos para Asesores:**
-   - Embudo por defecto (editable por cada asesor: agregar, renombrar, reordenar o quitar etapas): *Nuevo -> Pendiente de reunión -> No contestó -> Contactar después -> Cotizado -> Pendiente de firma FUN -> Cerrado (afiliado) | Perdido / Descartado*.
-   - Datos obligatorios del prospecto: Nombre, Teléfono y RUT (validado con dígito verificador).
-   - Cada asesor ve solo sus prospectos (Supabase Auth + RLS).
-3. **Generador de Comparativas Expres en PDF/Imagen:**
-   - Botón para exportar un resumen limpio en PDF o imagen para enviar por WhatsApp al cliente (*"Mira cómo queda tu plan actual vs. la propuesta"*).
-
-## 4. Prohibiciones Explícitas
-- ❌ Prohibido mostrar datos sin desglose transparente entre UF y CLP.
-- ❌ Prohibido permitir guardar un prospecto sin un teléfono o canal de contacto.
-- ❌ Prohibido usar terminología genérica (usar siempre términos reales: *Renta Imponible, Cargas, FUN, Excedentes, Ges, CAEC*).
+## 3. Integración con Google Ads (Adquisition & Tracking)
+- **Fase 1 (Lectura y Tracking - Inbound):**
+  - Recepción de Leads vía Webhook/API desde Landing Pages de captación.
+  - Almacenamiento de parámetros UTM (`utm_source`, `utm_campaign`, `utm_kw`) por prospecto para medir qué campañas generan ventas reales.
+- **Fase 2 (Google Ads API & Conversion Offline):**
+  - Conexión con Google Ads API para enviar **Conversiones Offline** (cuando un prospecto pasa a "Cerrado/Ganado", notificar a Google Ads el valor de la UF para optimizar el algoritmo Smart Bidding).
+  - Panel de control de rendimiento de campañas dentro de la app (Gasto, Leads, Costo por Lead y Cierres).

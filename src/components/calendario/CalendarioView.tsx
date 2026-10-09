@@ -83,6 +83,7 @@ export function CalendarioView() {
                 </span>
                 {citas.slice(0, 2).map((p) => (
                   <Link key={p.id} href={`/prospectos/${p.id}`} className="truncate rounded bg-proceso/10 px-1 py-0.5 text-foreground hover:underline">
+                    {p.horaContacto ? `${p.horaContacto} ` : ""}
                     {p.nombre}
                   </Link>
                 ))}

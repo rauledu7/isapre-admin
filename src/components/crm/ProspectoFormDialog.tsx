@@ -44,6 +44,7 @@ function formDesde(
       cargas: prospecto.cargas.map(String),
       etapaId: prospecto.etapaId,
       proximoContacto: prospecto.proximoContacto ?? "",
+      horaContacto: prospecto.horaContacto ?? "",
       ufCierre: prospecto.ufCierre === null ? "" : String(prospecto.ufCierre).replace(".", ","),
       cerradoEn: prospecto.cerradoEn ?? "",
     };
@@ -58,6 +59,7 @@ function formDesde(
     isapreActual: null,
     cargas: [],
     proximoContacto: "",
+    horaContacto: "",
     ufCierre: "",
     cerradoEn: "",
     ...iniciales,
@@ -247,6 +249,14 @@ function FormularioProspecto({
           onChange={(e) => set({ proximoContacto: e.target.value })}
           aria-invalid={Boolean(errores.proximoContacto)}
           ayuda={error("proximoContacto")}
+        />
+        <Campo
+          label="Hora"
+          type="time"
+          value={form.horaContacto}
+          onChange={(e) => set({ horaContacto: e.target.value })}
+          aria-invalid={Boolean(errores.horaContacto)}
+          ayuda={error("horaContacto") ?? "Con hora, avisamos 15 minutos antes y a la hora."}
         />
         <Campo
           label="UF del plan cerrado"

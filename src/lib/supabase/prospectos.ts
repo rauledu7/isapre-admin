@@ -54,6 +54,7 @@ const aProspecto = (r: ProspectoRow): Prospecto => ({
   isapreActual: r.isapre_actual as IsapreId | null,
   cargas: Array.isArray(r.cargas) ? (r.cargas as number[]) : [],
   proximoContacto: r.proximo_contacto ?? null,
+  horaContacto: r.hora_contacto ? r.hora_contacto.slice(0, 5) : null,
   cerradoEn: r.cerrado_en ?? null,
   ufCierre: r.uf_cierre == null ? null : Number(r.uf_cierre),
   creadoEn: r.created_at,
@@ -71,6 +72,7 @@ const aFila = (d: Partial<ProspectoDatos>) => ({
   ...(d.isapreActual !== undefined && { isapre_actual: d.isapreActual }),
   ...(d.cargas !== undefined && { cargas: d.cargas }),
   ...(d.proximoContacto !== undefined && { proximo_contacto: d.proximoContacto }),
+  ...(d.horaContacto !== undefined && { hora_contacto: d.horaContacto }),
   ...(d.cerradoEn !== undefined && { cerrado_en: d.cerradoEn }),
   ...(d.ufCierre !== undefined && { uf_cierre: d.ufCierre }),
 });

@@ -18,6 +18,7 @@ import { useProspectosStore } from "@/store/prospectosStore";
 
 import { EtapaSelect } from "./EtapaSelect";
 import { HistorialCotizaciones } from "./HistorialCotizaciones";
+import { DocumentosProspecto } from "./DocumentosProspecto";
 import { NotasProspecto } from "./NotasProspecto";
 import { nombreIsapre } from "./ProspectoResumen";
 import { ProspectoFormDialog } from "./ProspectoFormDialog";
@@ -150,6 +151,17 @@ export function FichaProspecto() {
                   }
                   ayuda="Aparece en el calendario de seguimientos."
                 />
+                <Campo
+                  label="Hora"
+                  type="time"
+                  value={prospecto.horaContacto ?? ""}
+                  onChange={(e) =>
+                    void actualizar(prospecto.id, { horaContacto: e.target.value || null }).catch((err: Error) =>
+                      setErrorEliminar(err.message),
+                    )
+                  }
+                  ayuda="Con hora, avisamos 15 minutos antes y a la hora."
+                />
                 {etapas.find((e) => e.id === prospecto.etapaId)?.tipo === "ganada" && (
                   <>
                     <p className="text-sm">
@@ -183,6 +195,7 @@ export function FichaProspecto() {
             </CardContent>
           </Card>
           <NotasProspecto prospectoId={prospecto.id} />
+          <DocumentosProspecto prospectoId={prospecto.id} />
         </div>
         <HistorialCotizaciones prospecto={prospecto} />
       </div>

@@ -1,5 +1,5 @@
 import { EDAD_MAXIMA } from "@/lib/cotizadorForm";
-import { esFechaISO } from "@/lib/fecha";
+import { esFechaISO, esHora } from "@/lib/fecha";
 import { parseDecimal, parseEntero } from "@/lib/format";
 import { normalizarRut } from "@/lib/rut";
 import { normalizarTelefono } from "@/lib/telefono";
@@ -16,6 +16,7 @@ export interface ProspectoForm {
   cargas: string[];
   etapaId: string;
   proximoContacto: string;
+  horaContacto: string;
   ufCierre: string;
   cerradoEn: string;
 }
@@ -69,6 +70,10 @@ export function leerProspecto(form: ProspectoForm): LecturaProspecto {
   const contacto = form.proximoContacto.trim();
   if (contacto && !esFechaISO(contacto)) errores.proximoContacto = "Fecha inválida";
 
+  const hora = form.horaContacto.trim();
+  if (hora && !esHora(hora)) errores.horaContacto = "Hora inválida";
+  if (hora && !contacto) errores.horaContacto = "Indica también la fecha del contacto";
+
   const uf = form.ufCierre.trim() === "" ? null : parseDecimal(form.ufCierre);
   if (form.ufCierre.trim() !== "" && (uf === null || uf < 0)) errores.ufCierre = "UF inválida";
 
@@ -87,6 +92,7 @@ export function leerProspecto(form: ProspectoForm): LecturaProspecto {
       isapreActual: form.isapreActual,
       cargas: cargas as number[],
       proximoContacto: contacto || null,
+      horaContacto: hora && esHora(hora) ? hora : null,
       ufCierre: uf,
       cerradoEn: esFechaISO(form.cerradoEn) ? form.cerradoEn : null,
     },
