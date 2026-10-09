@@ -174,6 +174,7 @@ export function TarifariosAsesor() {
       <ul className="flex flex-col gap-2">
         {ISAPRES.map((isapre) => {
           const tarifario = tarifarios.find((item) => item.isapreId === isapre.id);
+          const excel = isapre.id === "nueva-masvida";
           return (
             <li key={isapre.id} className="flex flex-col gap-2 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
@@ -181,7 +182,9 @@ export function TarifariosAsesor() {
                 <p className="text-xs text-muted-foreground">
                   {tarifario
                     ? `${tarifario.planes.length} planes · ${tarifario.productos.length} productos`
-                    : "Sin tarifario"}
+                    : excel
+                      ? "Sin tarifario · Excel"
+                      : "Sin tarifario · PDF"}
                 </p>
               </div>
               <div className="flex shrink-0 flex-wrap items-center gap-1">
@@ -208,10 +211,14 @@ export function TarifariosAsesor() {
                   {ocupado === isapre.id ? "Leyendo…" : tarifario ? "Reemplazar" : "Cargar"}
                   <input
                     type="file"
-                    accept="application/pdf"
+                    accept={
+                      excel
+                        ? ".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        : "application/pdf"
+                    }
                     className="sr-only"
                     disabled={ocupado === isapre.id}
-                    aria-label={`Tarifario de ${isapre.nombre}`}
+                    aria-label={excel ? `Excel de ${isapre.nombre}` : `PDF de ${isapre.nombre}`}
                     onChange={(e) => {
                       const archivo = e.target.files?.[0];
                       e.target.value = "";

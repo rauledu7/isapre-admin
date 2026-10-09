@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { extractTextItems, getDocumentProxy } from "unpdf";
+import * as XLSX from "xlsx";
 
 import { ISAPRES } from "@/config/isapres";
-import { leerTarifario, type PalabraTarifa } from "@/lib/tarifario";
+import { leerTarifario, type PalabraTarifa, type TarifarioLeido } from "@/lib/tarifario";
+import { leerTarifarioMasvida } from "@/lib/tarifarioMasvida";
 import { jsonTarifario } from "@/lib/supabase/tarifarios";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { IsapreId } from "@/types/isapre";
@@ -11,6 +13,49 @@ const MAX_BYTES = 8 * 1024 * 1024;
 
 function esIsapre(valor: string): valor is IsapreId {
   return ISAPRES.some((isapre) => isapre.id === valor);
+}
+
+function esExcel(archivo: File): boolean {
+  const nombre = archivo.name.toLowerCase();
+  return (
+    nombre.endsWith(".xlsx") ||
+    nombre.endsWith(".xls") ||
+    archivo.type.includes("spreadsheet") ||
+    archivo.type.includes("excel")
+  );
+}
+
+async function leerPdf(archivo: File): Promise<TarifarioLeido> {
+  const pdf = await getDocumentProxy(new Uint8Array(await archivo.arrayBuffer()));
+  const { items } = await extractTextItems(pdf);
+  const paginas: PalabraTarifa[][] = [];
+  for (let i = 0; i < items.length; i++) {
+    const palabras = items[i];
+    if (!palabras) continue;
+    const pagina = await pdf.getPage(i + 1);
+    const altura = pagina.getViewport({ scale: 1 }).height;
+    paginas.push(
+      palabras
+        .filter((item) => item.str.trim())
+        .map((item) => ({
+          texto: item.str.trim(),
+          x: item.x,
+          y: altura - item.y - item.height,
+        })),
+    );
+  }
+  return leerTarifario(paginas);
+}
+
+function leerExcel(buffer: ArrayBuffer): TarifarioLeido {
+  const libro = XLSX.read(buffer, { type: "array" });
+  return leerTarifarioMasvida(
+    libro.SheetNames.flatMap((nombre) => {
+      const hoja = libro.Sheets[nombre];
+      if (!hoja) return [];
+      return [{ nombre, filas: XLSX.utils.sheet_to_json<unknown[]>(hoja, { header: 1, raw: true, defval: null }) }];
+    }),
+  );
 }
 
 export async function POST(request: Request) {
@@ -25,39 +70,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Elige la Isapre del tarifario." }, { status: 400 });
   }
   if (!(archivo instanceof File) || archivo.size === 0 || archivo.size > MAX_BYTES) {
-    return NextResponse.json({ error: "Adjunta el PDF del tarifario, de hasta 8 MB." }, { status: 400 });
+    return NextResponse.json({ error: "Adjunta el tarifario, de hasta 8 MB." }, { status: 400 });
   }
-  if (archivo.type && archivo.type !== "application/pdf") {
-    return NextResponse.json({ error: "El archivo tiene que ser un PDF." }, { status: 400 });
+
+  const excel = isapreId === "nueva-masvida";
+  if (excel && !esExcel(archivo)) {
+    return NextResponse.json({ error: "Nueva Masvida se carga con el Excel del tarifario." }, { status: 400 });
+  }
+  if (!excel && archivo.type && archivo.type !== "application/pdf" && !archivo.name.toLowerCase().endsWith(".pdf")) {
+    return NextResponse.json({ error: "Esta Isapre se carga con el PDF del tarifario." }, { status: 400 });
   }
 
   let leido;
   try {
-    const pdf = await getDocumentProxy(new Uint8Array(await archivo.arrayBuffer()));
-    const { items } = await extractTextItems(pdf);
-    const paginas: PalabraTarifa[][] = [];
-    for (let i = 0; i < items.length; i++) {
-      const palabras = items[i];
-      if (!palabras) continue;
-      const pagina = await pdf.getPage(i + 1);
-      const altura = pagina.getViewport({ scale: 1 }).height;
-      paginas.push(
-        palabras
-          .filter((item) => item.str.trim())
-          .map((item) => ({
-            texto: item.str.trim(),
-            x: item.x,
-            y: altura - item.y - item.height,
-          })),
-      );
-    }
-    leido = leerTarifario(paginas);
+    leido = excel ? leerExcel(await archivo.arrayBuffer()) : await leerPdf(archivo);
   } catch {
-    return NextResponse.json({ error: "No pude abrir ese PDF." }, { status: 422 });
+    return NextResponse.json({ error: excel ? "No pude abrir ese Excel." : "No pude abrir ese PDF." }, { status: 422 });
   }
 
   if (leido.planes.length === 0) {
-    return NextResponse.json({ error: "No encontré planes con precio base en ese PDF." }, { status: 422 });
+    return NextResponse.json({ error: "No encontré planes con precio base en ese archivo." }, { status: 422 });
   }
 
   const { error } = await sb.from("tarifarios").upsert(

@@ -10,7 +10,7 @@ export default function IsapresPage() {
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Isapres</h1>
         <p className="text-sm text-muted-foreground">
-          El GES de cada Isapre y, si lo tienes, su tarifario. El cotizador usa estos valores. El GES está bloqueado: ábrelo para corregirlo.
+          El GES de cada Isapre y, si lo tienes, su tarifario. Banmédica y el resto se cargan en PDF. Nueva Masvida, en Excel. El cotizador usa estos valores. El GES está bloqueado: ábrelo para corregirlo.
         </p>
       </div>
       <TarifariosAsesor />
