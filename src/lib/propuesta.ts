@@ -57,7 +57,7 @@ export function lineaVariacion(item: ResultadoPlanAlternativa): LineaMonto | nul
   };
 }
 
-/** Componentes del precio final: base × factores, GES, CAEC y seguros. */
+/** Componentes del precio final: base × factores, GES y productos adicionales. */
 export function desglosePlan(item: ResultadoPlanAlternativa, valorUF: number): LineaMonto[] {
   const p = item.resultado.plan;
   return [

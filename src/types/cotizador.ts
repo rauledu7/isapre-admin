@@ -18,7 +18,12 @@ export interface PlanForm {
   isapreId: IsapreId | null;
   nombre: string;
   precioBaseUF: string;
-  gesUF: string;
-  caecUF: string;
+  /** UF por contrato. En pantalla: productos adicionales. */
   seguroUF: string;
+  /** Código elegido en el tarifario de la Isapre. */
+  codigoTarifa?: string | null;
+  /** Códigos de productos adicionales marcados. */
+  productosTarifa?: string[];
+  /** Suma la columna CONS UF del plan, una vez por contrato. */
+  incluyeConsulta?: boolean;
 }

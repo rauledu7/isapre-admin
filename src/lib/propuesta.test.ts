@@ -20,7 +20,6 @@ function propuesta(extra: Partial<Propuesta> = {}, precioPlanActualUF: number | 
         nombre: "Plan Óptimo",
         precioBaseUF: 1.85,
         gesUF: 0.6,
-        caecUF: 0.2,
         seguroUF: 0,
       },
     ],
@@ -63,9 +62,9 @@ describe("mensajeWhatsApp", () => {
     expect(texto).toContain("*Propuesta 1: Plan Óptimo (Colmena)*");
     expect(texto).toContain("Precio base × suma de factores (1,8500 UF × 1,3): 2,4050 UF");
     expect(texto).toContain("GES (0,6000 UF × 1 beneficiario): 0,6000 UF");
-    expect(texto).toContain("Precio final: *3,2050 UF*");
-    expect(texto).toContain("Cotización adicional mensual: 0,1410 UF");
-    expect(texto).toContain("Ahorro vs. plan actual: 0,2950 UF");
+    expect(texto).toContain("Precio final: *3,0050 UF*");
+    expect(texto).toContain("Excedentes mensuales: 0,0590 UF");
+    expect(texto).toContain("Ahorro vs. plan actual: 0,4950 UF");
   });
 
   it("incluye UF usada, nota legal y firma del asesor", () => {

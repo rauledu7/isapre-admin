@@ -16,8 +16,6 @@ const PLAN: PlanForm = {
   isapreId: "banmedica",
   nombre: "",
   precioBaseUF: "1,85",
-  gesUF: "0,6",
-  caecUF: "",
   seguroUF: "",
 };
 
@@ -36,13 +34,18 @@ describe("leerFormulario", () => {
           isapreId: "banmedica",
           nombre: "Plan 1",
           precioBaseUF: 1.85,
-          gesUF: 0.6,
-          caecUF: 0,
+          gesUF: 0.778,
           seguroUF: 0,
         },
       ],
     });
     expect(r.planesIncompletos).toEqual([]);
+  });
+
+  it("usa el GES guardado de la Isapre", () => {
+    const r = leerFormulario(CLIENTE, [], [PLAN], { banmedica: 0.8 });
+    if (!r.ok) throw new Error("esperaba ok");
+    expect(r.datos.planes[0]?.gesUF).toBe(0.8);
   });
 
   it("lista los datos faltantes del cliente", () => {
@@ -66,13 +69,13 @@ describe("leerFormulario", () => {
     const r = leerFormulario(CLIENTE, [], [
       PLAN,
       { ...PLAN, id: "p2", nombre: "Plan Oro", precioBaseUF: "" },
-      { ...PLAN, id: "p3", caecUF: "x" },
+      { ...PLAN, id: "p3", seguroUF: "x" },
     ]);
     if (!r.ok) throw new Error("esperaba ok");
     expect(r.datos.planes.map((p) => p.id)).toEqual(["p1"]);
     expect(r.planesIncompletos).toEqual([
       "Plan Oro: falta el precio base en UF",
-      "Plan 3: revisa los montos de GES, CAEC o seguros",
+      "Plan 3: revisa el monto de productos adicionales",
     ]);
   });
 });

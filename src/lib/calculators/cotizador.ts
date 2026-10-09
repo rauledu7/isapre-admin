@@ -16,22 +16,19 @@ export interface PlanAlternativa {
   isapreId: IsapreId | null;
   nombre: string;
   precioBaseUF: number;
-  /** UF por beneficiario. */
+  /** UF por beneficiario. Lo fija la Isapre. */
   gesUF: number;
-  /** UF por beneficiario. */
-  caecUF: number;
-  /** UF por contrato. */
+  /** UF por contrato. En pantalla: productos adicionales. */
   seguroUF: number;
 }
 
 export function construirCoberturas(plan: PlanAlternativa): CoberturaAdicional[] {
   const coberturas: CoberturaAdicional[] = [
     { id: "ges", tipo: "GES", nombre: "GES", precioUF: plan.gesUF, modalidad: "por_beneficiario" },
-    { id: "caec", tipo: "CAEC", nombre: "CAEC", precioUF: plan.caecUF, modalidad: "por_beneficiario" },
     {
       id: "seguro",
       tipo: "SEGURO",
-      nombre: "Seguros adicionales",
+      nombre: "Productos adicionales",
       precioUF: plan.seguroUF,
       modalidad: "por_contrato",
     },

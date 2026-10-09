@@ -1,6 +1,8 @@
+import { GES_UF } from "@/config/isapres";
 import type { PlanAlternativa } from "@/lib/calculators/cotizador";
 import { parseDecimal, parseEntero } from "@/lib/format";
 import type { CargaForm, ClienteForm, PlanForm } from "@/types/cotizador";
+import type { IsapreId } from "@/types/isapre";
 
 export const EDAD_MAXIMA = 120;
 
@@ -30,25 +32,24 @@ export function nombrePlan(plan: PlanForm, indice: number): string {
   return plan.nombre.trim() || `Plan ${indice + 1}`;
 }
 
-function leerPlan(plan: PlanForm, indice: number): PlanAlternativa | string {
+function leerPlan(
+  plan: PlanForm,
+  indice: number,
+  gesPorIsapre: Partial<Record<IsapreId, number>>,
+): PlanAlternativa | string {
   const nombre = nombrePlan(plan, indice);
   const precioBaseUF = parseDecimal(plan.precioBaseUF);
   if (precioBaseUF === null) return `${nombre}: falta el precio base en UF`;
 
-  const gesUF = leerMontoOpcional(plan.gesUF);
-  const caecUF = leerMontoOpcional(plan.caecUF);
   const seguroUF = leerMontoOpcional(plan.seguroUF);
-  if (gesUF === "invalido" || caecUF === "invalido" || seguroUF === "invalido") {
-    return `${nombre}: revisa los montos de GES, CAEC o seguros`;
-  }
+  if (seguroUF === "invalido") return `${nombre}: revisa el monto de productos adicionales`;
 
   return {
     id: plan.id,
     isapreId: plan.isapreId,
     nombre,
     precioBaseUF,
-    gesUF: gesUF ?? 0,
-    caecUF: caecUF ?? 0,
+    gesUF: plan.isapreId ? (gesPorIsapre[plan.isapreId] ?? GES_UF[plan.isapreId]) : 0,
     seguroUF: seguroUF ?? 0,
   };
 }
@@ -57,6 +58,7 @@ export function leerFormulario(
   cliente: ClienteForm,
   cargas: CargaForm[],
   planes: PlanForm[],
+  gesPorIsapre: Partial<Record<IsapreId, number>> = {},
 ): LecturaFormulario {
   const faltantes: string[] = [];
 
@@ -76,7 +78,7 @@ export function leerFormulario(
 
   if (faltantes.length > 0) return { ok: false, faltantes };
 
-  const planesLeidos = planes.map(leerPlan);
+  const planesLeidos = planes.map((plan, indice) => leerPlan(plan, indice, gesPorIsapre));
 
   return {
     ok: true,

@@ -323,6 +323,46 @@ export interface Database {
         };
         Relationships: [];
       };
+      tarifarios: {
+        Row: {
+          asesor_id: string;
+          isapre_id: string;
+          titulo: string | null;
+          planes: Json;
+          productos: Json;
+          updated_at: string;
+        };
+        Insert: {
+          asesor_id?: string;
+          isapre_id: string;
+          titulo?: string | null;
+          planes: Json;
+          productos: Json;
+        };
+        Update: {
+          titulo?: string | null;
+          planes?: Json;
+          productos?: Json;
+        };
+        Relationships: [];
+      };
+      ges_isapres: {
+        Row: {
+          asesor_id: string;
+          isapre_id: string;
+          ges_uf: number;
+          updated_at: string;
+        };
+        Insert: {
+          asesor_id?: string;
+          isapre_id: string;
+          ges_uf: number;
+        };
+        Update: {
+          ges_uf?: number;
+        };
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };

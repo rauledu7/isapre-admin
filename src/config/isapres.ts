@@ -1,13 +1,25 @@
-import type { Isapre, TablaFactores } from "@/types/isapre";
+import type { Isapre, IsapreId, TablaFactores } from "@/types/isapre";
 
 export const ISAPRES: readonly Isapre[] = [
   { id: "banmedica", nombre: "Banmédica" },
+  { id: "vida-tres", nombre: "Vida Tres" },
   { id: "consalud", nombre: "Consalud" },
   { id: "colmena", nombre: "Colmena" },
   { id: "cruz-blanca", nombre: "Cruz Blanca" },
   { id: "nueva-masvida", nombre: "Nueva Masvida" },
   { id: "esencial", nombre: "Esencial" },
 ];
+
+/** GES en UF por beneficiario. Valor inicial; el asesor lo corrige en Isapres. */
+export const GES_UF: Record<IsapreId, number> = {
+  banmedica: 0.778,
+  "vida-tres": 0.712,
+  consalud: 0.731,
+  colmena: 1.036,
+  "cruz-blanca": 0.971,
+  esencial: 0.91,
+  "nueva-masvida": 0.854,
+};
 
 export const TASA_COTIZACION_LEGAL = 0.07;
 

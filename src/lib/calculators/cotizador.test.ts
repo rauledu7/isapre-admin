@@ -13,16 +13,14 @@ const PLAN: PlanAlternativa = {
   nombre: "Plan prueba",
   precioBaseUF: 2,
   gesUF: 0.5,
-  caecUF: 0.2,
   seguroUF: 0,
 };
 
 describe("construirCoberturas", () => {
   it("omite coberturas en 0 y respeta la modalidad", () => {
     const c = construirCoberturas(PLAN);
-    expect(c.map((x) => [x.tipo, x.modalidad])).toEqual([
-      ["GES", "por_beneficiario"],
-      ["CAEC", "por_beneficiario"],
+    expect(c.map((x) => [x.tipo, x.nombre, x.modalidad])).toEqual([
+      ["GES", "GES", "por_beneficiario"],
     ]);
   });
 });
@@ -46,10 +44,10 @@ describe("evaluarCotizacion", () => {
     expect(r.cotizacionLegal.cotizacionLegalUF).toBeCloseTo(3.5, 10);
 
     const p = r.planes[0]!;
-    // 2 × 2,3 = 4,6 + GES 0,5 × 3 + CAEC 0,2 × 3 = 6,7
-    expect(p.resultado.plan.precioFinalUF).toBeCloseTo(6.7, 10);
+    // 2 × 2,3 = 4,6 + GES 0,5 × 3 = 6,1
+    expect(p.resultado.plan.precioFinalUF).toBeCloseTo(6.1, 10);
     expect(p.resultado.diferencia.tipo).toBe("adicional");
-    expect(p.resultado.diferencia.adicionalUF).toBeCloseTo(3.2, 10);
+    expect(p.resultado.diferencia.adicionalUF).toBeCloseTo(2.6, 10);
     expect(p.variacionVsActualUF).toBeNull();
     expect(r.planActual).toBeNull();
   });
@@ -58,7 +56,7 @@ describe("evaluarCotizacion", () => {
     const r = evaluarCotizacion({ ...base, precioPlanActualUF: 7.2 });
     expect(r.planActual?.precioCLP).toBeCloseTo(288_000, 6);
     expect(r.planActual?.diferencia.adicionalUF).toBeCloseTo(3.7, 10);
-    expect(r.planes[0]?.variacionVsActualUF).toBeCloseTo(-0.5, 10);
-    expect(r.planes[0]?.variacionVsActualCLP).toBeCloseTo(-20_000, 6);
+    expect(r.planes[0]?.variacionVsActualUF).toBeCloseTo(-1.1, 10);
+    expect(r.planes[0]?.variacionVsActualCLP).toBeCloseTo(-44_000, 6);
   });
 });

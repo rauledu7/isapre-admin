@@ -24,9 +24,10 @@ const planVacio = (): PlanForm => ({
   isapreId: null,
   nombre: "",
   precioBaseUF: "",
-  gesUF: "",
-  caecUF: "",
   seguroUF: "",
+  codigoTarifa: null,
+  productosTarifa: [],
+  incluyeConsulta: false,
 });
 
 interface CotizadorState {

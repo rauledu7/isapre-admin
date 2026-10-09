@@ -3,6 +3,7 @@ import type { DatosCotizacion } from "@/lib/cotizadorForm";
 
 export type IsapreId =
   | "banmedica"
+  | "vida-tres"
   | "consalud"
   | "colmena"
   | "cruz-blanca"

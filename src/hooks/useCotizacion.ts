@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { TABLA_FACTORES, TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
+import { useGesIsapres } from "@/hooks/useGesIsapres";
 import { evaluarCotizacion, type ResultadoEvaluacion } from "@/lib/calculators/cotizador";
 import { leerFormulario, type DatosCotizacion } from "@/lib/cotizadorForm";
 import { useCotizadorStore } from "@/store/cotizadorStore";
@@ -26,6 +27,7 @@ export function useCotizacion(): EstadoCotizacion {
   const cargas = useCotizadorStore((s) => s.cargas);
   const planes = useCotizadorStore((s) => s.planes);
   const valorUF = useValorUF();
+  const ges = useGesIsapres();
 
   return useMemo(() => {
     if (!valorUF) return { estado: "sin_uf" };
@@ -33,7 +35,7 @@ export function useCotizacion(): EstadoCotizacion {
       return { estado: "error", mensaje: "No hay Tabla de Factores configurada" };
     }
 
-    const lectura = leerFormulario(cliente, cargas, planes);
+    const lectura = leerFormulario(cliente, cargas, planes, ges);
     if (!lectura.ok) return { estado: "incompleto", faltantes: lectura.faltantes };
 
     try {
@@ -53,5 +55,5 @@ export function useCotizacion(): EstadoCotizacion {
     } catch (e) {
       return { estado: "error", mensaje: e instanceof Error ? e.message : "Error de cálculo" };
     }
-  }, [cliente, cargas, planes, valorUF]);
+  }, [cliente, cargas, planes, valorUF, ges]);
 }

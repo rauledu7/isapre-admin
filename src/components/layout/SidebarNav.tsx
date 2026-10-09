@@ -6,6 +6,7 @@ import {
   FolderIcon,
   LayoutDashboardIcon,
   MegaphoneIcon,
+  Table2Icon,
   UsersIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
   { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
   { href: "/documentos", label: "Documentos", icon: FolderIcon },
+  { href: "/isapres", label: "Isapres", icon: Table2Icon },
   { href: "/google-ads", label: "Google Ads", icon: MegaphoneIcon },
 ];
 

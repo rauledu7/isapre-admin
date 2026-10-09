@@ -1,0 +1,100 @@
+import { describe, expect, it } from "vitest";
+
+import { leerTarifario, precioProducto, type PalabraTarifa, type ProductoTarifa } from "./tarifario";
+
+function palabras(filas: string[][]): PalabraTarifa[] {
+  return filas.flatMap((fila, y) =>
+    fila.map((texto, columna) => ({ texto, x: columna === 0 ? 47 : columna === 1 ? 103 : 130, y: y * 20 })),
+  );
+}
+
+const PRODUCTO: ProductoTarifa = {
+  codigo: "1250",
+  nombre: "Catastrófico multiprestador max",
+  quintoGratis: true,
+  tramos: [
+    { edadDesde: 0, edadHasta: 18, precioUF: 0.27 },
+    { edadDesde: 19, edadHasta: 24, precioUF: 0.35 },
+    { edadDesde: 25, edadHasta: 34, precioUF: 0.45 },
+    { edadDesde: 35, edadHasta: 44, precioUF: 0.5 },
+    { edadDesde: 45, edadHasta: 54, precioUF: 0.91 },
+    { edadDesde: 55, edadHasta: 59, precioUF: 1.8 },
+  ],
+};
+
+describe("leerTarifario", () => {
+  it("lee el precio base y la consulta de cada código", () => {
+    const leido = leerTarifario([
+      palabras([
+        ["TARIFARIO SANTIAGO 06 JULIO 2026"],
+        ["SALUD CLASICO GOLD"],
+        ["CODIGO", "VB"],
+        ["BCG260500", "1,2"],
+        ["", "", "0,4"],
+        ["BCG260502", "1,24", "0,4"],
+      ]),
+    ]);
+    expect(leido.titulo).toBe("SANTIAGO 06 JULIO 2026");
+    expect(leido.planes).toEqual([
+      { codigo: "BCG260500", linea: "SALUD CLASICO GOLD", precioBaseUF: 1.2, consultaUF: 0.4 },
+      { codigo: "BCG260502", linea: "SALUD CLASICO GOLD", precioBaseUF: 1.24, consultaUF: 0.4 },
+    ]);
+  });
+
+  it("lee el producto con precio por edad y el quinto beneficiario gratis", () => {
+    const leido = leerTarifario([
+      [
+        { texto: "2.-", x: 40, y: 10 },
+        { texto: "CATASTRÓFICO", x: 60, y: 10 },
+        { texto: "MAX-", x: 150, y: 10 },
+        { texto: "Codigo", x: 180, y: 10 },
+        { texto: "1250", x: 220, y: 10 },
+        { texto: "DESDE", x: 40, y: 30 },
+        { texto: "EL", x: 80, y: 30 },
+        { texto: "QUINTO", x: 100, y: 30 },
+        { texto: "BENEFICIARIO", x: 140, y: 30 },
+        { texto: "ES", x: 210, y: 30 },
+        { texto: "GRATIS", x: 230, y: 30 },
+        { texto: "PRECIOS", x: 40, y: 50 },
+        { texto: "CATASTROFICO", x: 90, y: 50 },
+        { texto: "1250", x: 180, y: 50 },
+        { texto: "30", x: 40, y: 70 },
+        { texto: "dias", x: 55, y: 70 },
+        { texto: "-", x: 80, y: 70 },
+        { texto: "18", x: 90, y: 70 },
+        { texto: "años", x: 110, y: 70 },
+        { texto: "0,27", x: 250, y: 70 },
+        { texto: "UF", x: 280, y: 70 },
+        { texto: "55", x: 40, y: 90 },
+        { texto: "-", x: 55, y: 90 },
+        { texto: "59", x: 65, y: 90 },
+        { texto: "años", x: 85, y: 90 },
+        { texto: "1,8", x: 250, y: 90 },
+        { texto: "UF", x: 280, y: 90 },
+      ],
+    ]);
+    expect(leido.productos).toEqual([
+      {
+        codigo: "1250",
+        nombre: "CATASTRÓFICO MAX",
+        quintoGratis: true,
+        tramos: [
+          { edadDesde: 0, edadHasta: 18, precioUF: 0.27 },
+          { edadDesde: 55, edadHasta: 59, precioUF: 1.8 },
+        ],
+      },
+    ]);
+  });
+});
+
+describe("precioProducto", () => {
+  it("cobra los cuatro más caros y deja gratis al resto", () => {
+    const r = precioProducto(PRODUCTO, [40, 10, 30, 50, 58, 20]);
+    expect(r.sinPrecio).toEqual([]);
+    expect(r.totalUF).toBeCloseTo(3.66, 10);
+  });
+
+  it("avisa la edad que el producto no tarifica", () => {
+    expect(precioProducto(PRODUCTO, [70]).sinPrecio).toEqual([70]);
+  });
+});
