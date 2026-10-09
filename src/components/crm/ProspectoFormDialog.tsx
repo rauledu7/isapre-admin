@@ -47,6 +47,10 @@ function formDesde(
       horaContacto: prospecto.horaContacto ?? "",
       ufCierre: prospecto.ufCierre === null ? "" : String(prospecto.ufCierre).replace(".", ","),
       cerradoEn: prospecto.cerradoEn ?? "",
+      gclid: prospecto.gclid ?? "",
+      utmSource: prospecto.utmSource ?? "",
+      utmCampaign: prospecto.utmCampaign ?? "",
+      utmKw: prospecto.utmKw ?? "",
     };
   }
   return {
@@ -62,6 +66,10 @@ function formDesde(
     horaContacto: "",
     ufCierre: "",
     cerradoEn: "",
+    gclid: "",
+    utmSource: "",
+    utmCampaign: "",
+    utmKw: "",
     ...iniciales,
     etapaId: etapaPorDefecto,
   };

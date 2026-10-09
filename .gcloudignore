@@ -1,0 +1,13 @@
+.git
+.cursor
+node_modules
+.next
+coverage
+.DS_Store
+npm-debug.log*
+.env
+.env.*
+!.env.example
+docs
+supabase
+*.md

@@ -1,6 +1,14 @@
 "use client";
 
-import { CalculatorIcon, CalendarIcon, FolderIcon, LayoutDashboardIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import {
+  CalculatorIcon,
+  CalendarIcon,
+  FolderIcon,
+  LayoutDashboardIcon,
+  MegaphoneIcon,
+  UsersIcon,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
@@ -21,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
   { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
   { href: "/documentos", label: "Documentos", icon: FolderIcon },
+  { href: "/google-ads", label: "Google Ads", icon: MegaphoneIcon },
 ];
 
 interface SidebarNavProps {

@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 
 import { Button } from "@/components/ui/button";
 
+import { CampanasAds } from "./CampanasAds";
 import { MetasMes } from "./MetasMes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { COLOR_TIPO_ETAPA, PALETA } from "@/config/ui";
@@ -110,6 +111,8 @@ export function DashboardView() {
           </div>
         </CardContent>
       </Card>
+
+      <CampanasAds etapas={etapas} prospectos={prospectos} />
     </div>
   );
 }

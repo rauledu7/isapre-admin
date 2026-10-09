@@ -15,6 +15,21 @@ interface Aviso {
   prospecto_id: string | null;
 }
 
+function esperarActivo(registro: ServiceWorkerRegistration): Promise<void> {
+  if (registro.active) return Promise.resolve();
+  const worker = registro.installing ?? registro.waiting;
+  if (!worker) return navigator.serviceWorker.ready.then(() => undefined);
+  if (worker.state === "activated") return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const revisar = () => {
+      if (worker.state === "activated") resolve();
+      if (worker.state === "redundant") reject(new Error("No se pudo activar el service worker"));
+    };
+    worker.addEventListener("statechange", revisar);
+    revisar();
+  });
+}
+
 function claveAplicacion(base64: string): Uint8Array<ArrayBuffer> {
   const limpia = base64.replace(/-/g, "+").replace(/_/g, "/");
   const relleno = "=".repeat((4 - (limpia.length % 4)) % 4);
@@ -28,6 +43,7 @@ export function CentroNotificaciones() {
   const [abierto, setAbierto] = useState(false);
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [listo, setListo] = useState(false);
   const [activando, setActivando] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -88,7 +104,9 @@ export function CentroNotificaciones() {
         return;
       }
       const registro = await navigator.serviceWorker.register("/sw.js");
-      const suscripcion = await registro.pushManager.subscribe({
+      await esperarActivo(registro);
+      const activo = await navigator.serviceWorker.ready;
+      const suscripcion = await activo.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: claveAplicacion(clave),
       });
@@ -102,6 +120,7 @@ export function CentroNotificaciones() {
         auth,
       });
       if (guardado && guardado.code !== "23505") throw new Error(guardado.message);
+      setListo(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo activar");
     } finally {
@@ -128,6 +147,7 @@ export function CentroNotificaciones() {
             </Button>
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
+          {listo && !error && <p className="text-xs text-exito">Alertas del navegador activadas.</p>}
           <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto">
             {avisos.length === 0 && <li className={cn("text-muted-foreground")}>Sin alertas.</li>}
             {avisos.map((aviso) => (

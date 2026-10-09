@@ -19,9 +19,13 @@ export interface ProspectoForm {
   horaContacto: string;
   ufCierre: string;
   cerradoEn: string;
+  gclid: string;
+  utmSource: string;
+  utmCampaign: string;
+  utmKw: string;
 }
 
-export type ProspectoDatos = Omit<Prospecto, "id" | "creadoEn" | "actualizadoEn">;
+export type ProspectoDatos = Omit<Prospecto, "id" | "creadoEn" | "actualizadoEn" | "adsConversionEn">;
 
 export type ErroresProspecto = Partial<Record<keyof ProspectoForm, string>>;
 
@@ -95,6 +99,10 @@ export function leerProspecto(form: ProspectoForm): LecturaProspecto {
       horaContacto: hora && esHora(hora) ? hora : null,
       ufCierre: uf,
       cerradoEn: esFechaISO(form.cerradoEn) ? form.cerradoEn : null,
+      gclid: form.gclid.trim() || null,
+      utmSource: form.utmSource.trim() || null,
+      utmCampaign: form.utmCampaign.trim() || null,
+      utmKw: form.utmKw.trim() || null,
     },
   };
 }

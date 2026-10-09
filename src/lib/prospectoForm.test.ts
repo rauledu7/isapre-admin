@@ -16,6 +16,10 @@ const FORM: ProspectoForm = {
   horaContacto: "",
   ufCierre: "",
   cerradoEn: "",
+  gclid: "",
+  utmSource: "",
+  utmCampaign: "",
+  utmKw: "",
 };
 
 describe("leerProspecto", () => {
@@ -36,6 +40,10 @@ describe("leerProspecto", () => {
         horaContacto: null,
         ufCierre: null,
         cerradoEn: null,
+        gclid: null,
+        utmSource: null,
+        utmCampaign: null,
+        utmKw: null,
       },
     });
   });

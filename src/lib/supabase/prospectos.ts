@@ -57,6 +57,11 @@ const aProspecto = (r: ProspectoRow): Prospecto => ({
   horaContacto: r.hora_contacto ? r.hora_contacto.slice(0, 5) : null,
   cerradoEn: r.cerrado_en ?? null,
   ufCierre: r.uf_cierre == null ? null : Number(r.uf_cierre),
+  gclid: r.gclid ?? null,
+  utmSource: r.utm_source ?? null,
+  utmCampaign: r.utm_campaign ?? null,
+  utmKw: r.utm_kw ?? null,
+  adsConversionEn: r.ads_conversion_en ?? null,
   creadoEn: r.created_at,
   actualizadoEn: r.updated_at,
 });
@@ -75,6 +80,10 @@ const aFila = (d: Partial<ProspectoDatos>) => ({
   ...(d.horaContacto !== undefined && { hora_contacto: d.horaContacto }),
   ...(d.cerradoEn !== undefined && { cerrado_en: d.cerradoEn }),
   ...(d.ufCierre !== undefined && { uf_cierre: d.ufCierre }),
+  ...(d.gclid ? { gclid: d.gclid } : {}),
+  ...(d.utmSource ? { utm_source: d.utmSource } : {}),
+  ...(d.utmCampaign ? { utm_campaign: d.utmCampaign } : {}),
+  ...(d.utmKw ? { utm_kw: d.utmKw } : {}),
 });
 
 const aNota = (r: NotaRow): NotaProspecto => ({

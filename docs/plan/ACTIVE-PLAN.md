@@ -17,7 +17,9 @@
 - [x] Vista `/documentos` por RUT, nombre o tipo, con previsualización de PDF e imagen.
 
 ### Etapa 10: Integración con Google Ads & Métricas de Adquisición
-- [ ] Crear endpoint de API `/api/v1/leads/webhook` para recibir prospectos automáticamente desde formularios de Google Ads o Landings.
-- [ ] Captura y almacenamiento de `gclid` (Google Click ID) y UTMs en la ficha del prospecto.
-- [ ] Módulo en el Dashboard: ROI de Campañas de Google Ads (Comparativa de Clics vs. Prospectos Ingresados vs. UF Cerradas).
-- [ ] Configuración del envío de "Conversiones Offline" a Google Ads API al marcar un contrato como ganado.
+- [x] Crear endpoint de API `POST /api/v1/leads/webhook` (Bearer `LEADS_WEBHOOK_SECRET`) para recibir prospectos desde formularios de Google Ads o landings.
+- [x] Captura y almacenamiento de `gclid` y UTMs (`utm_source`, `utm_campaign`, `utm_kw`) en la ficha del prospecto.
+- [x] Módulo en el Dashboard: leads, cierres y UF por campaña. Clics, gasto y costo por lead solo cuando Google Ads responde.
+- [x] Conversión offline a Google Ads al dejar un prospecto en etapa ganada, con gclid y UF de cierre. El valor se envía en UF (`CLF`).
+- [x] Cada asesor guarda su cuenta en `/google-ads`. Los secretos no vuelven al navegador.
+- Correr `supabase/migrations/20261008240000_etapa10_google_ads.sql` y `supabase/migrations/20261008250000_google_ads_cuenta.sql`. El webhook de leads sigue usando `LEADS_WEBHOOK_SECRET` en el servidor.

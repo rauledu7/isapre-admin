@@ -139,6 +139,14 @@ export function FichaProspecto() {
                   }
                 />
               </dl>
+              {(prospecto.gclid || prospecto.utmSource || prospecto.utmCampaign || prospecto.utmKw) && (
+                <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-4">
+                  <Dato etiqueta="Origen" valor={prospecto.utmSource ?? "—"} />
+                  <Dato etiqueta="Campaña" valor={prospecto.utmCampaign ?? "—"} />
+                  <Dato etiqueta="Palabra clave" valor={prospecto.utmKw ?? "—"} />
+                  <Dato etiqueta="gclid" valor={prospecto.gclid ?? "—"} />
+                </dl>
+              )}
               <div className="mt-4 flex flex-col gap-3 border-t pt-4">
                 <Campo
                   label="Próximo contacto"

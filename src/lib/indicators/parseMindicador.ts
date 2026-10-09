@@ -7,13 +7,23 @@ const fechaChile = new Intl.DateTimeFormat("en-CA", {
   day: "2-digit",
 });
 
-export function parseRespuestaUF(data: unknown): ValorUF {
-  const serie = (data as { serie?: unknown } | null)?.serie;
-  if (!Array.isArray(serie) || serie.length === 0) {
-    throw new Error("Respuesta de mindicador.cl sin serie de UF");
+function puntoUF(data: unknown): { valor?: unknown; fecha?: unknown } | null {
+  if (!data || typeof data !== "object") return null;
+  const fila = data as { serie?: unknown; uf?: unknown };
+  if (Array.isArray(fila.serie) && fila.serie[0] && typeof fila.serie[0] === "object") {
+    return fila.serie[0] as { valor?: unknown; fecha?: unknown };
   }
+  if (fila.uf && typeof fila.uf === "object") {
+    return fila.uf as { valor?: unknown; fecha?: unknown };
+  }
+  return null;
+}
 
-  const { valor, fecha } = serie[0] as { valor?: unknown; fecha?: unknown };
+export function parseRespuestaUF(data: unknown): ValorUF {
+  const punto = puntoUF(data);
+  if (!punto) throw new Error("Respuesta de mindicador.cl sin serie de UF");
+
+  const { valor, fecha } = punto;
   if (typeof valor !== "number" || !Number.isFinite(valor) || valor <= 0) {
     throw new Error("Valor UF inválido en respuesta de mindicador.cl");
   }

@@ -96,6 +96,13 @@ export interface Prospecto {
   cerradoEn: string | null;
   /** UF del plan afiliado. Cuenta para la meta del mes de `cerradoEn`. */
   ufCierre: number | null;
+  /** Google Click ID, si el lead llegó de un anuncio. */
+  gclid: string | null;
+  utmSource: string | null;
+  utmCampaign: string | null;
+  utmKw: string | null;
+  /** Momento en que se informó la conversión offline a Google Ads. */
+  adsConversionEn: string | null;
   creadoEn: string;
   actualizadoEn: string;
 }

@@ -32,6 +32,14 @@ interface ProspectosState {
 
 const mensaje = (e: unknown) => (e instanceof Error ? e.message : "Error inesperado");
 
+function pedirConversion(prospectoId: string) {
+  void fetch("/api/ads/conversion", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prospectoId }),
+  }).catch(() => undefined);
+}
+
 const reemplazar = (lista: Prospecto[], p: Prospecto) => lista.map((x) => (x.id === p.id ? p : x));
 
 export const useProspectosStore = create<ProspectosState>()((set, get) => ({
@@ -82,6 +90,7 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
     if (anterior && cambios.etapaId && cambios.etapaId !== anterior.etapaId) {
       avisarCambioEtapa(anterior, cambios.etapaId, get().etapas);
     }
+    if (cambios.etapaId || cambios.ufCierre !== undefined) pedirConversion(id);
     return p;
   },
 
@@ -95,6 +104,7 @@ export const useProspectosStore = create<ProspectosState>()((set, get) => ({
       const p = await db.actualizarProspecto(getSupabase(), id, cambios);
       set((s) => ({ prospectos: reemplazar(s.prospectos, p) }));
       avisarCambioEtapa(anterior, etapaId, get().etapas);
+      pedirConversion(id);
     } catch (e) {
       set((s) => ({ prospectos: reemplazar(s.prospectos, anterior), error: mensaje(e) }));
     }

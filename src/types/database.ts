@@ -48,6 +48,12 @@ export interface Database {
           hora_contacto: string | null;
           cerrado_en: string | null;
           uf_cierre: number | null;
+          gclid: string | null;
+          utm_source: string | null;
+          utm_campaign: string | null;
+          utm_kw: string | null;
+          ads_conversion_en: string | null;
+          ads_conversion_error: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -67,6 +73,12 @@ export interface Database {
           hora_contacto?: string | null;
           cerrado_en?: string | null;
           uf_cierre?: number | null;
+          gclid?: string | null;
+          utm_source?: string | null;
+          utm_campaign?: string | null;
+          utm_kw?: string | null;
+          ads_conversion_en?: string | null;
+          ads_conversion_error?: string | null;
         };
         Update: {
           etapa_id?: string;
@@ -82,6 +94,12 @@ export interface Database {
           hora_contacto?: string | null;
           cerrado_en?: string | null;
           uf_cierre?: number | null;
+          gclid?: string | null;
+          utm_source?: string | null;
+          utm_campaign?: string | null;
+          utm_kw?: string | null;
+          ads_conversion_en?: string | null;
+          ads_conversion_error?: string | null;
         };
         Relationships: [
           {
@@ -179,6 +197,45 @@ export interface Database {
           email?: string | null;
           meta_uf_mes?: number | null;
           meta_contratos_mes?: number | null;
+        };
+        Relationships: [];
+      };
+      google_ads_cuentas: {
+        Row: {
+          asesor_id: string;
+          developer_token: string;
+          client_id: string;
+          client_secret: string;
+          refresh_token: string;
+          customer_id: string;
+          login_customer_id: string | null;
+          conversion_action_id: string;
+          currency: string;
+          api_version: string;
+          updated_at: string;
+        };
+        Insert: {
+          asesor_id?: string;
+          developer_token: string;
+          client_id: string;
+          client_secret: string;
+          refresh_token: string;
+          customer_id: string;
+          login_customer_id?: string | null;
+          conversion_action_id: string;
+          currency?: string;
+          api_version?: string;
+        };
+        Update: {
+          developer_token?: string;
+          client_id?: string;
+          client_secret?: string;
+          refresh_token?: string;
+          customer_id?: string;
+          login_customer_id?: string | null;
+          conversion_action_id?: string;
+          currency?: string;
+          api_version?: string;
         };
         Relationships: [];
       };

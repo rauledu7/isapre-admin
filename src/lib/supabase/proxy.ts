@@ -6,7 +6,7 @@ import type { Database } from "@/types/database";
 import { supabaseEnv } from "./env";
 
 const RUTAS_PUBLICAS = ["/login"];
-const RUTAS_ABIERTAS = ["/sw.js", "/api/cron"];
+const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads"];
 
 /** Refresca la sesión en cada request y redirige según autenticación. */
 export async function actualizarSesion(request: NextRequest): Promise<NextResponse> {

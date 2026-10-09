@@ -13,6 +13,13 @@ describe("parseRespuestaUF", () => {
     expect(r).toEqual({ valor: 41122.74, fecha: "2026-10-08", fuente: "mindicador" });
   });
 
+  it("acepta el valor del día cuando viene en uf y no en serie", () => {
+    const r = parseRespuestaUF({
+      uf: { fecha: "2026-10-08T03:00:00.000Z", valor: 41122.74 },
+    });
+    expect(r).toEqual({ valor: 41122.74, fecha: "2026-10-08", fuente: "mindicador" });
+  });
+
   it("rechaza respuestas malformadas", () => {
     expect(() => parseRespuestaUF(null)).toThrow();
     expect(() => parseRespuestaUF({ serie: [] })).toThrow();
