@@ -11,7 +11,14 @@ const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads"];
 /** Refresca la sesión en cada request y redirige según autenticación. */
 export async function actualizarSesion(request: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request });
-  const { url, key } = supabaseEnv();
+  let url: string;
+  let key: string;
+  try {
+    ({ url, key } = supabaseEnv());
+  } catch (error) {
+    const mensaje = error instanceof Error ? error.message : "Falta la configuración de Supabase";
+    return new NextResponse(mensaje, { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } });
+  }
 
   const supabase = createServerClient<Database>(url, key, {
     cookies: {

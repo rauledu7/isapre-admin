@@ -19,7 +19,8 @@ export async function enviarPush(sb: Supabase, asesorId: string, avisos: AvisoPu
   const privada = process.env.VAPID_PRIVATE_KEY?.trim();
   if (!publica || !privada || avisos.length === 0) return;
 
-  webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "mailto:isapreassistant@localhost", publica, privada);
+  const asunto = process.env.VAPID_SUBJECT?.trim() || "mailto:isapreassistant@localhost";
+  webpush.setVapidDetails(asunto.startsWith("mailto:") || asunto.startsWith("https:") ? asunto : `mailto:${asunto}`, publica, privada);
   const { data } = await sb.from("dispositivos_push").select("id, endpoint, p256dh, auth").eq("asesor_id", asesorId);
   if (!data?.length) return;
 
