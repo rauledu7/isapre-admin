@@ -40,7 +40,12 @@ export function aTarifario(fila: {
     isapreId: fila.isapre_id as IsapreId,
     titulo: fila.titulo,
     planes: fila.planes as unknown as PlanTarifa[],
-    productos: productos.map((producto) => ({ ...producto, quintoGratis: Boolean(producto.quintoGratis) })),
+    productos: productos.map((producto) => ({
+      ...producto,
+      quintoGratis: Boolean(producto.quintoGratis),
+      fijo: producto.fijo === true,
+      modalidad: producto.modalidad === "por_contrato" ? "por_contrato" : "por_beneficiario",
+    })),
   };
 }
 

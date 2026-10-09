@@ -93,13 +93,14 @@ function SelectorProductos({
                   />
                   <span>
                     {frase(producto.nombre)} ({producto.codigo})
-                    {parcial && (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        · {textoUF(parcial.totalUF)} UF
-                        {producto.quintoGratis ? " · desde el 5.º, el más barato no se cobra" : ""}
-                      </span>
-                    )}
+                    <span className="text-muted-foreground">
+                      {producto.fijo
+                        ? ` · ${textoUF(producto.tramos[0]?.precioUF ?? 0)} UF ${producto.modalidad === "por_beneficiario" ? "por beneficiario" : "por contrato"}`
+                        : parcial
+                          ? ` · ${textoUF(parcial.totalUF)} UF`
+                          : ""}
+                      {producto.quintoGratis ? " · desde el 5.º, el más barato no se cobra" : ""}
+                    </span>
                   </span>
                 </label>
               </li>

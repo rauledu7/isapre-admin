@@ -27,6 +27,10 @@ export interface ProductoTarifa {
   tramos: TramoProducto[];
   /** Desde el quinto beneficiario, el más barato no se cobra. */
   quintoGratis: boolean;
+  /** Precio único, sin tramo de edad. */
+  fijo?: boolean;
+  /** `por_contrato` se cobra una vez. `por_beneficiario` se multiplica por las edades. */
+  modalidad?: "por_beneficiario" | "por_contrato";
 }
 
 export interface TarifarioLeido {
@@ -41,7 +45,13 @@ function numeroUF(texto: string): number | null {
   if (!/^\d{1,2}[.,]\d{1,4}$/.test(texto)) return null;
   if (/^\d+\.\d{3}$/.test(texto)) return null;
   const valor = Number(texto.replace(",", "."));
-  return Number.isFinite(valor) && valor < 30 ? valor : null;
+  return Number.isFinite(valor) && valor > 0 && valor < 30 ? valor : null;
+}
+
+function enteroColumna(texto: string): number | null {
+  if (!/^\d{1,2}$/.test(texto)) return null;
+  const valor = Number(texto);
+  return valor > 0 && valor < 30 ? valor : null;
 }
 
 function lineasDe(palabras: PalabraTarifa[]): PalabraTarifa[][] {
@@ -106,7 +116,52 @@ function precioEn(linea: PalabraTarifa[]): number | null {
   return candidatos.sort((a, b) => b.x - a.x)[0]?.valor ?? null;
 }
 
-function decimalEn(linea: PalabraTarifa[], xMin: number, xMax: number): number | null {
+interface ColumnasPlan {
+  codigoX: number;
+  baseX: number;
+  consultaX: number | null;
+}
+
+function etiquetaCodigo(texto: string): boolean {
+  return /^c[oó]digos?$/i.test(texto.trim());
+}
+
+function etiquetaBase(texto: string): boolean {
+  return /^(vb|v\.b\.)$/i.test(texto.replace(/\s/g, ""));
+}
+
+function etiquetaConsulta(texto: string): boolean {
+  return /^cons(\s*uf)?$/i.test(texto.trim());
+}
+
+function columnasPlan(linea: PalabraTarifa[]): ColumnasPlan | null {
+  const codigo = linea.find((palabra) => etiquetaCodigo(palabra.texto));
+  const base = linea.find((palabra) => etiquetaBase(palabra.texto));
+  if (!codigo || !base || base.x <= codigo.x) return null;
+  const consulta = linea.find((palabra) => etiquetaConsulta(palabra.texto) && palabra.x > base.x);
+  return { codigoX: codigo.x, baseX: base.x, consultaX: consulta?.x ?? null };
+}
+
+function precioCerca(
+  linea: PalabraTarifa[],
+  x: number,
+  tolerancia: number,
+  entero: boolean,
+  lejosDe?: number,
+): number | null {
+  let mejor: { distancia: number; valor: number } | null = null;
+  for (const palabra of linea) {
+    const distancia = Math.abs(palabra.x - x);
+    if (distancia > tolerancia) continue;
+    if (lejosDe !== undefined && Math.abs(palabra.x - lejosDe) <= distancia) continue;
+    const valor = numeroUF(palabra.texto) ?? (entero ? enteroColumna(palabra.texto) : null);
+    if (valor === null || (mejor && distancia >= mejor.distancia)) continue;
+    mejor = { distancia, valor };
+  }
+  return mejor?.valor ?? null;
+}
+
+function precioEntre(linea: PalabraTarifa[], xMin: number, xMax: number): number | null {
   for (const palabra of linea) {
     if (palabra.x < xMin || palabra.x >= xMax) continue;
     const valor = numeroUF(palabra.texto);
@@ -115,7 +170,67 @@ function decimalEn(linea: PalabraTarifa[], xMin: number, xMax: number): number |
   return null;
 }
 
-/** Planes (código, precio base, consulta) y productos con precio por edad. */
+function trozos(linea: PalabraTarifa[], hueco = 36): PalabraTarifa[][] {
+  const grupos: PalabraTarifa[][] = [];
+  for (const palabra of [...linea].sort((a, b) => a.x - b.x)) {
+    const ultimo = grupos.at(-1);
+    const previo = ultimo?.at(-1);
+    if (!ultimo || !previo || palabra.x - (previo.x + previo.texto.length * 4) > hueco) grupos.push([palabra]);
+    else ultimo.push(palabra);
+  }
+  return grupos;
+}
+
+function esEncabezadoProducto(linea: string): boolean {
+  const limpio = linea.trim();
+  if (limpio.length < 18 || limpio.length > 80 || !limpio.includes(" ")) return false;
+  if (/\d{3,5}/.test(limpio) || /\d[.,]\d/.test(limpio)) return false;
+  if (/^(cod|c[oó]digo|valor|condiciones|tope|precio|por beneficiario|cualquier plan)\b/i.test(limpio)) return false;
+  const letras = limpio.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ]/g, "");
+  if (letras.length < 8) return false;
+  const mayusculas = letras.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length;
+  return mayusculas >= letras.length * 0.7;
+}
+
+function precioProductoPlano(texto: string): { valor: number; modalidad: ProductoTarifa["modalidad"] | null } | null {
+  const match = texto.match(/(\d{1,2}[.,]\d{1,4})/);
+  if (!match?.[1]) return null;
+  const valor = numeroUF(match[1]);
+  if (valor === null) return null;
+  if (/familia|g\.\s*f|grupo/i.test(texto)) return { valor, modalidad: "por_contrato" };
+  if (/benef/i.test(texto)) return { valor, modalidad: "por_beneficiario" };
+  return { valor, modalidad: null };
+}
+
+function modalidadDe(textos: string[]): ProductoTarifa["modalidad"] {
+  const blob = textos.join(" ");
+  const familia = /familia|g\.\s*f|grupo/i.test(blob);
+  const benef = /benef/i.test(blob);
+  if (familia && !benef) return "por_contrato";
+  if (benef && !familia) return "por_beneficiario";
+  return "por_contrato";
+}
+
+function guardarPlano(
+  productos: Map<string, ProductoTarifa>,
+  codigo: string,
+  nombre: string,
+  valor: number,
+  modalidad: ProductoTarifa["modalidad"],
+) {
+  const anterior = productos.get(codigo);
+  if (anterior && !anterior.fijo && anterior.tramos.length > 0) return;
+  productos.set(codigo, {
+    codigo,
+    nombre: anterior?.nombre && anterior.nombre !== `Producto ${codigo}` ? anterior.nombre : nombre,
+    tramos: [{ edadDesde: 0, edadHasta: 120, precioUF: valor }],
+    quintoGratis: false,
+    fijo: true,
+    modalidad,
+  });
+}
+
+/** Planes (código, precio base, consulta) y productos del bloque Productos adicionales. */
 export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
   const planes: PlanTarifa[] = [];
   const vistos = new Set<string>();
@@ -124,6 +239,8 @@ export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
   let lineaActual: string | null = null;
   let productoActual: string | null = null;
   let preciosDe: string | null = null;
+  let columnas: ColumnasPlan | null = null;
+  let enProductos = false;
 
   for (const pagina of paginas) {
     const lineas = lineasDe(pagina);
@@ -131,29 +248,58 @@ export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
       const escrito = texto(linea).replace(/\s+/g, " ").trim();
       return esTitulo(escrito) && linea[0] ? [{ y: linea[0].y, texto: escrito }] : [];
     });
+    const encabezados = lineas.flatMap((linea) => {
+      const columnasLinea = columnasPlan(linea);
+      return columnasLinea && linea[0] ? [{ y: linea[0].y, columnas: columnasLinea }] : [];
+    });
+    const titulosProducto = lineas.flatMap((linea) =>
+      trozos(linea).flatMap((trozo) => {
+        const escrito = texto(trozo).replace(/\s+/g, " ").trim();
+        return esEncabezadoProducto(escrito) && trozo[0] ? [{ y: trozo[0].y, x: trozo[0].x, texto: escrito }] : [];
+      }),
+    );
     const lineaEn = (y: number) => {
       let actual = lineaActual;
-      for (const titulo of titulos) {
-        if (titulo.y < y) actual = titulo.texto;
+      for (const tituloPlan of titulos) {
+        if (tituloPlan.y < y) actual = tituloPlan.texto;
       }
       return actual;
     };
+    const columnasEn = (y: number) => {
+      let actual = columnas;
+      for (const encabezado of encabezados) {
+        if (encabezado.y <= y + 2) actual = encabezado.columnas;
+      }
+      return actual;
+    };
+
     const codigos = lineas.flatMap((linea) => {
-      const codigo = linea.find((palabra) => CODIGO_PLAN.test(palabra.texto) && palabra.x < 90);
-      return codigo ? [{ y: codigo.y, codigo: codigo.texto }] : [];
+      const codigo = linea.find((palabra) => CODIGO_PLAN.test(palabra.texto));
+      if (!codigo) return [];
+      const activas = columnasEn(codigo.y);
+      if (!activas || Math.abs(codigo.x - activas.codigoX) > 45 || codigo.x >= activas.baseX) return [];
+      return [{ y: codigo.y, x: codigo.x, codigo: codigo.texto, columnas: activas }];
     });
 
     codigos.forEach((ancla, orden) => {
       if (vistos.has(ancla.codigo)) return;
+      const activas = ancla.columnas;
       const siguiente = codigos[orden + 1];
       const yMax = Math.min(siguiente ? siguiente.y - 2 : ancla.y + 22, ancla.y + 22);
       const ventana = lineas.filter((linea) => {
         const y = linea[0]?.y ?? 0;
         return y >= ancla.y - 2 && y <= yMax;
       });
-      const precioBaseUF = ventana.map((linea) => decimalEn(linea, 90, 122)).find((valor) => valor !== null);
+      const precioBaseUF = ventana
+        .map((linea) => precioCerca(linea, activas.baseX, 22, true))
+        .find((valor) => valor !== null);
       if (precioBaseUF === undefined || precioBaseUF === null) return;
-      const consultaUF = ventana.map((linea) => decimalEn(linea, 122, 170)).find((valor) => valor !== null) ?? null;
+      const consultaUF = activas.consultaX
+        ? (ventana
+            .map((linea) => precioCerca(linea, activas.consultaX ?? 0, 22, false, activas.baseX))
+            .find((valor) => valor !== null) ?? null)
+        : (ventana.map((linea) => precioEntre(linea, activas.baseX + 16, activas.baseX + 55)).find((valor) => valor !== null) ??
+          null);
       vistos.add(ancla.codigo);
       planes.push({
         codigo: ancla.codigo,
@@ -162,12 +308,15 @@ export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
         consultaUF,
       });
     });
+    const ultimoEncabezado = encabezados.at(-1);
+    if (ultimoEncabezado) columnas = ultimoEncabezado.columnas;
     const ultimoTitulo = titulos.at(-1);
     if (ultimoTitulo) lineaActual = ultimoTitulo.texto;
 
     for (const linea of lineas) {
       const escrito = texto(linea);
       titulo ??= tituloTarifario(escrito);
+      if (/productos\s+adicionales/i.test(escrito)) enProductos = true;
       if (esTitulo(escrito)) lineaActual = escrito.replace(/\s+/g, " ").trim();
 
       const producto = nombreProducto(escrito);
@@ -178,8 +327,10 @@ export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
         productos.set(producto.codigo, {
           codigo: producto.codigo,
           nombre: producto.nombre,
-          tramos: anterior?.tramos ?? [],
+          tramos: anterior?.fijo ? [] : (anterior?.tramos ?? []),
           quintoGratis: anterior?.quintoGratis ?? false,
+          fijo: false,
+          modalidad: "por_beneficiario",
         });
       }
       if (productoActual && /quinto\s+beneficiario\s+es\s+gratis/i.test(escrito)) {
@@ -188,20 +339,46 @@ export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
       }
       const precios = escrito.match(/precios\s+\S+\s+(\d{3,5})/i);
       if (precios?.[1]) preciosDe = precios[1];
-      if (!preciosDe) continue;
-      const edad = tramoEdad(escrito);
-      const precioUF = edad ? precioEn(linea) : null;
-      if (!edad || precioUF === null) continue;
-      const actual = productos.get(preciosDe) ?? {
-        codigo: preciosDe,
-        nombre: `Producto ${preciosDe}`,
-        tramos: [],
-        quintoGratis: false,
-      };
-      if (!actual.tramos.some((tramo) => tramo.edadDesde === edad.edadDesde && tramo.edadHasta === edad.edadHasta)) {
-        actual.tramos.push({ ...edad, precioUF });
+      if (preciosDe) {
+        const edad = tramoEdad(escrito);
+        const precioUF = edad ? precioEn(linea) : null;
+        if (edad && precioUF !== null) {
+          const actual = productos.get(preciosDe) ?? {
+            codigo: preciosDe,
+            nombre: `Producto ${preciosDe}`,
+            tramos: [],
+            quintoGratis: false,
+            fijo: false,
+            modalidad: "por_beneficiario" as const,
+          };
+          actual.fijo = false;
+          if (!actual.tramos.some((tramo) => tramo.edadDesde === edad.edadDesde && tramo.edadHasta === edad.edadHasta)) {
+            actual.tramos.push({ ...edad, precioUF });
+          }
+          productos.set(preciosDe, actual);
+        }
       }
-      productos.set(preciosDe, actual);
+
+      if (!enProductos || /precios\s+\S+\s+\d|c[oó]digo\s+\d{3,5}|catastr[oó]fico/i.test(escrito)) continue;
+      const anclas = linea.filter((palabra) => /^\d{3,5}$/.test(palabra.texto));
+      const y = linea[0]?.y ?? 0;
+      anclas.forEach((ancla, orden) => {
+        const siguiente = anclas[orden + 1];
+        const zona = linea.filter(
+          (palabra) => palabra.x > ancla.x && palabra.x < (siguiente?.x ?? ancla.x + 220),
+        );
+        const precio = zona.map((palabra) => precioProductoPlano(palabra.texto)).find((item) => item !== null);
+        if (!precio) return;
+        const tituloCerca = [...titulosProducto].reverse().find((item) => item.y < y - 6 && Math.abs(item.x - ancla.x) < 140);
+        const textos = [tituloCerca?.texto ?? "", ...zona.map((palabra) => palabra.texto)];
+        guardarPlano(
+          productos,
+          ancla.texto,
+          tituloCerca?.texto ?? `Producto ${ancla.texto}`,
+          precio.valor,
+          precio.modalidad ?? modalidadDe(textos),
+        );
+      });
     }
   }
 
@@ -258,6 +435,11 @@ export function precioProducto(
   producto: ProductoTarifa,
   edades: number[],
 ): { totalUF: number; sinPrecio: number[] } {
+  if (producto.fijo) {
+    const precio = producto.tramos[0]?.precioUF ?? 0;
+    const veces = producto.modalidad === "por_beneficiario" ? edades.length : 1;
+    return { totalUF: precio * veces, sinPrecio: [] };
+  }
   const precios: number[] = [];
   const sinPrecio: number[] = [];
   for (const edad of edades) {

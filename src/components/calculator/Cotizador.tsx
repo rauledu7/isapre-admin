@@ -20,6 +20,17 @@ export function Cotizador() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Cotizador Rápido</h1>
+          <p className="text-sm text-muted-foreground">
+            Calcula el 7% legal del cliente en UF y compáralo con el plan actual y las alternativas.
+          </p>
+        </div>
+        <Button variant="outline" className="shrink-0" onClick={reiniciar}>
+          <RotateCcwIcon /> Nueva cotización
+        </Button>
+      </div>
       {prospecto && (
         <p className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
           <UserIcon className="size-4" aria-hidden />
@@ -33,9 +44,6 @@ export function Cotizador() {
         <div className="flex flex-col gap-4">
           <DatosClienteCard />
           <PlanesCard />
-          <Button variant="ghost" className="self-start" onClick={reiniciar}>
-            <RotateCcwIcon /> Nueva cotización
-          </Button>
         </div>
         <section aria-label="Resultados" className="flex flex-col gap-4">
           <ResultadosPanel />
