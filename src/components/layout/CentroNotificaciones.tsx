@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { getSupabase } from "@/lib/supabase/client";
+import { envPublico } from "@/lib/supabase/env";
 import { cn } from "@/lib/utils";
 
 interface Aviso {
@@ -86,7 +87,7 @@ export function CentroNotificaciones() {
   }
 
   async function activarPush() {
-    const clave = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    const clave = envPublico().vapid;
     if (!clave) {
       setError("Falta NEXT_PUBLIC_VAPID_PUBLIC_KEY para enviar alertas con el navegador cerrado.");
       return;

@@ -1,5 +1,4 @@
-# Imagen para Cloud Run. Los NEXT_PUBLIC_* se hornean en el build.
-# Los secretos (service role, VAPID privada, CRON_SECRET, webhook) se inyectan al correr.
+# Imagen para Cloud Run. Las variables, públicas y secretas, se inyectan al correr el servicio.
 
 FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat

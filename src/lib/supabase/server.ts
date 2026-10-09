@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
 import type { Supabase } from "./client";
-import { supabaseEnv } from "./env";
+import { envPublico, supabaseEnv } from "./env";
 
 export async function supabaseServer(): Promise<Supabase> {
   const cookieStore = await cookies();
@@ -26,8 +26,8 @@ export async function supabaseServer(): Promise<Supabase> {
 
 /** Cliente con service role. Solo en el cron, nunca en el navegador. */
 export function supabaseAdmin(): Supabase | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = envPublico().url;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !key) return null;
   return createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }

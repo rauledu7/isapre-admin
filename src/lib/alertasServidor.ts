@@ -2,6 +2,7 @@ import webpush from "web-push";
 
 import { alertasProgramadas, type AlertaNueva, type ProspectoAlerta } from "@/lib/alertas";
 import type { Supabase } from "@/lib/supabase/client";
+import { envPublico } from "@/lib/supabase/env";
 
 export interface AvisoPush {
   titulo: string;
@@ -10,12 +11,12 @@ export interface AvisoPush {
 }
 
 function vapidConfigurado(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
+  return Boolean(envPublico().vapid && process.env.VAPID_PRIVATE_KEY?.trim());
 }
 
 export async function enviarPush(sb: Supabase, asesorId: string, avisos: AvisoPush[]): Promise<void> {
-  const publica = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const privada = process.env.VAPID_PRIVATE_KEY;
+  const publica = envPublico().vapid;
+  const privada = process.env.VAPID_PRIVATE_KEY?.trim();
   if (!publica || !privada || avisos.length === 0) return;
 
   webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "mailto:isapreassistant@localhost", publica, privada);
