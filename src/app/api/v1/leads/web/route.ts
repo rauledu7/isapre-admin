@@ -95,7 +95,12 @@ export async function POST(request: Request) {
   const { error: errorNota } = await admin.from("notas_prospecto").insert({
     asesor_id: perfil.asesor_id,
     prospecto_id: data.id,
-    contenido: notaLeadWeb({ sitio, renta: detalle.renta, cargas: detalle.cargas }),
+    contenido: notaLeadWeb({
+      sitio,
+      renta: detalle.renta,
+      cargas: detalle.cargas,
+      contacto: detalle.contacto,
+    }),
   });
   if (errorNota) {
     await admin.from("prospectos").delete().eq("id", data.id);

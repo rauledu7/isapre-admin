@@ -31,10 +31,11 @@ describe("notaLeadWeb", () => {
       notaLeadWeb({
         sitio: "https://cotizatuisapreya.cl",
         renta: "$900.000 - $1.500.000",
-        cargas: "1 carga",
+        cargas: "3+ cargas",
+        contacto: "WhatsApp",
       }),
     ).toBe(
-      "Por contactar. Llegó desde la web.\nSitio: https://cotizatuisapreya.cl\nSueldo líquido: $900.000 - $1.500.000\nCargas: 1 carga",
+      "Por contactar. Llegó desde la web.\nSitio: https://cotizatuisapreya.cl\nSueldo líquido: $900.000 - $1.500.000\nCargas: 3+ cargas\nPrefiere contacto: WhatsApp",
     );
   });
 });
