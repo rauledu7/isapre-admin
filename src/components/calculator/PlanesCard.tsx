@@ -14,6 +14,7 @@ import { formatUF } from "@/lib/format";
 import type { PlanPdf } from "@/lib/planPdf";
 import { getSupabase } from "@/lib/supabase/client";
 import { listarTarifarios, type TarifarioGuardado } from "@/lib/supabase/tarifarios";
+import { buscarPlanEnTarifario } from "@/lib/tarifario";
 import { MAX_PLANES, useCotizadorStore } from "@/store/cotizadorStore";
 import type { PlanForm } from "@/types/cotizador";
 import type { IsapreId } from "@/types/isapre";
@@ -26,7 +27,10 @@ function textoUF(valor: number): string {
   return valor.toLocaleString("es-CL", { maximumFractionDigits: 4, useGrouping: false });
 }
 
-function cambiosDesdePdf(plan: PlanPdf): Partial<Omit<PlanForm, "id">> {
+function cambiosDesdePdf(
+  plan: PlanPdf,
+  tarifarios: TarifarioGuardado[],
+): { cambios: Partial<Omit<PlanForm, "id">>; enTarifario: boolean } {
   const cambios: Partial<Omit<PlanForm, "id">> = {};
   if (plan.nombre && plan.codigo && !plan.nombre.includes(plan.codigo)) {
     cambios.nombre = `${plan.nombre} (${plan.codigo})`;
@@ -34,13 +38,30 @@ function cambiosDesdePdf(plan: PlanPdf): Partial<Omit<PlanForm, "id">> {
     cambios.nombre = plan.nombre ?? plan.codigo ?? "";
   }
   if (plan.isapreId) cambios.isapreId = plan.isapreId;
+
+  const tarifario = plan.isapreId ? tarifarios.find((item) => item.isapreId === plan.isapreId) : undefined;
+  const encontrado = tarifario
+    ? buscarPlanEnTarifario(tarifario.planes, { codigo: plan.codigo, nombre: plan.nombre })
+    : null;
+  if (encontrado) {
+    cambios.codigoTarifa = encontrado.codigo;
+    cambios.precioBaseUF = textoUF(encontrado.precioBaseUF);
+    cambios.productosTarifa = [];
+    cambios.incluyeConsulta = false;
+    cambios.seguroUF = "";
+    return { cambios, enTarifario: true };
+  }
+
   if (plan.precioBaseUF !== null) cambios.precioBaseUF = textoUF(plan.precioBaseUF);
-  return cambios;
+  return { cambios, enTarifario: false };
 }
 
-function avisoPdf(plan: PlanPdf): string {
+function avisoPdf(plan: PlanPdf, enTarifario: boolean): string {
+  if (enTarifario) {
+    return "Quedó seleccionado en el tarifario, con su precio base.";
+  }
   if (plan.precioBaseUF === null && plan.isapreId) {
-    return "Quedaron el nombre y la Isapre, y el GES se marcó solo. El precio base hay que escribirlo: este PDF deja esa casilla vacía.";
+    return "Quedaron el nombre y la Isapre, y el GES se marcó solo. El precio base hay que escribirlo: este PDF deja esa casilla vacía y no está en el tarifario.";
   }
   if (!plan.isapreId) {
     return "Quedó el nombre. Elige la Isapre para marcar el GES.";
@@ -72,13 +93,13 @@ function PlanEditor({
   plan,
   indice,
   eliminable,
-  tarifario,
+  tarifarios,
   ges,
 }: {
   plan: PlanForm;
   indice: number;
   eliminable: boolean;
-  tarifario: TarifarioGuardado | null;
+  tarifarios: TarifarioGuardado[];
   ges: Partial<Record<IsapreId, number>>;
 }) {
   const actualizarPlan = useCotizadorStore((s) => s.actualizarPlan);
@@ -88,6 +109,21 @@ function PlanEditor({
   const [aviso, setAviso] = useState<string | null>(null);
   const [errorPdf, setErrorPdf] = useState<string | null>(null);
   const set = (cambios: Partial<Omit<PlanForm, "id">>) => actualizarPlan(plan.id, cambios);
+  const tarifario = tarifarios.find((item) => item.isapreId === plan.isapreId) ?? null;
+
+  function limpiar() {
+    setAviso(null);
+    setErrorPdf(null);
+    set({
+      isapreId: null,
+      nombre: "",
+      precioBaseUF: "",
+      seguroUF: "",
+      codigoTarifa: null,
+      productosTarifa: [],
+      incluyeConsulta: false,
+    });
+  }
 
   async function cargarPdf(archivo: File) {
     setCargando(true);
@@ -102,8 +138,9 @@ function PlanEditor({
         setErrorPdf(cuerpo.error ?? "No pude leer ese PDF.");
         return;
       }
-      set(cambiosDesdePdf(cuerpo));
-      setAviso(avisoPdf(cuerpo));
+      const lectura = cambiosDesdePdf(cuerpo, tarifarios);
+      set(lectura.cambios);
+      setAviso(avisoPdf(cuerpo, lectura.enTarifario));
     } catch {
       setErrorPdf("No pude leer ese PDF.");
     } finally {
@@ -122,6 +159,9 @@ function PlanEditor({
           onChange={(e) => set({ nombre: e.target.value })}
           className="font-medium"
         />
+        <Button type="button" variant="ghost" size="sm" onClick={limpiar}>
+          Limpiar
+        </Button>
         {eliminable && (
           <Button
             variant="ghost"
@@ -173,13 +213,13 @@ function PlanEditor({
         />
         <GesBloqueado plan={plan} ges={ges} />
         <Campo
-          label="Productos adicionales"
+          label="Total productos"
           sufijo="UF"
           inputMode="decimal"
           placeholder="0,0000"
           value={plan.seguroUF}
           onChange={(e) => set({ seguroUF: e.target.value })}
-          ayuda="Monto total por contrato"
+          ayuda="Monto total por contrato. Se llena al marcar productos."
         />
       </div>
     </div>
@@ -219,7 +259,7 @@ export function PlanesCard() {
               plan={plan}
               indice={i}
               eliminable={planes.length > 1}
-              tarifario={tarifarios.find((item) => item.isapreId === plan.isapreId) ?? null}
+              tarifarios={tarifarios}
               ges={ges}
             />
           </div>

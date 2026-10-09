@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { ChevronDownIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import { parseEntero } from "@/lib/format";
-import { precioProducto } from "@/lib/tarifario";
+import { precioProducto, type ProductoTarifa } from "@/lib/tarifario";
 import type { TarifarioGuardado } from "@/lib/supabase/tarifarios";
 import { useCotizadorStore } from "@/store/cotizadorStore";
 import type { PlanForm } from "@/types/cotizador";
@@ -16,6 +17,103 @@ function textoUF(valor: number): string {
 function frase(texto: string): string {
   const limpio = texto.toLocaleLowerCase("es-CL");
   return limpio.charAt(0).toLocaleUpperCase("es-CL") + limpio.slice(1);
+}
+
+function SelectorProductos({
+  planId,
+  productos,
+  marcados,
+  edades,
+  sinPrecio,
+  incluyeConsulta,
+  onChange,
+}: {
+  planId: string;
+  productos: ProductoTarifa[];
+  marcados: string[];
+  edades: number[];
+  sinPrecio: number[];
+  incluyeConsulta: boolean;
+  onChange: (cambios: Partial<Omit<PlanForm, "id">>) => void;
+}) {
+  const [abierto, setAbierto] = useState(false);
+  const caja = useRef<HTMLDivElement>(null);
+  const elegidos = productos.filter((producto) => marcados.includes(producto.codigo));
+  const resumen =
+    elegidos.length === 0 ? "Ninguno" : elegidos.map((producto) => frase(producto.nombre)).join(", ");
+
+  useEffect(() => {
+    if (!abierto) return;
+    function cerrar(evento: MouseEvent) {
+      if (!caja.current?.contains(evento.target as Node)) setAbierto(false);
+    }
+    document.addEventListener("mousedown", cerrar);
+    return () => document.removeEventListener("mousedown", cerrar);
+  }, [abierto]);
+
+  function marcar(codigo: string, activo: boolean) {
+    const siguientes = activo ? [...marcados, codigo] : marcados.filter((item) => item !== codigo);
+    onChange({
+      productosTarifa: siguientes,
+      ...(siguientes.length === 0 && !incluyeConsulta ? { seguroUF: "" } : {}),
+    });
+  }
+
+  return (
+    <div ref={caja} className="relative flex flex-col gap-1.5">
+      <Label htmlFor={`productos-${planId}`}>Productos adicionales</Label>
+      <button
+        id={`productos-${planId}`}
+        type="button"
+        aria-expanded={abierto}
+        aria-haspopup="listbox"
+        className="flex h-8 w-full items-center justify-between gap-2 rounded-lg border bg-transparent px-2 text-left text-sm"
+        onClick={() => setAbierto((valor) => !valor)}
+      >
+        <span className="truncate">{resumen}</span>
+        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+      </button>
+      {abierto && (
+        <ul
+          role="listbox"
+          aria-multiselectable="true"
+          className="absolute top-full z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border bg-popover p-1 shadow-md"
+        >
+          {productos.map((producto) => {
+            const activo = marcados.includes(producto.codigo);
+            const parcial = edades.length > 0 ? precioProducto(producto, edades) : null;
+            return (
+              <li key={producto.codigo}>
+                <label className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={activo}
+                    onChange={(e) => marcar(producto.codigo, e.target.checked)}
+                  />
+                  <span>
+                    {frase(producto.nombre)} ({producto.codigo})
+                    {parcial && (
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {textoUF(parcial.totalUF)} UF
+                        {producto.quintoGratis ? " · desde el 5.º, el más barato no se cobra" : ""}
+                      </span>
+                    )}
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {sinPrecio.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Sin precio para {sinPrecio.join(", ")} años en el producto marcado.
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function TarifarioPlan({
@@ -119,46 +217,15 @@ export function TarifarioPlan({
       )}
 
       {tarifario.productos.length > 0 && (
-        <fieldset className="flex flex-col gap-1.5">
-          <legend className="text-sm font-medium">Productos adicionales</legend>
-          {tarifario.productos.map((producto) => {
-            const activo = marcados.includes(producto.codigo);
-            const parcial = edades.length > 0 ? precioProducto(producto, edades) : null;
-            return (
-              <label key={producto.codigo} className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="mt-0.5"
-                  checked={activo}
-                  onChange={(e) => {
-                    const siguientes = e.target.checked
-                      ? [...marcados, producto.codigo]
-                      : marcados.filter((codigo) => codigo !== producto.codigo);
-                    onChange({
-                      productosTarifa: siguientes,
-                      ...(siguientes.length === 0 && !incluyeConsulta ? { seguroUF: "" } : {}),
-                    });
-                  }}
-                />
-                <span>
-                  {frase(producto.nombre)} ({producto.codigo})
-                  {parcial && (
-                    <span className="text-muted-foreground">
-                      {" "}
-                      · {textoUF(parcial.totalUF)} UF
-                      {producto.quintoGratis ? " · desde el 5.º, el más barato no se cobra" : ""}
-                    </span>
-                  )}
-                </span>
-              </label>
-            );
-          })}
-          {sinPrecio.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Sin precio para {sinPrecio.join(", ")} años en el producto marcado.
-            </p>
-          )}
-        </fieldset>
+        <SelectorProductos
+          planId={plan.id}
+          productos={tarifario.productos}
+          marcados={marcados}
+          edades={edades}
+          sinPrecio={sinPrecio}
+          incluyeConsulta={incluyeConsulta}
+          onChange={onChange}
+        />
       )}
     </div>
   );

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { leerTarifario, precioProducto, type PalabraTarifa, type ProductoTarifa } from "./tarifario";
+import {
+  buscarPlanEnTarifario,
+  leerTarifario,
+  precioProducto,
+  type PalabraTarifa,
+  type PlanTarifa,
+  type ProductoTarifa,
+} from "./tarifario";
 
 function palabras(filas: string[][]): PalabraTarifa[] {
   return filas.flatMap((fila, y) =>
@@ -84,6 +91,37 @@ describe("leerTarifario", () => {
         ],
       },
     ]);
+  });
+});
+
+const PLANES: PlanTarifa[] = [
+  { codigo: "BSCC260122", linea: "SALUD CONECTA CLASICO (PLAN CERRADO)", precioBaseUF: 1.05, consultaUF: null },
+  { codigo: "SC100", linea: "SALUD CLASICO", precioBaseUF: 0.9, consultaUF: null },
+  { codigo: "BCG260500", linea: "SALUD CLASICO GOLD", precioBaseUF: 1.2, consultaUF: 0.4 },
+  { codigo: "BCG260502", linea: "SALUD CLASICO GOLD", precioBaseUF: 1.24, consultaUF: 0.4 },
+];
+
+describe("buscarPlanEnTarifario", () => {
+  it("elige por el código del PDF", () => {
+    const plan = buscarPlanEnTarifario(PLANES, {
+      codigo: "bscc260122",
+      nombre: "Salud Conecta Clásico 22/2601",
+    });
+    expect(plan?.codigo).toBe("BSCC260122");
+    expect(plan?.precioBaseUF).toBe(1.05);
+  });
+
+  it("elige la línea más específica cuando el PDF no trae código", () => {
+    expect(buscarPlanEnTarifario(PLANES, { codigo: null, nombre: "Salud Conecta Clásico 22/2601" })?.codigo).toBe(
+      "BSCC260122",
+    );
+  });
+
+  it("no elige si dos planes comparten la misma línea", () => {
+    expect(buscarPlanEnTarifario(PLANES, { codigo: null, nombre: "Salud Clásico Gold" })).toBeNull();
+    expect(buscarPlanEnTarifario(PLANES, { codigo: "BCG260502", nombre: "Salud Clásico Gold" })?.precioBaseUF).toBe(
+      1.24,
+    );
   });
 });
 

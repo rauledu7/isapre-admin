@@ -212,6 +212,42 @@ export function leerTarifario(paginas: PalabraTarifa[][]): TarifarioLeido {
   };
 }
 
+function normalizar(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Elige el plan del tarifario que corresponde al PDF: primero por código, si no por la línea. */
+export function buscarPlanEnTarifario(
+  planes: PlanTarifa[],
+  busqueda: { codigo: string | null; nombre: string | null },
+): PlanTarifa | null {
+  const codigo = busqueda.codigo?.trim().toUpperCase();
+  if (codigo) {
+    const porCodigo = planes.find((plan) => plan.codigo.toUpperCase() === codigo);
+    if (porCodigo) return porCodigo;
+  }
+
+  const nombre = busqueda.nombre ? normalizar(busqueda.nombre) : "";
+  if (!nombre) return null;
+
+  const porLinea = planes.filter((plan) => {
+    if (!plan.linea) return false;
+    const nucleo = normalizar(plan.linea.split("(")[0] ?? plan.linea);
+    return nucleo.length >= 8 && nombre.includes(nucleo);
+  });
+  porLinea.sort((a, b) => normalizar(b.linea ?? "").length - normalizar(a.linea ?? "").length);
+  const mejor = porLinea[0];
+  const segundo = porLinea[1];
+  if (!mejor) return null;
+  if (segundo && normalizar(segundo.linea ?? "").length === normalizar(mejor.linea ?? "").length) return null;
+  return mejor;
+}
+
 export function precioTramo(producto: ProductoTarifa, edad: number): number | null {
   const tramo = producto.tramos.find((item) => edad >= item.edadDesde && edad <= item.edadHasta);
   return tramo?.precioUF ?? null;
