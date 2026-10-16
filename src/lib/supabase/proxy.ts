@@ -2,9 +2,11 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { normalizarSitio } from "@/lib/sitioWeb";
+import { funcionDeRuta, permite, rutaSinSuscripcion, suscripcionVigente } from "@/lib/suscripcion";
 import type { Database } from "@/types/database";
 
 import { supabaseEnv } from "./env";
+import { nivelDeSuscripcion, obtenerSuscripcion } from "./suscripciones";
 
 const RUTAS_PUBLICAS = ["/login"];
 const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads"];
@@ -76,6 +78,29 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
   }
   if (autenticado && esPublica) {
     return redirigir(new URL("/", request.url));
+  }
+  if (!autenticado || rutaSinSuscripcion(pathname)) return response;
+
+  const bloquear = (status: 402 | 403, error: string) => {
+    if (!pathname.startsWith("/api/")) return redirigir(new URL("/suscripcion", request.url));
+    const bloqueo = NextResponse.json({ error }, { status });
+    response.cookies.getAll().forEach((c) => bloqueo.cookies.set(c));
+    return bloqueo;
+  };
+
+  const funcion = funcionDeRuta(pathname);
+  try {
+    const lectura = await obtenerSuscripcion(supabase);
+    if (lectura.tablaFalta) return response;
+    if (!suscripcionVigente(lectura.suscripcion, new Date())) return bloquear(402, "Tu suscripción no está vigente.");
+    if (funcion && !permite(await nivelDeSuscripcion(supabase, lectura), funcion)) {
+      return bloquear(403, "Tu plan no incluye esta función.");
+    }
+  } catch {
+    return new NextResponse("No se pudo verificar la suscripción", {
+      status: 503,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
   }
   return response;
 }

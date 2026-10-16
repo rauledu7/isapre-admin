@@ -2,24 +2,30 @@
 
 ## Estado: [IN_PROGRESS]
 
-### Etapa 8: Notificaciones Push & Sistema de Alertas
-- [x] Configurar Service Worker y registro de suscripciones Push (Web Push con claves VAPID, sin Firebase).
-- [x] Guardar la suscripción en `dispositivos_push`.
-- [x] Cron `GET /api/cron/alertas` (Bearer `CRON_SECRET`, cliente service role) y revisión cada minuto con la sesión abierta.
-- [x] Centro de notificaciones in-app para cambios de etapa, contactos, inactividad de 5 días y meta de UF al 50%, 80% y 100%.
-- La hora del contacto es opcional. Con hora, el aviso sale 15 minutos antes y a la hora. Sin hora, un aviso el día del contacto.
-- [x] Correr `supabase/migrations/20261008230000_etapa8_9_alertas_documentos.sql`. Claves VAPID en `.env.local`. El cron usa `CRON_SECRET` y `SUPABASE_SERVICE_ROLE_KEY`.
+### Etapa 11: Motor de Suscripciones, Planes & Trial de 7 Días
+- [x] **Esquema de Base de Datos en Supabase:**
+  - Crear tabla `planes` (`id`, `nombre`, `precio_mensual_clp`, `precio_trimestral_clp`, `precio_anual_clp`, `mp_plan_id`).
+  - Crear tabla `suscripciones` (`id`, `perfil_id`, `plan_id`, `estado` ['trialing', 'active', 'past_due', 'canceled'], `fecha_inicio`, `fecha_fin_trial`, `fecha_proximo_pago`, `mp_preapproval_id`).
+- [x] **Lógica de Trial Automático:**
+  - Al registrarse un asesor (trigger Supabase Auth), asignar `fecha_fin_trial = now() + 7 days` y `estado = trialing`.
+- [x] **Guardia de Navegación & Paywall:**
+  - Hook `useSubscription()` para verificar validez del trial/suscripción.
+  - Vista `/suscripcion` con el selector de Planes (Mensual, Trimestral, Anual) e integrador del Checkout de Mercado Pago (el botón de pago se conecta en la Etapa 12).
+- [x] **Planes y acceso por nivel:** Básico, Profesional y Full con precios de referencia (trimestral -10%, anual -20%). Bloqueo en proxy, RLS (`plan_permite`) y ocultando en la interfaz.
 
-### Etapa 9: Centro de Documentos por Cliente (Document Vault)
-- [x] Bucket privado `prospecto-documentos` (el nombre de MUST-DO) con RLS por carpeta del asesor.
-- [x] Tabla `documentos` (`id`, `prospecto_id`, `nombre`, `tipo_doc`, `file_path`, `mime`, `tamano_bytes`, `created_at`).
-- [x] Carga drag-and-drop en la ficha: Liquidación, Cédula, Certificado AFP, FUN, Certificado de cargas y Otros.
-- [x] Vista `/documentos` por RUT, nombre o tipo, con previsualización de PDF e imagen.
+### Etapa 12: Integración Directa con Mercado Pago (Pagos & Webhooks)
+- [ ] Instalar SDK de Mercado Pago (`npm install mercadopago`).
+- [ ] Configurar variables de entorno (`MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`).
+- [ ] Crear API Route `/api/v1/checkout/mercadopago` para generar el enlace de suscripción / preferencia de pago.
+- [ ] Crear Webhook handler `/api/v1/webhooks/mercadopago`:
+  - Escuchar eventos `subscription_preapproval` / `payment.created`.
+  - Actualizar el estado de la suscripción a `active` y actualizar `fecha_proximo_pago` en Supabase al recibir un pago aprobado.
+  - Manejar pagos rechazados enviando la suscripción a `past_due`.
+- [ ] Vista `/cuenta/facturacion` para que el asesor consulte su estado de pago y el historial procesado por Mercado Pago.
 
-### Etapa 10: Integración con Google Ads & Métricas de Adquisición
-- [x] Crear endpoint de API `POST /api/v1/leads/webhook` (Bearer `LEADS_WEBHOOK_SECRET`) para recibir prospectos desde formularios de Google Ads o landings.
-- [x] Captura y almacenamiento de `gclid` y UTMs (`utm_source`, `utm_campaign`, `utm_kw`) en la ficha del prospecto.
-- [x] Módulo en el Dashboard: leads, cierres y UF por campaña. Clics, gasto y costo por lead solo cuando Google Ads responde.
-- [x] Conversión offline a Google Ads al dejar un prospecto en etapa ganada, con gclid y UF de cierre. El valor se envía en UF (`CLF`).
-- [x] Cada asesor guarda su cuenta en `/google-ads`. Los secretos no vuelven al navegador.
-- Correr `supabase/migrations/20261008240000_etapa10_google_ads.sql` y `supabase/migrations/20261008250000_google_ads_cuenta.sql`. El webhook de leads sigue usando `LEADS_WEBHOOK_SECRET` en el servidor.
+### Etapa 13: Panel Super Admin (`/admin`)
+- [ ] **Protección de Ruta:** Middleware con verificación de rol `super_admin`.
+- [ ] **Dashboard de Control:**
+  - Métricas de ingresos en $ CLP procesados vía Mercado Pago, total de usuarios en Trial vs. Usuarios Pagados.
+  - Tabla de asesores con buscador por Email/RUT.
+  - Modales de acción: *Extender trial de 7 días, activar suscripción manualmente, cambiar plan o bloquear usuario*.

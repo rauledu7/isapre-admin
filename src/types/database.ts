@@ -363,6 +363,72 @@ export interface Database {
         };
         Relationships: [];
       };
+      planes: {
+        Row: {
+          id: string;
+          nombre: string;
+          nivel: string | null;
+          precio_mensual_clp: number | null;
+          precio_trimestral_clp: number | null;
+          precio_anual_clp: number | null;
+          mp_plan_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          nombre: string;
+          nivel?: string | null;
+          precio_mensual_clp?: number | null;
+          precio_trimestral_clp?: number | null;
+          precio_anual_clp?: number | null;
+          mp_plan_id?: string | null;
+        };
+        Update: {
+          nombre?: string;
+          nivel?: string | null;
+          precio_mensual_clp?: number | null;
+          precio_trimestral_clp?: number | null;
+          precio_anual_clp?: number | null;
+          mp_plan_id?: string | null;
+        };
+        Relationships: [];
+      };
+      suscripciones: {
+        Row: {
+          id: string;
+          perfil_id: string;
+          plan_id: string | null;
+          periodo: string | null;
+          estado: string;
+          fecha_inicio: string;
+          fecha_fin_trial: string | null;
+          fecha_proximo_pago: string | null;
+          mp_preapproval_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          perfil_id: string;
+          plan_id?: string | null;
+          periodo?: string | null;
+          estado: string;
+          fecha_inicio?: string;
+          fecha_fin_trial?: string | null;
+          fecha_proximo_pago?: string | null;
+          mp_preapproval_id?: string | null;
+        };
+        Update: {
+          plan_id?: string | null;
+          periodo?: string | null;
+          estado?: string;
+          fecha_fin_trial?: string | null;
+          fecha_proximo_pago?: string | null;
+          mp_preapproval_id?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };

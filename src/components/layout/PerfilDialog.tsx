@@ -18,6 +18,8 @@ import { getSupabase } from "@/lib/supabase/client";
 import { formatearTelefono, normalizarTelefono } from "@/lib/telefono";
 import { usePerfilStore } from "@/store/perfilStore";
 
+import { SoloConPlan } from "./AccesoPlan";
+
 interface PerfilDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -155,19 +157,21 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
         aria-invalid={Boolean(errores.metaUf)}
         ayuda={ayuda(errores.metaUf)}
       />
-      <Campo
-        label="Página de leads"
-        placeholder="cotizatuisapreya.cl"
-        value={sitio}
-        onChange={(e) => setSitio(e.target.value)}
-        aria-invalid={Boolean(errores.sitio)}
-        ayuda={
-          <>
-            {ayuda(errores.sitio)}
-            <span>Opcional. Para la integración automática de leads con esta página, contacta a soporte.</span>
-          </>
-        }
-      />
+      <SoloConPlan funcion="leads_web">
+        <Campo
+          label="Página de leads"
+          placeholder="cotizatuisapreya.cl"
+          value={sitio}
+          onChange={(e) => setSitio(e.target.value)}
+          aria-invalid={Boolean(errores.sitio)}
+          ayuda={
+            <>
+              {ayuda(errores.sitio)}
+              <span>Opcional. Para la integración automática de leads con esta página, contacta a soporte.</span>
+            </>
+          }
+        />
+      </SoloConPlan>
       <Campo
         label="Meta de contratos al mes"
         inputMode="numeric"

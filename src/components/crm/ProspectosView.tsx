@@ -4,6 +4,7 @@ import { ColumnsIcon, FileUpIcon, ListIcon, PlusIcon, SearchIcon, Settings2Icon,
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { usePermite } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export function ProspectosView() {
   const [importarAbierto, setImportarAbierto] = useState(false);
   const [etapasAbierto, setEtapasAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const conImportar = usePermite("importar");
   const filtrados = useMemo(() => filtrarProspectos(prospectos, busqueda), [prospectos, busqueda]);
 
   if (estado === "inicial" || estado === "cargando") {
@@ -51,9 +53,11 @@ export function ProspectosView() {
         <Button onClick={() => setNuevoAbierto(true)}>
           <PlusIcon /> Nuevo prospecto
         </Button>
-        <Button variant="outline" onClick={() => setImportarAbierto(true)}>
-          <FileUpIcon /> Importar
-        </Button>
+        {conImportar && (
+          <Button variant="outline" onClick={() => setImportarAbierto(true)}>
+            <FileUpIcon /> Importar
+          </Button>
+        )}
         <Button variant="outline" onClick={() => setEtapasAbierto(true)}>
           <Settings2Icon /> Etapas
         </Button>
@@ -140,7 +144,7 @@ export function ProspectosView() {
         onOpenChange={setNuevoAbierto}
         onGuardado={(p) => router.push(`/prospectos/${p.id}`)}
       />
-      <ImportarDialog open={importarAbierto} onOpenChange={setImportarAbierto} />
+      {conImportar && <ImportarDialog open={importarAbierto} onOpenChange={setImportarAbierto} />}
       <EtapasDialog open={etapasAbierto} onOpenChange={setEtapasAbierto} />
     </div>
   );

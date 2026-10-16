@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { leerLead } from "@/lib/adquisicion";
 import { detalleFormularioWeb, mismoSitio, normalizarSitio, notaLeadWeb } from "@/lib/sitioWeb";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { asesorPuedeUsar } from "@/lib/supabase/suscripciones";
 
 function cors(origen: string): Headers {
   const headers = new Headers();
@@ -41,6 +42,13 @@ export async function POST(request: Request) {
   if (errorPerfil) return responder(origen, { error: "No se pudo verificar la página." }, 500);
   if (!perfil || !mismoSitio(origen, perfil.sitio_web ?? "")) {
     return responder(origen, { error: "Esta página no está vinculada a un asesor." }, 403);
+  }
+  try {
+    if (!(await asesorPuedeUsar(admin, perfil.asesor_id, "leads_web"))) {
+      return responder(origen, { error: "El plan del asesor no incluye leads web." }, 403);
+    }
+  } catch {
+    return responder(origen, { error: "No se pudo verificar el plan del asesor." }, 500);
   }
 
   const texto = await request.text().catch(() => "");

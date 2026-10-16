@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { usePermite } from "@/components/layout/AccesoPlan";
 import { Separator } from "@/components/ui/separator";
 import { GES_UF } from "@/config/isapres";
 import { useGesIsapres } from "@/hooks/useGesIsapres";
@@ -104,6 +105,7 @@ function PlanEditor({
 }) {
   const actualizarPlan = useCotizadorStore((s) => s.actualizarPlan);
   const eliminarPlan = useCotizadorStore((s) => s.eliminarPlan);
+  const conPdf = usePermite("plan_pdf");
   const archivoRef = useRef<HTMLInputElement>(null);
   const [cargando, setCargando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -174,30 +176,32 @@ function PlanEditor({
         )}
       </div>
 
-      <div>
-        <input
-          ref={archivoRef}
-          type="file"
-          accept="application/pdf"
-          className="sr-only"
-          aria-label={`PDF del plan ${indice + 1}`}
-          onChange={(e) => {
-            const archivo = e.target.files?.[0];
-            if (archivo) void cargarPdf(archivo);
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          disabled={cargando}
-          onClick={() => archivoRef.current?.click()}
-        >
-          <FileUpIcon />
-          {cargando ? "Leyendo PDF…" : "Cargar PDF del plan"}
-        </Button>
-        {aviso && <p className="mt-1.5 text-xs text-muted-foreground">{aviso}</p>}
-        {errorPdf && <p className="mt-1.5 text-xs text-destructive">{errorPdf}</p>}
-      </div>
+      {conPdf && (
+        <div>
+          <input
+            ref={archivoRef}
+            type="file"
+            accept="application/pdf"
+            className="sr-only"
+            aria-label={`PDF del plan ${indice + 1}`}
+            onChange={(e) => {
+              const archivo = e.target.files?.[0];
+              if (archivo) void cargarPdf(archivo);
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={cargando}
+            onClick={() => archivoRef.current?.click()}
+          >
+            <FileUpIcon />
+            {cargando ? "Leyendo PDF…" : "Cargar PDF del plan"}
+          </Button>
+          {aviso && <p className="mt-1.5 text-xs text-muted-foreground">{aviso}</p>}
+          {errorPdf && <p className="mt-1.5 text-xs text-destructive">{errorPdf}</p>}
+        </div>
+      )}
 
       <TarifarioPlan plan={plan} tarifario={tarifario} onChange={set} />
 
@@ -231,8 +235,10 @@ export function PlanesCard() {
   const agregarPlan = useCotizadorStore((s) => s.agregarPlan);
   const [tarifarios, setTarifarios] = useState<TarifarioGuardado[]>([]);
   const ges = useGesIsapres();
+  const conTarifarios = usePermite("tarifarios");
 
   useEffect(() => {
+    if (!conTarifarios) return;
     let vigente = true;
     void listarTarifarios(getSupabase())
       .then((lista) => vigente && setTarifarios(lista))
@@ -240,7 +246,7 @@ export function PlanesCard() {
     return () => {
       vigente = false;
     };
-  }, []);
+  }, [conTarifarios]);
 
   return (
     <Card>

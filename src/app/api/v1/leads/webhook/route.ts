@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { leerLead } from "@/lib/adquisicion";
 import { fechaHoy } from "@/lib/fecha";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { asesorPuedeUsar } from "@/lib/supabase/suscripciones";
 
 async function asesorDestino(admin: NonNullable<ReturnType<typeof supabaseAdmin>>): Promise<string | null> {
   const fijo = process.env.LEADS_ASESOR_ID?.trim();
@@ -27,6 +28,13 @@ export async function POST(request: Request) {
   const asesorId = await asesorDestino(admin);
   if (!asesorId) {
     return NextResponse.json({ error: "Define LEADS_ASESOR_ID: hay más de un asesor." }, { status: 409 });
+  }
+  try {
+    if (!(await asesorPuedeUsar(admin, asesorId, "google_ads"))) {
+      return NextResponse.json({ error: "El plan del asesor no incluye Google Ads." }, { status: 403 });
+    }
+  } catch {
+    return NextResponse.json({ error: "No se pudo verificar el plan del asesor." }, { status: 500 });
   }
 
   const { data: etapas, error: errorEtapas } = await admin

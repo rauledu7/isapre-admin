@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { SoloConPlan } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProspectos } from "@/hooks/useProspectos";
@@ -206,7 +207,9 @@ export function FichaProspecto() {
             </CardContent>
           </Card>
           <NotasProspecto prospectoId={prospecto.id} />
-          <DocumentosProspecto prospectoId={prospecto.id} />
+          <SoloConPlan funcion="documentos">
+            <DocumentosProspecto prospectoId={prospecto.id} />
+          </SoloConPlan>
         </div>
         <HistorialCotizaciones prospecto={prospecto} />
       </div>

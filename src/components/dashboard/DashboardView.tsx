@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+import { SoloConPlan } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 
 import { CampanasAds } from "./CampanasAds";
@@ -112,7 +113,9 @@ export function DashboardView() {
         </CardContent>
       </Card>
 
-      <CampanasAds />
+      <SoloConPlan funcion="google_ads">
+        <CampanasAds />
+      </SoloConPlan>
     </div>
   );
 }
