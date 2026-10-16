@@ -14,14 +14,14 @@
 - [x] **Planes y acceso por nivel:** Básico, Profesional y Full con precios de referencia (trimestral -10%, anual -20%). Bloqueo en proxy, RLS (`plan_permite`) y ocultando en la interfaz.
 
 ### Etapa 12: Integración Directa con Mercado Pago (Pagos & Webhooks)
-- [ ] Instalar SDK de Mercado Pago (`npm install mercadopago`).
-- [ ] Configurar variables de entorno (`MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`).
-- [ ] Crear API Route `/api/v1/checkout/mercadopago` para generar el enlace de suscripción / preferencia de pago.
-- [ ] Crear Webhook handler `/api/v1/webhooks/mercadopago`:
+- [x] Instalar SDK de Mercado Pago (`npm install mercadopago`).
+- [x] Configurar variables de entorno (`MP_ACCESS_TOKEN`, `NEXT_PUBLIC_MP_PUBLIC_KEY`, `MP_WEBHOOK_SECRET`, `APP_URL`). Pendiente: cargar los valores y probar con credenciales de prueba.
+- [x] Crear API Route `/api/v1/checkout/mercadopago` para generar el enlace de suscripción / preferencia de pago.
+- [x] Crear Webhook handler `/api/v1/webhooks/mercadopago`:
   - Escuchar eventos `subscription_preapproval` / `payment.created`.
   - Actualizar el estado de la suscripción a `active` y actualizar `fecha_proximo_pago` en Supabase al recibir un pago aprobado.
   - Manejar pagos rechazados enviando la suscripción a `past_due`.
-- [ ] Vista `/cuenta/facturacion` para que el asesor consulte su estado de pago y el historial procesado por Mercado Pago.
+- [x] Vista `/cuenta/facturacion` para que el asesor consulte su estado de pago y el historial procesado por Mercado Pago.
 
 ### Etapa 13: Panel Super Admin (`/admin`)
 - [ ] **Protección de Ruta:** Middleware con verificación de rol `super_admin`.

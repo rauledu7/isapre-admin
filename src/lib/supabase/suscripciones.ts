@@ -32,7 +32,7 @@ export async function nivelDeSuscripcion(sb: Supabase, lectura: LecturaSuscripci
   if (lectura.tablaFalta || !lectura.suscripcion?.planId) return "full";
   const { data, error } = await sb.from("planes").select("nivel").eq("id", lectura.suscripcion.planId).maybeSingle();
   if (error) throw new ErrorDatos(`No se pudo cargar el plan: ${error.message}`);
-  return nivelEfectivo(lectura.suscripcion, aNivel(data?.nivel ?? null));
+  return nivelEfectivo(lectura.suscripcion, aNivel(data?.nivel ?? null), new Date());
 }
 
 /** Para rutas con el cliente admin: suscripción vigente y plan que incluye la función. */
@@ -41,6 +41,25 @@ export async function asesorPuedeUsar(admin: Supabase, perfilId: string, funcion
   if (lectura.tablaFalta) return true;
   if (!suscripcionVigente(lectura.suscripcion, new Date())) return false;
   return permite(await nivelDeSuscripcion(admin, lectura), funcion);
+}
+
+export interface PagoRegistrado {
+  id: string;
+  fecha: string;
+  detalle: string | null;
+  montoCLP: number | null;
+  estado: string;
+}
+
+export async function listarPagos(sb: Supabase): Promise<PagoRegistrado[]> {
+  const { data, error } = await sb
+    .from("pagos")
+    .select("id, fecha, detalle, monto_clp, estado")
+    .order("fecha", { ascending: false })
+    .limit(100);
+  if (faltaTabla(error?.code)) return [];
+  if (error) throw new ErrorDatos(`No se pudo cargar el historial de pagos: ${error.message}`);
+  return (data ?? []).map((p) => ({ id: p.id, fecha: p.fecha, detalle: p.detalle, montoCLP: p.monto_clp, estado: p.estado }));
 }
 
 export async function listarPlanes(sb: Supabase): Promise<PlanPago[]> {

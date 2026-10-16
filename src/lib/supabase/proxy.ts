@@ -9,7 +9,7 @@ import { supabaseEnv } from "./env";
 import { nivelDeSuscripcion, obtenerSuscripcion } from "./suscripciones";
 
 const RUTAS_PUBLICAS = ["/login"];
-const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads"];
+const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads", "/api/v1/webhooks"];
 
 function corsLeads(origen: string | null): Headers {
   const headers = new Headers();

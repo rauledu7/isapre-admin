@@ -394,6 +394,40 @@ export interface Database {
         };
         Relationships: [];
       };
+      pagos: {
+        Row: {
+          id: string;
+          perfil_id: string;
+          mp_invoice_id: string;
+          mp_payment_id: string | null;
+          mp_preapproval_id: string;
+          monto_clp: number | null;
+          estado: string;
+          detalle: string | null;
+          fecha: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          perfil_id: string;
+          mp_invoice_id: string;
+          mp_payment_id?: string | null;
+          mp_preapproval_id: string;
+          monto_clp?: number | null;
+          estado: string;
+          detalle?: string | null;
+          fecha?: string;
+        };
+        Update: {
+          mp_payment_id?: string | null;
+          monto_clp?: number | null;
+          estado?: string;
+          detalle?: string | null;
+          fecha?: string;
+        };
+        Relationships: [];
+      };
       suscripciones: {
         Row: {
           id: string;

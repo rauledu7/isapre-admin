@@ -51,10 +51,23 @@ export function funcionesDe(nivel: NivelPlan): readonly Funcion[] {
   return FUNCIONES_POR_NIVEL[nivel];
 }
 
-/** El trial y las suscripciones sin plan asignado tienen todo. */
-export function nivelEfectivo(s: Suscripcion | null, nivelDelPlan: NivelPlan | null): NivelPlan {
-  if (!s || s.estado === "trialing" || !s.planId || !nivelDelPlan) return "full";
+/** La prueba gratis (aunque ya haya contratado) y las suscripciones sin plan asignado tienen todo. */
+export function nivelEfectivo(s: Suscripcion | null, nivelDelPlan: NivelPlan | null, ahora: Date): NivelPlan {
+  if (!s || s.estado === "trialing" || despuesDe(s.fechaFinTrial, ahora) || !s.planId || !nivelDelPlan) return "full";
   return nivelDelPlan;
+}
+
+/**
+ * Fecha del primer cobro al contratar: al terminar la prueba o el período ya pagado, para no cobrar doble.
+ * Null cobra de inmediato.
+ */
+export function inicioCobro(s: Suscripcion | null, ahora: Date): string | null {
+  if (!s) return null;
+  if (despuesDe(s.fechaFinTrial, ahora)) return s.fechaFinTrial;
+  if ((s.estado === "active" || s.estado === "canceled") && despuesDe(s.fechaProximoPago, ahora)) {
+    return s.fechaProximoPago;
+  }
+  return null;
 }
 
 const RUTAS_FUNCION: { prefijo: string; funcion: Funcion }[] = [
@@ -84,7 +97,7 @@ export function aNivel(valor: string | null): NivelPlan | null {
 }
 
 /** Rutas a las que entra un asesor sin suscripción vigente. */
-export const RUTAS_SIN_SUSCRIPCION = ["/suscripcion"];
+export const RUTAS_SIN_SUSCRIPCION = ["/suscripcion", "/cuenta/facturacion", "/api/v1/checkout"];
 
 export function rutaSinSuscripcion(pathname: string): boolean {
   return RUTAS_SIN_SUSCRIPCION.some((r) => pathname === r || pathname.startsWith(`${r}/`));

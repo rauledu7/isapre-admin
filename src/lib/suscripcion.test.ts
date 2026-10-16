@@ -5,6 +5,7 @@ import {
   descuentoPeriodo,
   diasRestantesTrial,
   funcionDeRuta,
+  inicioCobro,
   nivelEfectivo,
   permite,
   rutaSinSuscripcion,
@@ -80,9 +81,33 @@ describe("niveles de plan", () => {
   });
 
   it("el trial y la suscripción sin plan usan el full", () => {
-    expect(nivelEfectivo(sus({ fechaFinTrial: "2026-10-20T00:00:00Z", planId: "p" }), "basico")).toBe("full");
-    expect(nivelEfectivo(sus({ estado: "active" }), null)).toBe("full");
-    expect(nivelEfectivo(sus({ estado: "active", planId: "p" }), "basico")).toBe("basico");
+    expect(nivelEfectivo(sus({ fechaFinTrial: "2026-10-20T00:00:00Z", planId: "p" }), "basico", ahora)).toBe("full");
+    expect(nivelEfectivo(sus({ estado: "active" }), null, ahora)).toBe("full");
+    expect(nivelEfectivo(sus({ estado: "active", planId: "p" }), "basico", ahora)).toBe("basico");
+  });
+
+  it("contratar durante la prueba mantiene el full hasta que termine", () => {
+    const contratado = sus({ estado: "active", planId: "p", fechaFinTrial: "2026-10-20T00:00:00Z" });
+    expect(nivelEfectivo(contratado, "basico", ahora)).toBe("full");
+    expect(nivelEfectivo(contratado, "basico", new Date("2026-10-21T00:00:00Z"))).toBe("basico");
+  });
+});
+
+describe("inicioCobro", () => {
+  it("parte al terminar la prueba", () => {
+    expect(inicioCobro(sus({ fechaFinTrial: "2026-10-20T00:00:00Z" }), ahora)).toBe("2026-10-20T00:00:00Z");
+  });
+
+  it("parte al terminar el período pagado al cambiar de plan", () => {
+    expect(inicioCobro(sus({ estado: "active", fechaProximoPago: "2026-11-01T00:00:00Z" }), ahora)).toBe(
+      "2026-11-01T00:00:00Z",
+    );
+  });
+
+  it("cobra de inmediato si no queda nada pagado", () => {
+    expect(inicioCobro(sus({ fechaFinTrial: "2026-10-01T00:00:00Z" }), ahora)).toBeNull();
+    expect(inicioCobro(sus({ estado: "past_due", fechaProximoPago: "2026-11-01T00:00:00Z" }), ahora)).toBeNull();
+    expect(inicioCobro(sus({ estado: "active" }), ahora)).toBeNull();
   });
 
   it("asocia rutas a funciones", () => {
