@@ -24,8 +24,8 @@
 - [x] Vista `/cuenta/facturacion` para que el asesor consulte su estado de pago y el historial procesado por Mercado Pago.
 
 ### Etapa 13: Panel Super Admin (`/admin`)
-- [ ] **Protección de Ruta:** Middleware con verificación de rol `super_admin`.
-- [ ] **Dashboard de Control:**
+- [x] **Protección de Ruta:** Middleware con verificación de rol `super_admin` (un solo super admin: `SUPER_ADMIN_EMAIL`).
+- [x] **Dashboard de Control:**
   - Métricas de ingresos en $ CLP procesados vía Mercado Pago, total de usuarios en Trial vs. Usuarios Pagados.
-  - Tabla de asesores con buscador por Email/RUT.
+  - Tabla de asesores con buscador por Email/nombre (el perfil no guarda RUT).
   - Modales de acción: *Extender trial de 7 días, activar suscripción manualmente, cambiar plan o bloquear usuario*.

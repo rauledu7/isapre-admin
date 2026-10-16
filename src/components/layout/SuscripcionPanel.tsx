@@ -34,6 +34,7 @@ function incluye(nivel: NivelPlan | null): string {
 
 function resumen(s: Suscripcion | null, vigente: boolean, diasTrial: number | null): { titulo: string; detalle: string } {
   if (!s) return { titulo: "Sin suscripción", detalle: "Elige un plan para seguir usando Velora." };
+  if (s.bloqueado) return { titulo: "Cuenta bloqueada", detalle: "Tu cuenta está bloqueada. Escríbenos a soporte de Velora para revisarla." };
   switch (s.estado) {
     case "trialing":
       return vigente
@@ -119,69 +120,71 @@ export function SuscripcionPanel() {
         </CardContent>
       </Card>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-base font-semibold">Planes</h2>
-        {planes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Los precios se publicarán pronto.</p>
-        ) : (
-          planes.map((plan) => (
-            <Card key={plan.id} size="sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {plan.nombre}
-                  {suscripcion?.planId === plan.id && <Badge variant="outline">Tu plan</Badge>}
-                </CardTitle>
-                <CardDescription>{incluye(plan.nivel)}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div role="radiogroup" aria-label={`Período de ${plan.nombre}`} className="grid gap-2 sm:grid-cols-3">
-                  {PERIODOS.map((periodo) => {
-                    const precio = plan.precios[periodo.id];
-                    const descuento = descuentoPeriodo(plan.precios, periodo.id);
-                    const elegido = eleccion?.planId === plan.id && eleccion.periodo === periodo.id;
-                    return (
-                      <button
-                        key={periodo.id}
-                        type="button"
-                        role="radio"
-                        aria-checked={elegido}
-                        disabled={precio === null}
-                        onClick={() => setEleccion({ planId: plan.id, periodo: periodo.id })}
-                        className={cn(
-                          "flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-                          elegido ? "border-primary bg-primary/5" : "hover:bg-muted/60",
-                        )}
-                      >
-                        <span className="text-sm font-medium">{periodo.nombre}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {precio === null ? "No disponible" : formatCLP(precio)}
-                        </span>
-                        {descuento !== null && (
-                          <span className="text-xs font-medium text-primary">Ahorras {descuento}%</span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-        {planes.length > 0 && (
-          <div className="flex flex-col items-start gap-1">
-            <Button disabled={!eleccion || pagando} onClick={() => void pagar()}>
-              {pagando ? "Abriendo Mercado Pago…" : "Pagar con Mercado Pago"}
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              {primerCobro
-                ? `El primer cobro será el ${fechaChile(primerCobro)}, cuando termine lo que ya tienes. Luego se renueva solo.`
-                : "Se cobra hoy y se renueva solo. Tarjeta de crédito, débito o dinero en Mercado Pago."}
-              {suscripcion?.planId && " Al contratar otro plan, el anterior se cancela."}
-            </p>
-            {errorPago && <p className="text-xs text-destructive">{errorPago}</p>}
-          </div>
-        )}
-      </section>
+      {!suscripcion?.bloqueado && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-base font-semibold">Planes</h2>
+          {planes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Los precios se publicarán pronto.</p>
+          ) : (
+            planes.map((plan) => (
+              <Card key={plan.id} size="sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {plan.nombre}
+                    {suscripcion?.planId === plan.id && <Badge variant="outline">Tu plan</Badge>}
+                  </CardTitle>
+                  <CardDescription>{incluye(plan.nivel)}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div role="radiogroup" aria-label={`Período de ${plan.nombre}`} className="grid gap-2 sm:grid-cols-3">
+                    {PERIODOS.map((periodo) => {
+                      const precio = plan.precios[periodo.id];
+                      const descuento = descuentoPeriodo(plan.precios, periodo.id);
+                      const elegido = eleccion?.planId === plan.id && eleccion.periodo === periodo.id;
+                      return (
+                        <button
+                          key={periodo.id}
+                          type="button"
+                          role="radio"
+                          aria-checked={elegido}
+                          disabled={precio === null}
+                          onClick={() => setEleccion({ planId: plan.id, periodo: periodo.id })}
+                          className={cn(
+                            "flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                            elegido ? "border-primary bg-primary/5" : "hover:bg-muted/60",
+                          )}
+                        >
+                          <span className="text-sm font-medium">{periodo.nombre}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {precio === null ? "No disponible" : formatCLP(precio)}
+                          </span>
+                          {descuento !== null && (
+                            <span className="text-xs font-medium text-primary">Ahorras {descuento}%</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+          {planes.length > 0 && (
+            <div className="flex flex-col items-start gap-1">
+              <Button disabled={!eleccion || pagando} onClick={() => void pagar()}>
+                {pagando ? "Abriendo Mercado Pago…" : "Pagar con Mercado Pago"}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                {primerCobro
+                  ? `El primer cobro será el ${fechaChile(primerCobro)}, cuando termine lo que ya tienes. Luego se renueva solo.`
+                  : "Se cobra hoy y se renueva solo. Tarjeta de crédito, débito o dinero en Mercado Pago."}
+                {suscripcion?.planId && " Al contratar otro plan, el anterior se cancela."}
+              </p>
+              {errorPago && <p className="text-xs text-destructive">{errorPago}</p>}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

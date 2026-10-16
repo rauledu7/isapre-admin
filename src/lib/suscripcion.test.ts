@@ -16,7 +16,7 @@ import {
 const ahora = new Date("2026-10-16T12:00:00Z");
 
 function sus(parcial: Partial<Suscripcion>): Suscripcion {
-  return { estado: "trialing", planId: null, periodo: null, fechaFinTrial: null, fechaProximoPago: null, ...parcial };
+  return { estado: "trialing", planId: null, periodo: null, fechaFinTrial: null, fechaProximoPago: null, bloqueado: false, ...parcial };
 }
 
 describe("suscripcionVigente", () => {
@@ -31,6 +31,10 @@ describe("suscripcionVigente", () => {
   it("trial vigente hasta su fin", () => {
     expect(suscripcionVigente(sus({ fechaFinTrial: "2026-10-16T12:00:01Z" }), ahora)).toBe(true);
     expect(suscripcionVigente(sus({ fechaFinTrial: "2026-10-16T12:00:00Z" }), ahora)).toBe(false);
+  });
+
+  it("bloqueada por el administrador no tiene acceso", () => {
+    expect(suscripcionVigente(sus({ estado: "active", bloqueado: true }), ahora)).toBe(false);
   });
 
   it("pago rechazado bloquea", () => {

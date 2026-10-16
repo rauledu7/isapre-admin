@@ -13,6 +13,7 @@ export interface Suscripcion {
   periodo: PeriodoPago | null;
   fechaFinTrial: string | null;
   fechaProximoPago: string | null;
+  bloqueado: boolean;
 }
 
 export type NivelPlan = "basico" | "intermedio" | "full";
@@ -111,10 +112,10 @@ function despuesDe(iso: string | null, ahora: Date): boolean {
 
 /**
  * Activa sirve siempre; el trial, hasta su fin; cancelada, hasta el fin del período pagado.
- * Con pago rechazado (past_due) o sin suscripción, no hay acceso.
+ * Con pago rechazado (past_due), bloqueada por el administrador o sin suscripción, no hay acceso.
  */
 export function suscripcionVigente(s: Suscripcion | null, ahora: Date): boolean {
-  if (!s) return false;
+  if (!s || s.bloqueado) return false;
   switch (s.estado) {
     case "active":
       return true;
@@ -144,6 +145,7 @@ export function aSuscripcion(fila: {
   periodo: string | null;
   fecha_fin_trial: string | null;
   fecha_proximo_pago: string | null;
+  bloqueado_en?: string | null;
 }): Suscripcion | null {
   if (!ESTADOS.includes(fila.estado)) return null;
   return {
@@ -152,5 +154,6 @@ export function aSuscripcion(fila: {
     periodo: fila.periodo && PERIODOS_ID.includes(fila.periodo) ? (fila.periodo as PeriodoPago) : null,
     fechaFinTrial: fila.fecha_fin_trial,
     fechaProximoPago: fila.fecha_proximo_pago,
+    bloqueado: Boolean(fila.bloqueado_en),
   };
 }

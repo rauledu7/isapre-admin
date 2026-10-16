@@ -29,6 +29,9 @@ export async function POST(request: Request) {
     precio = plan.precios[periodo.id];
     nombrePlan = plan.nombre;
     const lectura = await obtenerSuscripcion(sb);
+    if (!lectura.tablaFalta && lectura.suscripcion?.bloqueado) {
+      return NextResponse.json({ error: "Tu cuenta está bloqueada. Escríbenos a soporte." }, { status: 403 });
+    }
     inicio = lectura.tablaFalta ? null : inicioCobro(lectura.suscripcion, new Date());
   } catch {
     return NextResponse.json({ error: "No se pudo leer el plan." }, { status: 500 });

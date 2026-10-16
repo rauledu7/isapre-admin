@@ -17,11 +17,18 @@ export type LecturaSuscripcion = { tablaFalta: true } | { tablaFalta: false; sus
 
 const faltaTabla = (code?: string) => code === "42P01" || code === "PGRST205";
 
+const COLUMNAS_SUSCRIPCION = "estado, plan_id, periodo, fecha_fin_trial, fecha_proximo_pago";
+type FilaSuscripcion = Parameters<typeof aSuscripcion>[0];
+
 /** Suscripción del asesor con sesión; RLS deja ver solo la suya. Con el cliente admin, pasar `perfilId`. */
 export async function obtenerSuscripcion(sb: Supabase, perfilId?: string): Promise<LecturaSuscripcion> {
-  let consulta = sb.from("suscripciones").select("estado, plan_id, periodo, fecha_fin_trial, fecha_proximo_pago");
-  if (perfilId) consulta = consulta.eq("perfil_id", perfilId);
-  const { data, error } = await consulta.maybeSingle();
+  const leer = (columnas: string) => {
+    const consulta = sb.from("suscripciones").select(columnas);
+    return (perfilId ? consulta.eq("perfil_id", perfilId) : consulta).maybeSingle<FilaSuscripcion>();
+  };
+  let { data, error } = await leer(`${COLUMNAS_SUSCRIPCION}, bloqueado_en`);
+  // Sin la migración del panel admin todavía no existe bloqueado_en.
+  if (error?.code === "42703") ({ data, error } = await leer(COLUMNAS_SUSCRIPCION));
   if (faltaTabla(error?.code)) return { tablaFalta: true };
   if (error) throw new ErrorDatos(`No se pudo cargar la suscripción: ${error.message}`);
   return { tablaFalta: false, suscripcion: data ? aSuscripcion(data) : null };

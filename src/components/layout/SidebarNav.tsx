@@ -7,6 +7,7 @@ import {
   FolderIcon,
   LayoutDashboardIcon,
   MegaphoneIcon,
+  ShieldIcon,
   Table2Icon,
   UsersIcon,
   type LucideIcon,
@@ -19,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { permite, type Funcion } from "@/lib/suscripcion";
 import { cn } from "@/lib/utils";
 
-import { useNivelPlan } from "./AccesoPlan";
+import { useEsSuperAdmin, useNivelPlan } from "./AccesoPlan";
 
 interface NavItem {
   href: string;
@@ -27,6 +28,7 @@ interface NavItem {
   icon: LucideIcon;
   proximamente?: boolean;
   funcion?: Funcion;
+  soloAdmin?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -38,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/isapres", label: "Isapres", icon: Table2Icon },
   { href: "/google-ads", label: "Google Ads", icon: MegaphoneIcon, funcion: "google_ads" },
   { href: "/suscripcion", label: "Suscripción", icon: CreditCardIcon },
+  { href: "/admin", label: "Admin", icon: ShieldIcon, soloAdmin: true },
 ];
 
 interface SidebarNavProps {
@@ -58,9 +61,13 @@ function SidebarNavActivo(props: SidebarNavProps) {
 
 function NavLista({ pathname, onNavigate }: SidebarNavProps & { pathname: string | null }) {
   const nivel = useNivelPlan();
+  const superAdmin = useEsSuperAdmin();
   return (
     <nav className="flex flex-col gap-1">
-      {NAV_ITEMS.filter((item) => !item.funcion || (nivel !== null && permite(nivel, item.funcion))).map(({ href, label, icon: Icon, proximamente }) => {
+      {NAV_ITEMS.filter(
+        (item) =>
+          (!item.soloAdmin || superAdmin) && (!item.funcion || (nivel !== null && permite(nivel, item.funcion))),
+      ).map(({ href, label, icon: Icon, proximamente }) => {
         const activo = href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false);
         const clases = cn(
           "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",

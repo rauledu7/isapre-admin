@@ -439,6 +439,7 @@ export interface Database {
           fecha_fin_trial: string | null;
           fecha_proximo_pago: string | null;
           mp_preapproval_id: string | null;
+          bloqueado_en: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -452,6 +453,7 @@ export interface Database {
           fecha_fin_trial?: string | null;
           fecha_proximo_pago?: string | null;
           mp_preapproval_id?: string | null;
+          bloqueado_en?: string | null;
         };
         Update: {
           plan_id?: string | null;
@@ -460,6 +462,7 @@ export interface Database {
           fecha_fin_trial?: string | null;
           fecha_proximo_pago?: string | null;
           mp_preapproval_id?: string | null;
+          bloqueado_en?: string | null;
         };
         Relationships: [];
       };

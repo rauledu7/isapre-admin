@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { normalizarSitio } from "@/lib/sitioWeb";
+import { esSuperAdmin, rutaSuperAdmin } from "@/lib/superAdmin";
 import { funcionDeRuta, permite, rutaSinSuscripcion, suscripcionVigente } from "@/lib/suscripcion";
 import type { Database } from "@/types/database";
 
@@ -79,7 +80,16 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
   if (autenticado && esPublica) {
     return redirigir(new URL("/", request.url));
   }
-  if (!autenticado || rutaSinSuscripcion(pathname)) return response;
+  if (!autenticado) return response;
+
+  if (esSuperAdmin(data?.claims.email)) return response;
+  if (rutaSuperAdmin(pathname)) {
+    if (!pathname.startsWith("/api/")) return redirigir(new URL("/", request.url));
+    const prohibido = NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    response.cookies.getAll().forEach((c) => prohibido.cookies.set(c));
+    return prohibido;
+  }
+  if (rutaSinSuscripcion(pathname)) return response;
 
   const bloquear = (status: 402 | 403, error: string) => {
     if (!pathname.startsWith("/api/")) return redirigir(new URL("/suscripcion", request.url));
