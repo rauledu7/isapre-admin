@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { hostsConfig, inicioTrasLogin, pasoHost, superficieDe } from "@/lib/hosts";
 import { normalizarSitio } from "@/lib/sitioWeb";
 import { esSuperAdmin, rutaSuperAdmin } from "@/lib/superAdmin";
 import { funcionDeRuta, permite, rutaSinSuscripcion, suscripcionVigente } from "@/lib/suscripcion";
@@ -64,13 +65,33 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
   const { search } = request.nextUrl;
   if (RUTAS_ABIERTAS.some((r) => pathname === r || pathname.startsWith(`${r}/`))) return response;
 
-  const esPublica = RUTAS_PUBLICAS.some((r) => pathname.startsWith(r));
-
   const redirigir = (destino: URL) => {
     const redireccion = NextResponse.redirect(destino);
     response.cookies.getAll().forEach((c) => redireccion.cookies.set(c));
     return redireccion;
   };
+
+  const hosts = hostsConfig();
+  const superficie = superficieDe(request.headers.get("x-forwarded-host") ?? request.headers.get("host"), hosts);
+  const paso = pasoHost(superficie, pathname, hosts);
+  if (paso.tipo === "reescribir") {
+    const url = request.nextUrl.clone();
+    url.pathname = paso.pathname;
+    const reescrito = NextResponse.rewrite(url);
+    response.cookies.getAll().forEach((c) => reescrito.cookies.set(c));
+    return reescrito;
+  }
+  if (paso.tipo === "redirigir") {
+    const destino = paso.host
+      ? new URL(`https://${paso.host}${paso.pathname}${search}`)
+      : new URL(`${paso.pathname}${search}`, request.url);
+    return redirigir(destino);
+  }
+  if (paso.tipo === "bloquear") {
+    return new NextResponse("No encontrado", { status: paso.status, headers: { "content-type": "text/plain; charset=utf-8" } });
+  }
+
+  const esPublica = RUTAS_PUBLICAS.some((r) => pathname.startsWith(r));
 
   if (!autenticado && !esPublica) {
     const destino = new URL("/login", request.url);
@@ -78,12 +99,15 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
     return redirigir(destino);
   }
   if (autenticado && esPublica) {
-    return redirigir(new URL("/", request.url));
+    return redirigir(new URL(inicioTrasLogin(superficie), request.url));
   }
   if (!autenticado) return response;
 
-  if (esSuperAdmin(data?.claims.email)) return response;
   if (rutaSuperAdmin(pathname)) {
+    if (esSuperAdmin(data?.claims.email)) return response;
+    if (!pathname.startsWith("/api/") && hosts.asesores && superficie === "dueno") {
+      return redirigir(new URL(`https://${hosts.asesores}/`, request.url));
+    }
     if (!pathname.startsWith("/api/")) return redirigir(new URL("/", request.url));
     const prohibido = NextResponse.json({ error: "No autorizado" }, { status: 403 });
     response.cookies.getAll().forEach((c) => prohibido.cookies.set(c));
