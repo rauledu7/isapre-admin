@@ -7,6 +7,7 @@ import {
   funcionDeRuta,
   inicioCobro,
   nivelEfectivo,
+  maxPlanesComparar,
   permite,
   rutaSinSuscripcion,
   suscripcionVigente,
@@ -75,13 +76,30 @@ describe("niveles de plan", () => {
     expect(permite("basico", "documentos")).toBe(false);
   });
 
-  it("el intermedio suma PDF, leads web y documentos, sin tarifarios, importación ni Google Ads", () => {
-    expect(permite("intermedio", "plan_pdf")).toBe(true);
-    expect(permite("intermedio", "leads_web")).toBe(true);
-    expect(permite("intermedio", "documentos")).toBe(true);
+  it("el profesional compara, guarda prospectos y no llega al embudo ni a los tarifarios", () => {
+    expect(permite("intermedio", "comparador")).toBe(true);
+    expect(permite("intermedio", "prospectos")).toBe(true);
+    expect(permite("intermedio", "propuesta")).toBe(true);
+    expect(permite("intermedio", "isapres")).toBe(true);
+    expect(permite("intermedio", "pipeline")).toBe(true);
+    expect(permite("intermedio", "notificaciones")).toBe(true);
+    expect(permite("intermedio", "embudo")).toBe(false);
+    expect(permite("intermedio", "plan_pdf")).toBe(false);
+    expect(permite("intermedio", "documentos")).toBe(false);
     expect(permite("intermedio", "tarifarios")).toBe(false);
     expect(permite("intermedio", "importar")).toBe(false);
+    expect(permite("intermedio", "etapas")).toBe(false);
     expect(permite("intermedio", "google_ads")).toBe(false);
+    expect(permite("intermedio", "leads_web")).toBe(false);
+  });
+
+  it("el comparador admite un plan en Profesional y dos en Full", () => {
+    expect(maxPlanesComparar("basico")).toBe(0);
+    expect(maxPlanesComparar("intermedio")).toBe(1);
+    expect(maxPlanesComparar("full")).toBe(2);
+    expect(permite("full", "embudo")).toBe(true);
+    expect(permite("full", "ges_auto")).toBe(true);
+    expect(permite("full", "leads_web")).toBe(true);
   });
 
   it("el trial y la suscripción sin plan usan el full", () => {
@@ -118,6 +136,9 @@ describe("inicioCobro", () => {
     expect(funcionDeRuta("/documentos")).toBe("documentos");
     expect(funcionDeRuta("/api/ads/metricas")).toBe("google_ads");
     expect(funcionDeRuta("/api/cotizador/plan")).toBe("plan_pdf");
+    expect(funcionDeRuta("/prospectos")).toBe("prospectos");
+    expect(funcionDeRuta("/isapres")).toBe("isapres");
+    expect(funcionDeRuta("/api/ges")).toBe("isapres");
     expect(funcionDeRuta("/cotizador")).toBeNull();
     expect(funcionDeRuta("/documentosx")).toBeNull();
   });

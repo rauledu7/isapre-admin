@@ -72,7 +72,12 @@ function FormularioPerfil({ onOpenChange }: Pick<PerfilDialogProps, "onOpenChang
     let vigente = true;
     void getSupabase()
       .auth.getUser()
-      .then(({ data }) => vigente && setEmail((actual) => actual || data.user?.email || ""));
+      .then(({ data }) => {
+        if (!vigente) return;
+        setEmail((actual) => actual || data.user?.email || "");
+        const meta = data.user?.user_metadata?.nombre;
+        if (typeof meta === "string" && meta.trim()) setNombre((actual) => actual || meta.trim());
+      });
     return () => {
       vigente = false;
     };

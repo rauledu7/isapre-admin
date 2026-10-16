@@ -48,6 +48,14 @@ describe("leerFormulario", () => {
     expect(r.datos.planes[0]?.gesUF).toBe(0.8);
   });
 
+  it("en modo manual usa el GES escrito y no el de la Isapre", () => {
+    const escrito = leerFormulario(CLIENTE, [], [{ ...PLAN, gesManual: true, gesUF: "0,9" }], { banmedica: 0.8 });
+    const vacio = leerFormulario(CLIENTE, [], [{ ...PLAN, gesManual: true, gesUF: "" }], { banmedica: 0.8 });
+    if (!escrito.ok || !vacio.ok) throw new Error("esperaba ok");
+    expect(escrito.datos.planes[0]?.gesUF).toBe(0.9);
+    expect(vacio.datos.planes[0]?.gesUF).toBe(0);
+  });
+
   it("lista los datos faltantes del cliente", () => {
     const r = leerFormulario(
       { ...CLIENTE, rentaImponibleCLP: "", edadTitular: "130", precioPlanActualUF: "abc" },

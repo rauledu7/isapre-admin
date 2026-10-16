@@ -57,6 +57,7 @@ const RUTAS_DUENO = ["/admin", "/login", "/api/admin"];
 export function pasoHost(superficie: Superficie, pathname: string, hosts: Hosts): PasoHost {
   if (superficie === "landing") {
     if (pathname === "/") return { tipo: "reescribir", pathname: "/inicio" };
+    if (pathname === "/inicio") return { tipo: "seguir" };
     return hosts.asesores
       ? { tipo: "redirigir", host: hosts.asesores, pathname }
       : { tipo: "redirigir", host: null, pathname: "/" };
@@ -81,7 +82,6 @@ export function pasoHost(superficie: Superficie, pathname: string, hosts: Hosts)
       : { tipo: "redirigir", host: null, pathname: "/admin" };
   }
 
-  if (pathname === "/inicio") return { tipo: "redirigir", host: null, pathname: "/" };
   return { tipo: "seguir" };
 }
 

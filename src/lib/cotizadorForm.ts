@@ -44,12 +44,23 @@ function leerPlan(
   const seguroUF = leerMontoOpcional(plan.seguroUF);
   if (seguroUF === "invalido") return `${nombre}: revisa el monto de productos adicionales`;
 
+  let gesUF = plan.isapreId ? (gesPorIsapre[plan.isapreId] ?? GES_UF[plan.isapreId]) : 0;
+  if (plan.gesManual) {
+    if (!plan.gesUF?.trim()) {
+      gesUF = 0;
+    } else {
+      const manual = parseDecimal(plan.gesUF);
+      if (manual === null) return `${nombre}: revisa el GES`;
+      gesUF = manual;
+    }
+  }
+
   return {
     id: plan.id,
     isapreId: plan.isapreId,
     nombre,
     precioBaseUF,
-    gesUF: plan.isapreId ? (gesPorIsapre[plan.isapreId] ?? GES_UF[plan.isapreId]) : 0,
+    gesUF,
     seguroUF: seguroUF ?? 0,
   };
 }

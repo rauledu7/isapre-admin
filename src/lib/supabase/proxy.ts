@@ -10,7 +10,6 @@ import type { Database } from "@/types/database";
 import { supabaseEnv } from "./env";
 import { nivelDeSuscripcion, obtenerSuscripcion } from "./suscripciones";
 
-const RUTAS_PUBLICAS = ["/login"];
 const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads", "/api/v1/webhooks"];
 
 function corsLeads(origen: string | null): Headers {
@@ -91,17 +90,19 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
     return new NextResponse("No encontrado", { status: paso.status, headers: { "content-type": "text/plain; charset=utf-8" } });
   }
 
-  const esPublica = RUTAS_PUBLICAS.some((r) => pathname.startsWith(r));
+  const esLogin = pathname === "/login" || pathname.startsWith("/login/");
+  const esRegistro = pathname === "/registro" || pathname.startsWith("/registro/");
+  const esLanding = pathname === "/inicio" || pathname.startsWith("/inicio/");
 
-  if (!autenticado && !esPublica) {
+  if (!autenticado && !esLogin && !esRegistro && !esLanding) {
     const destino = new URL("/login", request.url);
     destino.searchParams.set("next", `${pathname}${search}`);
     return redirigir(destino);
   }
-  if (autenticado && esPublica) {
+  if (autenticado && esLogin) {
     return redirigir(new URL(inicioTrasLogin(superficie), request.url));
   }
-  if (!autenticado) return response;
+  if (!autenticado || esLanding || esRegistro) return response;
 
   if (rutaSuperAdmin(pathname)) {
     if (esSuperAdmin(data?.claims.email)) return response;

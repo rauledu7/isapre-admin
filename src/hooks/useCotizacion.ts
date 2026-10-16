@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 
+import { useNivelPlan } from "@/components/layout/AccesoPlan";
 import { TABLA_FACTORES, TOPE_IMPONIBLE_SALUD_UF } from "@/config/isapres";
 import { useGesIsapres } from "@/hooks/useGesIsapres";
 import { evaluarCotizacion, type ResultadoEvaluacion } from "@/lib/calculators/cotizador";
 import { leerFormulario, type DatosCotizacion } from "@/lib/cotizadorForm";
+import { maxPlanesComparar } from "@/lib/suscripcion";
 import { useCotizadorStore } from "@/store/cotizadorStore";
 import { useValorUF } from "@/store/ufStore";
 import type { ValorUF } from "@/types/isapre";
@@ -28,6 +30,13 @@ export function useCotizacion(): EstadoCotizacion {
   const planes = useCotizadorStore((s) => s.planes);
   const valorUF = useValorUF();
   const ges = useGesIsapres();
+  const nivel = useNivelPlan();
+  const planesUsados = useMemo(() => {
+    const max = nivel ? maxPlanesComparar(nivel) : 0;
+    const recortados = planes.slice(0, max);
+    if (nivel !== "intermedio") return recortados;
+    return recortados.map((plan) => ({ ...plan, gesManual: true, gesUF: plan.gesUF ?? "" }));
+  }, [planes, nivel]);
 
   return useMemo(() => {
     if (!valorUF) return { estado: "sin_uf" };
@@ -35,7 +44,7 @@ export function useCotizacion(): EstadoCotizacion {
       return { estado: "error", mensaje: "No hay Tabla de Factores configurada" };
     }
 
-    const lectura = leerFormulario(cliente, cargas, planes, ges);
+    const lectura = leerFormulario(cliente, cargas, planesUsados, ges);
     if (!lectura.ok) return { estado: "incompleto", faltantes: lectura.faltantes };
 
     try {
@@ -55,5 +64,5 @@ export function useCotizacion(): EstadoCotizacion {
     } catch (e) {
       return { estado: "error", mensaje: e instanceof Error ? e.message : "Error de cálculo" };
     }
-  }, [cliente, cargas, planes, valorUF, ges]);
+  }, [cliente, cargas, planesUsados, valorUF, ges]);
 }

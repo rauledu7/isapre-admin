@@ -3,6 +3,7 @@
 import { CircleAlertIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { usePermite } from "@/components/layout/AccesoPlan";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -131,6 +132,7 @@ export function ResultadosPanel() {
   const cotizacion = useCotizacion();
   const ufInicializada = useUFStore((s) => s.inicializado);
   const isapreActual = useCotizadorStore((s) => s.cliente.isapreActual);
+  const compara = usePermite("comparador");
 
   if (cotizacion.estado === "sin_uf") {
     return (
@@ -203,16 +205,18 @@ export function ResultadosPanel() {
         </Card>
       )}
 
-      {planesIncompletos.length > 0 && <Aviso titulo="Planes incompletos" items={planesIncompletos} />}
-      {resultado.planes.length === 0 && planesIncompletos.length === 0 && (
+      {compara && planesIncompletos.length > 0 && <Aviso titulo="Planes incompletos" items={planesIncompletos} />}
+      {compara && resultado.planes.length === 0 && planesIncompletos.length === 0 && (
         <Aviso titulo="Ingresa el precio base de al menos un plan" />
       )}
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,19rem),1fr))] gap-4">
-        {resultado.planes.map((item) => (
-          <PlanResultadoCard key={item.plan.id} item={item} />
-        ))}
-      </div>
+      {compara && (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,19rem),1fr))] gap-4">
+          {resultado.planes.map((item) => (
+            <PlanResultadoCard key={item.plan.id} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

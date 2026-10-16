@@ -21,6 +21,7 @@ describe("superficieDe", () => {
 describe("pasoHost", () => {
   it("la landing muestra el inicio y manda el resto a la app", () => {
     expect(pasoHost("landing", "/", hosts)).toEqual({ tipo: "reescribir", pathname: "/inicio" });
+    expect(pasoHost("landing", "/inicio", hosts)).toEqual({ tipo: "seguir" });
     expect(pasoHost("landing", "/cotizador", hosts)).toEqual({
       tipo: "redirigir",
       host: "admin.velora.cl",
@@ -42,10 +43,10 @@ describe("pasoHost", () => {
     expect(pasoHost("dueno", "/api/ges", hosts)).toEqual({ tipo: "bloquear", status: 404 });
   });
 
-  it("sin dominios, /admin convive y /inicio no se publica", () => {
+  it("sin dominios, la app, el panel y la landing conviven", () => {
     const unico: Hosts = { landing: null, asesores: null, dueno: null };
     expect(pasoHost("unico", "/admin", unico)).toEqual({ tipo: "seguir" });
-    expect(pasoHost("unico", "/inicio", unico)).toEqual({ tipo: "redirigir", host: null, pathname: "/" });
+    expect(pasoHost("unico", "/inicio", unico)).toEqual({ tipo: "seguir" });
   });
 });
 

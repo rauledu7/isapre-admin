@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -80,6 +81,12 @@ export function LoginForm() {
           <Button type="submit" disabled={enviando}>
             {enviando ? "Ingresando…" : "Ingresar"}
           </Button>
+          <p className="text-sm text-muted-foreground">
+            ¿Aún no tienes cuenta?{" "}
+            <Link href="/registro" className="font-medium text-primary underline-offset-4 hover:underline">
+              Prueba 7 días
+            </Link>
+          </p>
         </form>
       </CardContent>
     </Card>

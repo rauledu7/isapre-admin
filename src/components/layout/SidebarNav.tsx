@@ -33,9 +33,9 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboardIcon },
   { href: "/calendario", label: "Calendario", icon: CalendarIcon },
   { href: "/cotizador", label: "Cotizador Rápido", icon: CalculatorIcon },
-  { href: "/prospectos", label: "Prospectos", icon: UsersIcon },
+  { href: "/prospectos", label: "Prospectos", icon: UsersIcon, funcion: "prospectos" },
   { href: "/documentos", label: "Documentos", icon: FolderIcon, funcion: "documentos" },
-  { href: "/isapres", label: "Isapres", icon: Table2Icon },
+  { href: "/isapres", label: "Isapres", icon: Table2Icon, funcion: "isapres" },
   { href: "/google-ads", label: "Google Ads", icon: MegaphoneIcon, funcion: "google_ads" },
   { href: "/suscripcion", label: "Suscripción", icon: CreditCardIcon },
 ];

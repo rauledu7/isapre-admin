@@ -6,8 +6,6 @@ import { formatEnteroInput } from "@/lib/format";
 import type { CargaForm, ClienteForm, PlanForm } from "@/types/cotizador";
 import type { Prospecto } from "@/types/isapre";
 
-export const MAX_PLANES = 3;
-
 let secuencia = 0;
 // crypto.randomUUID no existe fuera de contextos seguros (p. ej. probar desde el celular por IP local).
 const nuevoId = (prefijo: string) => `${prefijo}-${Date.now()}-${++secuencia}`;
@@ -40,7 +38,8 @@ interface CotizadorState {
   agregarCarga: () => void;
   actualizarCarga: (id: string, edad: string) => void;
   eliminarCarga: (id: string) => void;
-  agregarPlan: () => void;
+  agregarPlan: (max: number) => void;
+  limitarPlanes: (max: number) => void;
   actualizarPlan: (id: string, cambios: Partial<Omit<PlanForm, "id">>) => void;
   eliminarPlan: (id: string) => void;
   reiniciar: () => void;
@@ -61,8 +60,10 @@ export const useCotizadorStore = create<CotizadorState>()(
   actualizarCarga: (id, edad) =>
     set((s) => ({ cargas: s.cargas.map((c) => (c.id === id ? { ...c, edad } : c)) })),
   eliminarCarga: (id) => set((s) => ({ cargas: s.cargas.filter((c) => c.id !== id) })),
-  agregarPlan: () =>
-    set((s) => (s.planes.length >= MAX_PLANES ? s : { planes: [...s.planes, planVacio()] })),
+  agregarPlan: (max) =>
+    set((s) => (s.planes.length >= max ? s : { planes: [...s.planes, planVacio()] })),
+  limitarPlanes: (max) =>
+    set((s) => (max < 1 || s.planes.length <= max ? s : { planes: s.planes.slice(0, max) })),
   actualizarPlan: (id, cambios) =>
     set((s) => ({ planes: s.planes.map((p) => (p.id === id ? { ...p, ...cambios } : p)) })),
   eliminarPlan: (id) =>

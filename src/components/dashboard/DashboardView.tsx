@@ -2,7 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { SoloConPlan } from "@/components/layout/AccesoPlan";
+import { SoloConPlan, usePermite } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 
 import { CampanasAds } from "./CampanasAds";
@@ -31,29 +31,29 @@ const METRICAS: { clave: keyof TotalesEmbudo; etiqueta: string; color: string }[
 
 export function DashboardView() {
   const { estado, error, etapas, prospectos, recargar } = useProspectos();
-
-  if (estado === "inicial" || estado === "cargando") {
-    return <p className="text-sm text-muted-foreground">Cargando embudo…</p>;
-  }
-  if (estado === "error") {
-    return (
-      <Card size="sm">
-        <CardContent className="flex items-center justify-between gap-4 text-sm">
-          <span className="text-destructive">{error}</span>
-          <Button variant="outline" size="sm" onClick={() => void recargar()}>
-            Reintentar
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const conteo = contarPorEtapa(etapas, prospectos);
+  const pipeline = usePermite("pipeline");
+  const embudo = usePermite("embudo");
+  const listo = estado === "listo";
+  const conteo = contarPorEtapa(etapas, listo ? prospectos : []);
   const totales = totalesEmbudo(conteo);
 
   return (
     <div className="flex flex-col gap-4">
-      <MetasMes etapas={etapas} prospectos={prospectos} />
+      <MetasMes etapas={etapas} prospectos={listo ? prospectos : []} conContactos={pipeline && listo} />
+      {pipeline && (estado === "inicial" || estado === "cargando") && (
+        <p className="text-sm text-muted-foreground">Cargando prospectos…</p>
+      )}
+      {pipeline && estado === "error" && (
+        <Card size="sm">
+          <CardContent className="flex items-center justify-between gap-4 text-sm">
+            <span className="text-destructive">{error}</span>
+            <Button variant="outline" size="sm" onClick={() => void recargar()}>
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+      {pipeline && listo && (
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {METRICAS.map((m) => (
           <Card key={m.clave} size="sm">
@@ -67,7 +67,9 @@ export function DashboardView() {
           </Card>
         ))}
       </div>
+      )}
 
+      {embudo && listo && (
       <Card>
         <CardHeader>
           <CardTitle>Embudo</CardTitle>
@@ -112,6 +114,7 @@ export function DashboardView() {
           </div>
         </CardContent>
       </Card>
+      )}
 
       <SoloConPlan funcion="google_ads">
         <CampanasAds />

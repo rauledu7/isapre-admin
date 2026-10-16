@@ -26,4 +26,8 @@ export interface PlanForm {
   productosTarifa?: string[];
   /** Suma la columna CONS UF del plan, una vez por contrato. */
   incluyeConsulta?: boolean;
+  /** Si es true, el GES sale de gesUF y no de la ficha de Isapres. */
+  gesManual?: boolean;
+  /** GES por beneficiario, escrito en el cotizador. */
+  gesUF?: string;
 }

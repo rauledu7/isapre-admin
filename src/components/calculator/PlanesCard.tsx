@@ -3,11 +3,11 @@
 import { FileUpIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { useNivelPlan, usePermite } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { usePermite } from "@/components/layout/AccesoPlan";
 import { Separator } from "@/components/ui/separator";
 import { GES_UF } from "@/config/isapres";
 import { useGesIsapres } from "@/hooks/useGesIsapres";
@@ -15,8 +15,9 @@ import { formatUF } from "@/lib/format";
 import type { PlanPdf } from "@/lib/planPdf";
 import { getSupabase } from "@/lib/supabase/client";
 import { listarTarifarios, type TarifarioGuardado } from "@/lib/supabase/tarifarios";
+import { maxPlanesComparar } from "@/lib/suscripcion";
 import { buscarPlanEnTarifario } from "@/lib/tarifario";
-import { MAX_PLANES, useCotizadorStore } from "@/store/cotizadorStore";
+import { useCotizadorStore } from "@/store/cotizadorStore";
 import type { PlanForm } from "@/types/cotizador";
 import type { IsapreId } from "@/types/isapre";
 
@@ -96,12 +97,14 @@ function PlanEditor({
   eliminable,
   tarifarios,
   ges,
+  gesManual,
 }: {
   plan: PlanForm;
   indice: number;
   eliminable: boolean;
   tarifarios: TarifarioGuardado[];
   ges: Partial<Record<IsapreId, number>>;
+  gesManual: boolean;
 }) {
   const actualizarPlan = useCotizadorStore((s) => s.actualizarPlan);
   const eliminarPlan = useCotizadorStore((s) => s.eliminarPlan);
@@ -124,6 +127,7 @@ function PlanEditor({
       codigoTarifa: null,
       productosTarifa: [],
       incluyeConsulta: false,
+      ...(gesManual ? { gesUF: "", gesManual: true } : { gesUF: undefined, gesManual: false }),
     });
   }
 
@@ -215,7 +219,19 @@ function PlanEditor({
           value={plan.precioBaseUF}
           onChange={(e) => set({ precioBaseUF: e.target.value })}
         />
-        <GesBloqueado plan={plan} ges={ges} />
+        {gesManual ? (
+          <Campo
+            label="GES"
+            sufijo="UF"
+            inputMode="decimal"
+            placeholder="0,7780"
+            value={plan.gesUF ?? ""}
+            onChange={(e) => set({ gesUF: e.target.value, gesManual: true })}
+            ayuda="Por beneficiario. Lo escribes tú."
+          />
+        ) : (
+          <GesBloqueado plan={plan} ges={ges} />
+        )}
         <Campo
           label="Total productos"
           sufijo="UF"
@@ -233,9 +249,18 @@ function PlanEditor({
 export function PlanesCard() {
   const planes = useCotizadorStore((s) => s.planes);
   const agregarPlan = useCotizadorStore((s) => s.agregarPlan);
+  const limitarPlanes = useCotizadorStore((s) => s.limitarPlanes);
+  const nivel = useNivelPlan();
+  const max = nivel ? maxPlanesComparar(nivel) : 0;
+  const gesManual = nivel === "intermedio";
+  const visibles = planes.slice(0, max);
   const [tarifarios, setTarifarios] = useState<TarifarioGuardado[]>([]);
   const ges = useGesIsapres();
   const conTarifarios = usePermite("tarifarios");
+
+  useEffect(() => {
+    if (max > 0) limitarPlanes(max);
+  }, [max, limitarPlanes]);
 
   useEffect(() => {
     if (!conTarifarios) return;
@@ -248,30 +273,33 @@ export function PlanesCard() {
     };
   }, [conTarifarios]);
 
+  if (max === 0) return null;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Planes a comparar</CardTitle>
         <CardDescription>
-          Hasta {MAX_PLANES} alternativas. Precio final = base × suma de factores + GES por
-          beneficiario + productos adicionales.
+          {max === 1 ? "Una alternativa." : `Hasta ${max} alternativas.`} Precio final = base × suma de
+          factores + GES por beneficiario + productos adicionales.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {planes.map((plan, i) => (
+        {visibles.map((plan, i) => (
           <div key={plan.id} className="flex flex-col gap-4">
             {i > 0 && <Separator />}
             <PlanEditor
               plan={plan}
               indice={i}
-              eliminable={planes.length > 1}
-              tarifarios={tarifarios}
+              eliminable={visibles.length > 1}
+              tarifarios={conTarifarios ? tarifarios : []}
               ges={ges}
+              gesManual={gesManual}
             />
           </div>
         ))}
-        {planes.length < MAX_PLANES && (
-          <Button variant="outline" onClick={agregarPlan}>
+        {visibles.length < max && (
+          <Button variant="outline" onClick={() => agregarPlan(max)}>
             <PlusIcon /> Agregar plan
           </Button>
         )}

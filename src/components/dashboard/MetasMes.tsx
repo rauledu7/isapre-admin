@@ -41,7 +41,15 @@ function Barra({
   );
 }
 
-export function MetasMes({ etapas, prospectos }: { etapas: EtapaEmbudo[]; prospectos: Prospecto[] }) {
+export function MetasMes({
+  etapas,
+  prospectos,
+  conContactos,
+}: {
+  etapas: EtapaEmbudo[];
+  prospectos: Prospecto[];
+  conContactos: boolean;
+}) {
   const perfil = usePerfilStore((s) => s.perfil);
   const cargar = usePerfilStore((s) => s.cargar);
   useEffect(() => {
@@ -53,7 +61,7 @@ export function MetasMes({ etapas, prospectos }: { etapas: EtapaEmbudo[]; prospe
   const proximos = seguimientosOrdenados(prospectos).slice(0, 5);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className={cn("grid gap-4", conContactos && "lg:grid-cols-2")}>
       <Card>
         <CardHeader>
           <CardTitle>Meta de {hoy ? nombreMes(hoy) : "este mes"}</CardTitle>
@@ -77,6 +85,7 @@ export function MetasMes({ etapas, prospectos }: { etapas: EtapaEmbudo[]; prospe
         </CardContent>
       </Card>
 
+      {conContactos && (
       <Card>
         <CardHeader>
           <CardTitle>Próximos contactos</CardTitle>
@@ -107,6 +116,7 @@ export function MetasMes({ etapas, prospectos }: { etapas: EtapaEmbudo[]; prospe
           )}
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }

@@ -363,6 +363,33 @@ export interface Database {
         };
         Relationships: [];
       };
+      agendas: {
+        Row: {
+          id: string;
+          asesor_id: string;
+          fecha: string;
+          hora: string;
+          nombre: string;
+          nota: string | null;
+          creado_en: string;
+        };
+        Insert: {
+          id?: string;
+          asesor_id?: string;
+          fecha: string;
+          hora: string;
+          nombre: string;
+          nota?: string | null;
+          creado_en?: string;
+        };
+        Update: {
+          fecha?: string;
+          hora?: string;
+          nombre?: string;
+          nota?: string | null;
+        };
+        Relationships: [];
+      };
       planes: {
         Row: {
           id: string;

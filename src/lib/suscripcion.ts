@@ -17,7 +17,22 @@ export interface Suscripcion {
 }
 
 export type NivelPlan = "basico" | "intermedio" | "full";
-export type Funcion = "plan_pdf" | "tarifarios" | "importar" | "leads_web" | "documentos" | "google_ads";
+export type Funcion =
+  | "notificaciones"
+  | "pipeline"
+  | "embudo"
+  | "comparador"
+  | "propuesta"
+  | "prospectos"
+  | "isapres"
+  | "plan_pdf"
+  | "ges_auto"
+  | "etapas"
+  | "importar"
+  | "documentos"
+  | "tarifarios"
+  | "google_ads"
+  | "leads_web";
 
 export interface PlanPago {
   id: string;
@@ -31,18 +46,50 @@ export const NIVELES: readonly NivelPlan[] = ["basico", "intermedio", "full"];
 /** Debe coincidir con public.plan_permite en Supabase. */
 const FUNCIONES_POR_NIVEL: Record<NivelPlan, readonly Funcion[]> = {
   basico: [],
-  intermedio: ["plan_pdf", "leads_web", "documentos"],
-  full: ["plan_pdf", "tarifarios", "importar", "leads_web", "documentos", "google_ads"],
+  intermedio: ["notificaciones", "pipeline", "comparador", "propuesta", "prospectos", "isapres"],
+  full: [
+    "notificaciones",
+    "pipeline",
+    "comparador",
+    "propuesta",
+    "prospectos",
+    "isapres",
+    "embudo",
+    "plan_pdf",
+    "ges_auto",
+    "etapas",
+    "importar",
+    "documentos",
+    "tarifarios",
+    "google_ads",
+    "leads_web",
+  ],
 };
 
 export const NOMBRE_FUNCION: Record<Funcion, string> = {
+  notificaciones: "Notificaciones",
+  pipeline: "Calendario de prospectos y conteos",
+  embudo: "Embudo",
+  comparador: "Cotizador y comparador",
+  propuesta: "Propuesta al cliente",
+  prospectos: "Prospectos",
+  isapres: "Isapres y GES",
   plan_pdf: "Carga del plan por PDF",
-  tarifarios: "Tarifarios de Isapres",
+  ges_auto: "GES leído desde Isapres",
+  etapas: "Crear y modificar etapas",
   importar: "Importar clientes desde Excel",
-  leads_web: "Leads de tu sitio web",
   documentos: "Documentos de prospectos",
+  tarifarios: "Tarifarios de Isapres",
   google_ads: "Google Ads",
+  leads_web: "Leads de tu sitio web",
 };
+
+/** Alternativas del comparador. El Básico no compara. */
+export function maxPlanesComparar(nivel: NivelPlan): number {
+  if (nivel === "full") return 2;
+  if (nivel === "intermedio") return 1;
+  return 0;
+}
 
 export function permite(nivel: NivelPlan, funcion: Funcion): boolean {
   return FUNCIONES_POR_NIVEL[nivel].includes(funcion);
@@ -73,8 +120,11 @@ export function inicioCobro(s: Suscripcion | null, ahora: Date): string | null {
 
 const RUTAS_FUNCION: { prefijo: string; funcion: Funcion }[] = [
   { prefijo: "/documentos", funcion: "documentos" },
+  { prefijo: "/prospectos", funcion: "prospectos" },
+  { prefijo: "/isapres", funcion: "isapres" },
   { prefijo: "/google-ads", funcion: "google_ads" },
   { prefijo: "/api/ads", funcion: "google_ads" },
+  { prefijo: "/api/ges", funcion: "isapres" },
   { prefijo: "/api/tarifarios", funcion: "tarifarios" },
   { prefijo: "/api/cotizador/plan", funcion: "plan_pdf" },
 ];

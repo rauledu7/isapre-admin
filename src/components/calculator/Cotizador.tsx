@@ -3,6 +3,7 @@
 import { RotateCcwIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 
+import { SoloConPlan, usePermite } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 import { useCotizadorStore, useHidratarCotizador } from "@/store/cotizadorStore";
 import { useProspectosStore } from "@/store/prospectosStore";
@@ -17,6 +18,8 @@ export function Cotizador() {
   const reiniciar = useCotizadorStore((s) => s.reiniciar);
   const prospectoId = useCotizadorStore((s) => s.prospectoId);
   const prospecto = useProspectosStore((s) => s.prospectos.find((p) => p.id === prospectoId));
+  const compara = usePermite("comparador");
+  const conProspectos = usePermite("prospectos");
 
   return (
     <div className="flex flex-col gap-4">
@@ -24,14 +27,16 @@ export function Cotizador() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Cotizador Rápido</h1>
           <p className="text-sm text-muted-foreground">
-            Calcula el 7% legal del cliente en UF y compáralo con el plan actual y las alternativas.
+            {compara
+              ? "Calcula el 7% legal y compáralo con el plan actual y las alternativas."
+              : "Calcula el 7% legal del cliente y compáralo con el plan actual."}
           </p>
         </div>
         <Button variant="outline" className="shrink-0" onClick={reiniciar}>
           <RotateCcwIcon /> Nueva cotización
         </Button>
       </div>
-      {prospecto && (
+      {prospecto && conProspectos && (
         <p className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
           <UserIcon className="size-4" aria-hidden />
           Cotizando para{" "}
@@ -47,7 +52,9 @@ export function Cotizador() {
         </div>
         <section aria-label="Resultados" className="flex flex-col gap-4">
           <ResultadosPanel />
-          <PropuestaCotizador />
+          <SoloConPlan funcion="propuesta">
+            <PropuestaCotizador />
+          </SoloConPlan>
         </section>
       </div>
     </div>

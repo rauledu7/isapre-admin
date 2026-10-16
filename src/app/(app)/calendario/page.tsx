@@ -10,7 +10,7 @@ export default function CalendarioPage() {
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Calendario</h1>
         <p className="text-sm text-muted-foreground">
-          Seguimientos según el próximo contacto de cada prospecto.
+          Anota el día, la hora, el nombre y una nota. En Profesional y Full también aparecen los próximos contactos.
         </p>
       </div>
       <CalendarioView />

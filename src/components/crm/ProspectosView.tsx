@@ -29,6 +29,7 @@ export function ProspectosView() {
   const [etapasAbierto, setEtapasAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const conImportar = usePermite("importar");
+  const conEtapas = usePermite("etapas");
   const filtrados = useMemo(() => filtrarProspectos(prospectos, busqueda), [prospectos, busqueda]);
 
   if (estado === "inicial" || estado === "cargando") {
@@ -58,9 +59,11 @@ export function ProspectosView() {
             <FileUpIcon /> Importar
           </Button>
         )}
-        <Button variant="outline" onClick={() => setEtapasAbierto(true)}>
-          <Settings2Icon /> Etapas
-        </Button>
+        {conEtapas && (
+          <Button variant="outline" onClick={() => setEtapasAbierto(true)}>
+            <Settings2Icon /> Etapas
+          </Button>
+        )}
         <div className="relative w-full sm:w-72">
           <SearchIcon
             className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
