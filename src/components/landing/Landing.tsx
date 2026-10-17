@@ -4,6 +4,7 @@ import { Brand } from "@/components/layout/Brand";
 import { PieLegal } from "@/components/layout/PieLegal";
 import { cn } from "@/lib/utils";
 
+import { AnclaSuave } from "./AnclaSuave";
 import { PlanesLanding } from "./PlanesLanding";
 
 const MODULOS = [
@@ -75,16 +76,19 @@ function Vacio({
   compacto?: boolean;
   nueva?: boolean;
 }) {
+  const clase = cn(
+    "inline-flex items-center justify-center rounded-full border border-white/45 bg-transparent text-white transition duration-300 hover:border-white hover:bg-white/10",
+    compacto ? "h-9 px-4 text-sm" : "h-11 px-5 text-sm tracking-wide",
+  );
+  if (href.startsWith("#")) {
+    return (
+      <AnclaSuave href={href} className={clase}>
+        {children}
+      </AnclaSuave>
+    );
+  }
   return (
-    <a
-      href={href}
-      target={nueva ? "_blank" : undefined}
-      rel={nueva ? "noopener noreferrer" : undefined}
-      className={cn(
-        "inline-flex items-center justify-center rounded-full border border-white/45 bg-transparent text-white transition duration-300 hover:border-white hover:bg-white/10",
-        compacto ? "h-9 px-4 text-sm" : "h-11 px-5 text-sm tracking-wide",
-      )}
-    >
+    <a href={href} target={nueva ? "_blank" : undefined} rel={nueva ? "noopener noreferrer" : undefined} className={clase}>
       {children}
     </a>
   );
@@ -97,12 +101,12 @@ export function Landing({ display }: { display: string }) {
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-5 text-white">
           <Brand />
           <nav className="ml-auto flex items-center gap-2 sm:gap-3">
-            <a href="#oficio" className="hidden px-2 text-sm text-white/60 hover:text-white md:inline">
+            <AnclaSuave href="#oficio" className="hidden px-2 text-sm text-white/60 transition-colors duration-300 hover:text-white md:inline">
               Cómo funciona
-            </a>
-            <a href="#planes" className="hidden px-2 text-sm text-white/60 hover:text-white lg:inline">
+            </AnclaSuave>
+            <AnclaSuave href="#planes" className="hidden px-2 text-sm text-white/60 transition-colors duration-300 hover:text-white lg:inline">
               Planes
-            </a>
+            </AnclaSuave>
             <Vacio href="/login" compacto nueva>
               Entrar
             </Vacio>
@@ -144,7 +148,7 @@ export function Landing({ display }: { display: string }) {
 
         <section id="oficio" className="scroll-mt-20 bg-[#f6f4ef] text-[#1c1917]">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 py-20 lg:py-28">
-            <div className="flex max-w-2xl flex-col gap-4">
+            <div className="landing-revelar flex max-w-2xl flex-col gap-4">
               <p className="text-xs tracking-[0.22em] text-[#3730a3] uppercase">Cómo funciona</p>
               <h2 className={cn(display, "text-4xl leading-tight font-medium tracking-tight text-balance sm:text-5xl")}>
                 Cotiza en la reunión. El seguimiento queda hecho.
@@ -155,7 +159,10 @@ export function Landing({ display }: { display: string }) {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {MODULOS.map((modulo) => (
-                <article key={modulo.nombre} className="flex flex-col gap-5 rounded-3xl bg-white p-7 shadow-[0_16px_40px_-28px_rgba(28,25,23,0.35)] sm:p-8">
+                <article
+                  key={modulo.nombre}
+                  className="landing-revelar flex flex-col gap-5 rounded-3xl bg-white p-7 shadow-[0_16px_40px_-28px_rgba(28,25,23,0.35)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_22px_44px_-24px_rgba(28,25,23,0.45)] motion-reduce:transform-none sm:p-8"
+                >
                   <h3 className={cn(display, "text-3xl font-medium")}>{modulo.nombre}</h3>
                   <ul className="flex flex-col gap-2.5 text-sm leading-relaxed text-[#1c1917]/75">
                     {modulo.puntos.map((punto) => (
@@ -169,10 +176,16 @@ export function Landing({ display }: { display: string }) {
         </section>
 
         <section className="relative min-h-[28rem] overflow-hidden">
-          <Image src="/landing/ventana.jpg" alt="Una asesora mira Santiago y la cordillera desde la ventana." fill sizes="100vw" className="object-cover" />
+          <Image
+            src="/landing/ventana.jpg"
+            alt="Una asesora mira Santiago y la cordillera desde la ventana."
+            fill
+            sizes="100vw"
+            className="landing-flotar object-cover"
+          />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,8,12,0.78)_0%,rgba(7,8,12,0.28)_58%,rgba(7,8,12,0.15)_100%)]" />
           <div className="relative z-10 flex min-h-[28rem] items-end">
-            <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-16">
+            <div className="landing-revelar mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-16">
               <h2 className={cn(display, "max-w-xl text-4xl leading-tight font-medium tracking-tight text-balance text-white sm:text-5xl")}>
                 El cliente pregunta el precio. Tú ya lo tienes.
               </h2>
@@ -186,7 +199,7 @@ export function Landing({ display }: { display: string }) {
 
         <section id="planes" className="scroll-mt-20 bg-[#f6f4ef] text-[#1c1917]">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-20 lg:py-28">
-            <div className="flex max-w-xl flex-col gap-3">
+            <div className="landing-revelar flex max-w-xl flex-col gap-3">
               <p className="text-xs tracking-[0.22em] text-[#3730a3] uppercase">Planes</p>
               <h2 className={cn(display, "text-4xl leading-tight font-medium tracking-tight text-[#1c1917]")}>Elige cómo quieres partir.</h2>
               <p className="text-sm leading-relaxed text-[#1c1917]/70">
@@ -198,7 +211,7 @@ export function Landing({ display }: { display: string }) {
         </section>
 
         <section>
-          <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-5 px-5 py-20">
+          <div className="landing-revelar mx-auto flex w-full max-w-6xl flex-col items-start gap-5 px-5 py-20">
             <h2 className={cn(display, "max-w-xl text-4xl leading-tight font-medium tracking-tight text-balance text-white sm:text-5xl")}>
               Una semana con el escritorio completo.
             </h2>

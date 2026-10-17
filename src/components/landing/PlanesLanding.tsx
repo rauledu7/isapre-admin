@@ -34,7 +34,7 @@ export function PlanesLanding({ display }: { display: string }) {
               aria-checked={activo}
               onClick={() => setPeriodo(item.id)}
               className={cn(
-                "rounded-full px-3 py-2 text-sm transition",
+                "rounded-full px-3 py-2 text-sm transition duration-300",
                 activo ? "bg-[#14161c] text-white" : "text-[#1c1917]/70 hover:text-[#1c1917]",
               )}
             >
@@ -54,7 +54,7 @@ export function PlanesLanding({ display }: { display: string }) {
             <article
               key={plan.nivel}
               className={cn(
-                "flex flex-col gap-5 rounded-3xl p-6 transition duration-300 hover:-translate-y-1 motion-reduce:transform-none",
+                "landing-revelar flex flex-col gap-5 rounded-3xl p-6 transition duration-500 hover:-translate-y-1 motion-reduce:transform-none",
                 plan.destacado ? "bg-[#14161c] text-white" : "bg-white ring-1 ring-[#1c1917]/10 hover:bg-white",
               )}
             >
@@ -65,7 +65,7 @@ export function PlanesLanding({ display }: { display: string }) {
                 <h3 className={cn(display, "text-3xl font-medium")}>{plan.nombre}</h3>
               </div>
               <div className="flex flex-col gap-1">
-                <p className="flex items-end gap-1">
+                <p key={periodo} className="landing-subir flex items-end gap-1">
                   <span className="text-3xl font-medium tabular-nums">{formatCLP(precioPublico(plan, periodo))}</span>
                   <span className={cn("pb-1 text-sm", plan.destacado ? "text-white/60" : "text-[#1c1917]/55")}>
                     {SUFIJO[periodo]}
