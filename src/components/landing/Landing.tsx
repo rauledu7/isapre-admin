@@ -49,7 +49,7 @@ const MODULOS = [
   {
     nombre: "Isapres y tarifarios",
     puntos: [
-      "Defines el GES de cada Isapre y el cotizador lo usa al armar el precio.",
+      "GES definido por Isapre y el cotizador lo usa al armar el precio.",
       "Cargas el PDF de un plan y Velora lee el nombre, el código y el precio.",
       "Cargas los tarifarios y esos planes pasan al cotizador. Banmédica y el resto van en PDF. Nueva Masvida, en Excel.",
     ],
