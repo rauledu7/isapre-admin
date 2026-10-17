@@ -69,16 +69,19 @@ function Vacio({
   href,
   children,
   compacto = false,
-  nueva = false,
+  solido = false,
 }: {
   href: string;
   children: string;
   compacto?: boolean;
-  nueva?: boolean;
+  solido?: boolean;
 }) {
   const clase = cn(
-    "inline-flex items-center justify-center rounded-full border border-white/45 bg-transparent text-white transition duration-300 hover:border-white hover:bg-white/10",
+    "inline-flex w-fit items-center justify-center rounded-full transition duration-300",
     compacto ? "h-9 px-4 text-sm" : "h-11 px-5 text-sm tracking-wide",
+    solido
+      ? "border border-white bg-white text-[#07080c] shadow-[0_12px_30px_-14px_rgba(0,0,0,0.7)] hover:bg-white/90"
+      : "border border-white/45 bg-transparent text-white hover:border-white hover:bg-white/10",
   );
   if (href.startsWith("#")) {
     return (
@@ -88,7 +91,7 @@ function Vacio({
     );
   }
   return (
-    <a href={href} target={nueva ? "_blank" : undefined} rel={nueva ? "noopener noreferrer" : undefined} className={clase}>
+    <a href={href} target="_blank" rel="noopener noreferrer" className={clase}>
       {children}
     </a>
   );
@@ -107,10 +110,10 @@ export function Landing({ display }: { display: string }) {
             <AnclaSuave href="#planes" className="hidden px-2 text-sm text-white/60 transition-colors duration-300 hover:text-white lg:inline">
               Planes
             </AnclaSuave>
-            <Vacio href="/login" compacto nueva>
+            <Vacio href="/login" compacto>
               Entrar
             </Vacio>
-            <Vacio href="/registro" compacto nueva>
+            <Vacio href="/registro" compacto>
               Probar 7 días
             </Vacio>
           </nav>
@@ -192,7 +195,7 @@ export function Landing({ display }: { display: string }) {
               <p className="max-w-md text-base leading-relaxed text-white/75">
                 Edad, cargas y renta. El cotizador devuelve el total en UF y en pesos mientras la reunión sigue.
               </p>
-              <Vacio href="/registro">Probar 7 días</Vacio>
+              <Vacio href="/registro" solido>Probar 7 días</Vacio>
             </div>
           </div>
         </section>
