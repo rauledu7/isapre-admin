@@ -41,9 +41,9 @@ export const PLANES_PUBLICOS: PlanPublico[] = [
     destacado: true,
     incluye: [
       "Todo lo del Básico",
-      "Comparas una alternativa y envías la propuesta por WhatsApp o en PDF",
+      "Comparas la cotización con un plan más",
+      "Envías la propuesta por WhatsApp o en PDF",
       "Guardas prospectos, cotizaciones, notas y el próximo contacto",
-      "Defines el GES de cada Isapre y lo escribes en el cotizador",
     ],
   },
   {
@@ -56,7 +56,7 @@ export const PLANES_PUBLICOS: PlanPublico[] = [
     anual: 383990,
     incluye: [
       "Todo lo del Profesional",
-      "Comparas dos alternativas, y el GES sale de la Isapre que elegiste",
+      "Comparas la cotización con dos planes más, y el GES sale de la Isapre que elegiste",
       "Velora lee el PDF del plan, los documentos del cliente y los tarifarios",
       "Llevas el embudo, importas la base, armas las etapas y ves Google Ads",
     ],

@@ -64,10 +64,22 @@ const MODULOS = [
   },
 ];
 
-function Vacio({ href, children, compacto = false }: { href: string; children: string; compacto?: boolean }) {
+function Vacio({
+  href,
+  children,
+  compacto = false,
+  nueva = false,
+}: {
+  href: string;
+  children: string;
+  compacto?: boolean;
+  nueva?: boolean;
+}) {
   return (
     <a
       href={href}
+      target={nueva ? "_blank" : undefined}
+      rel={nueva ? "noopener noreferrer" : undefined}
       className={cn(
         "inline-flex items-center justify-center rounded-full border border-white/45 bg-transparent text-white transition duration-300 hover:border-white hover:bg-white/10",
         compacto ? "h-9 px-4 text-sm" : "h-11 px-5 text-sm tracking-wide",
@@ -86,15 +98,15 @@ export function Landing({ display }: { display: string }) {
           <Brand />
           <nav className="ml-auto flex items-center gap-2 sm:gap-3">
             <a href="#oficio" className="hidden px-2 text-sm text-white/60 hover:text-white md:inline">
-              Qué hace
+              Cómo funciona
             </a>
             <a href="#planes" className="hidden px-2 text-sm text-white/60 hover:text-white lg:inline">
               Planes
             </a>
-            <Vacio href="/login" compacto>
+            <Vacio href="/login" compacto nueva>
               Entrar
             </Vacio>
-            <Vacio href="/registro" compacto>
+            <Vacio href="/registro" compacto nueva>
               Probar 7 días
             </Vacio>
           </nav>
@@ -122,7 +134,7 @@ export function Landing({ display }: { display: string }) {
             </p>
             <div className="landing-subir flex flex-wrap items-center gap-3" style={{ animationDelay: "240ms" }}>
               <Vacio href="/registro">Probar 7 días</Vacio>
-              <Vacio href="#oficio">Qué hace</Vacio>
+              <Vacio href="#oficio">Cómo funciona</Vacio>
             </div>
             <p className="max-w-lg text-sm leading-relaxed text-white/60">
               Siete días con el escritorio completo. Si contratas durante la prueba, el primer cobro es al día 7.
@@ -133,9 +145,9 @@ export function Landing({ display }: { display: string }) {
         <section id="oficio" className="scroll-mt-20 bg-[#f6f4ef] text-[#1c1917]">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 py-20 lg:py-28">
             <div className="flex max-w-2xl flex-col gap-4">
-              <p className="text-xs tracking-[0.22em] text-[#3730a3] uppercase">Qué se puede hacer</p>
+              <p className="text-xs tracking-[0.22em] text-[#3730a3] uppercase">Cómo funciona</p>
               <h2 className={cn(display, "text-4xl leading-tight font-medium tracking-tight text-balance sm:text-5xl")}>
-                Lo que cabe en el escritorio.
+                Cotiza en la reunión. El seguimiento queda hecho.
               </h2>
               <p className="text-base leading-relaxed text-[#1c1917]/70">
                 El precio, el prospecto y la propuesta viven en la misma cuenta. Calculas en UF mientras la reunión sigue, y el seguimiento queda anotado para después.
@@ -191,7 +203,7 @@ export function Landing({ display }: { display: string }) {
               Una semana con el escritorio completo.
             </h2>
             <p className="max-w-md text-base leading-relaxed text-white/70">
-              Creas la cuenta y entras. Si ya elegiste un plan, Mercado Pago cobra cuando se cumplen los siete días.
+              Creas la cuenta y entras. Si ya elegiste un plan, se te cobra cuando se cumplen los siete días.
             </p>
             <div className="flex flex-wrap gap-3">
               <Vacio href="/registro">Probar 7 días</Vacio>
