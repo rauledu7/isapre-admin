@@ -1,6 +1,7 @@
 import type { Json } from "@/types/database";
 import type { IsapreId } from "@/types/isapre";
 import type { PlanTarifa, ProductoTarifa, TarifarioLeido, TramoProducto } from "@/lib/tarifario";
+import { combinarTarifarios } from "@/lib/tarifariosCuenta";
 
 import type { Supabase } from "./client";
 import { ErrorDatos } from "./prospectos";
@@ -49,14 +50,48 @@ export function aTarifario(fila: {
   };
 }
 
-export async function listarTarifarios(sb: Supabase): Promise<TarifarioGuardado[]> {
-  const { data, error } = await sb.from("tarifarios").select("isapre_id, titulo, planes, productos");
-  if (error?.code === "42P01" || error?.code === "PGRST205") return [];
-  if (error) throw new ErrorDatos(`No se pudieron cargar los tarifarios: ${error.message}`);
+const faltaTabla = (code?: string) => code === "42P01" || code === "PGRST205";
+
+function leerFilas(
+  data: { isapre_id: string; titulo: string | null; planes: Json; productos: Json }[] | null,
+): TarifarioGuardado[] {
   return (data ?? []).flatMap((fila) => {
     const tarifario = aTarifario(fila);
     return tarifario ? [tarifario] : [];
   });
+}
+
+export async function listarTarifarios(sb: Supabase): Promise<TarifarioGuardado[]> {
+  const [propios, base, ocultos] = await Promise.all([
+    sb.from("tarifarios").select("isapre_id, titulo, planes, productos"),
+    sb.from("tarifarios_base").select("isapre_id, titulo, planes, productos"),
+    sb.from("tarifarios_ocultos").select("isapre_id"),
+  ]);
+  if (propios.error && !faltaTabla(propios.error.code)) {
+    throw new ErrorDatos(`No se pudieron cargar los tarifarios: ${propios.error.message}`);
+  }
+  if (base.error && !faltaTabla(base.error.code)) {
+    throw new ErrorDatos(`No se pudieron cargar los tarifarios: ${base.error.message}`);
+  }
+  if (ocultos.error && !faltaTabla(ocultos.error.code)) {
+    throw new ErrorDatos(`No se pudieron cargar los tarifarios: ${ocultos.error.message}`);
+  }
+  return combinarTarifarios(
+    leerFilas(propios.data),
+    faltaTabla(base.error?.code) ? [] : leerFilas(base.data),
+    faltaTabla(ocultos.error?.code) ? [] : (ocultos.data ?? []).map((fila) => fila.isapre_id),
+  );
+}
+
+/** Hay uno propio o uno común, aunque el asesor lo haya quitado de su cuenta. */
+export async function hayTarifarioCompartible(sb: Supabase, isapreId: IsapreId): Promise<boolean> {
+  const [propio, base] = await Promise.all([
+    sb.from("tarifarios").select("isapre_id").eq("isapre_id", isapreId).maybeSingle(),
+    sb.from("tarifarios_base").select("isapre_id").eq("isapre_id", isapreId).maybeSingle(),
+  ]);
+  if (propio.error && !faltaTabla(propio.error.code)) throw new ErrorDatos(propio.error.message);
+  if (base.error && !faltaTabla(base.error.code)) throw new ErrorDatos(base.error.message);
+  return Boolean(propio.data || base.data);
 }
 
 export function jsonTarifario(leido: TarifarioLeido): { planes: Json; productos: Json } {

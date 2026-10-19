@@ -123,6 +123,16 @@ export function RegistroForm() {
       setEnviando(false);
       return;
     }
+    await fetch("/api/v1/registro/aviso", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email.trim(),
+        nombre: nombre.trim(),
+        modo,
+        plan: modo === "plan" ? (planPublico(nivel)?.nombre ?? null) : null,
+      }),
+    }).catch(() => undefined);
     if (!data.session) {
       setAviso(
         modo === "plan"

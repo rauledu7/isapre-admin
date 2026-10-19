@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getSupabase } from "@/lib/supabase/client";
 
 import { Brand } from "../layout/Brand";
+import { CentroNotificaciones } from "../layout/CentroNotificaciones";
 
 export function AdminBarra() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export function AdminBarra() {
       <Brand />
       <p className="text-sm text-muted-foreground">Administración</p>
       <div className="ml-auto flex items-center gap-2">
+        <CentroNotificaciones />
         {email && <span className="hidden max-w-56 truncate text-xs text-muted-foreground sm:inline">{email}</span>}
         <Button variant="ghost" size="icon" aria-label="Cerrar sesión" onClick={() => void cerrarSesion()}>
           <LogOutIcon />

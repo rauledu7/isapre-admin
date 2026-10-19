@@ -10,7 +10,7 @@ import type { Database } from "@/types/database";
 import { supabaseEnv } from "./env";
 import { nivelDeSuscripcion, obtenerSuscripcion } from "./suscripciones";
 
-const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads", "/api/v1/webhooks"];
+const RUTAS_ABIERTAS = ["/sw.js", "/api/cron", "/api/v1/leads", "/api/v1/webhooks", "/api/v1/registro/aviso"];
 
 function corsLeads(origen: string | null): Headers {
   const headers = new Headers();

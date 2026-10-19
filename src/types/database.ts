@@ -346,6 +346,41 @@ export interface Database {
         };
         Relationships: [];
       };
+      tarifarios_base: {
+        Row: {
+          isapre_id: string;
+          titulo: string | null;
+          planes: Json;
+          productos: Json;
+          updated_at: string;
+        };
+        Insert: {
+          isapre_id: string;
+          titulo?: string | null;
+          planes: Json;
+          productos: Json;
+        };
+        Update: {
+          titulo?: string | null;
+          planes?: Json;
+          productos?: Json;
+        };
+        Relationships: [];
+      };
+      tarifarios_ocultos: {
+        Row: {
+          asesor_id: string;
+          isapre_id: string;
+        };
+        Insert: {
+          asesor_id?: string;
+          isapre_id: string;
+        };
+        Update: {
+          isapre_id?: string;
+        };
+        Relationships: [];
+      };
       ges_isapres: {
         Row: {
           asesor_id: string;

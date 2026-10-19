@@ -125,7 +125,6 @@ const RUTAS_FUNCION: { prefijo: string; funcion: Funcion }[] = [
   { prefijo: "/google-ads", funcion: "google_ads" },
   { prefijo: "/api/ads", funcion: "google_ads" },
   { prefijo: "/api/ges", funcion: "isapres" },
-  { prefijo: "/api/tarifarios", funcion: "tarifarios" },
   { prefijo: "/api/cotizador/plan", funcion: "plan_pdf" },
 ];
 

@@ -10,7 +10,7 @@ export default function IsapresPage() {
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Isapres</h1>
         <p className="text-sm text-muted-foreground">
-          El GES de cada Isapre y, en el plan Full, su tarifario. Banmédica y el resto se cargan en PDF. Nueva Masvida, en Excel. El cotizador usa estos valores. El GES está bloqueado: ábrelo para corregirlo.
+          El GES de cada Isapre y su tarifario. Si Velora ya cargó uno, lo ves aquí y puedes reemplazarlo o quitarlo: el cambio queda solo en tu cuenta. Banmédica y el resto se cargan en PDF. Nueva Masvida, en Excel. El GES está bloqueado: ábrelo para corregirlo.
         </p>
       </div>
       <TarifariosAsesor />

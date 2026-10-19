@@ -30,6 +30,8 @@ import { fechaISO, formatFecha } from "@/lib/fecha";
 import { formatCLP } from "@/lib/format";
 import type { PlanPago } from "@/lib/suscripcion";
 
+import { TarifariosAdmin } from "./TarifariosAdmin";
+
 interface Datos {
   asesores: AsesorAdmin[];
   pagos: PagoAdmin[];
@@ -228,6 +230,8 @@ export function AdminPanel() {
           detalle={`${metricas.cortesia} sin cobro · ${metricas.pendientes} con pago pendiente · ${metricas.bloqueados} bloqueados`}
         />
       </div>
+
+      <TarifariosAdmin />
 
       <section className="flex flex-col gap-3">
         <div className="relative w-full sm:w-80">

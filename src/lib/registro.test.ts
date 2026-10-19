@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { intencionRegistro, mensajeRegistro } from "./registro";
+import { intencionRegistro, mensajeRegistro, textoAvisoRegistro } from "./registro";
 
 describe("intencionRegistro", () => {
   it("sin plan válido parte en la prueba", () => {
@@ -11,6 +11,14 @@ describe("intencionRegistro", () => {
   it("un plan conocido queda para contratar, con período mensual si no viene", () => {
     expect(intencionRegistro("profesional", "anual")).toEqual({ modo: "plan", nivel: "intermedio", periodo: "anual" });
     expect(intencionRegistro("full", "semanal")).toEqual({ modo: "plan", nivel: "full", periodo: "mensual" });
+  });
+});
+
+describe("textoAvisoRegistro", () => {
+  it("distingue la prueba de quien ya eligió un plan", () => {
+    expect(textoAvisoRegistro({ nombre: "Ana", email: "ana@correo.cl", modo: "trial", plan: null }).cuerpo).toMatch(/prueba de 7 días/);
+    expect(textoAvisoRegistro({ nombre: "", email: "ana@correo.cl", modo: "plan", plan: "Full" }).cuerpo).toMatch(/ana@correo.cl/);
+    expect(textoAvisoRegistro({ nombre: "Ana", email: "ana@correo.cl", modo: "plan", plan: "Full" }).cuerpo).toMatch(/plan Full/);
   });
 });
 

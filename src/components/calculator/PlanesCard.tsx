@@ -256,14 +256,13 @@ export function PlanesCard() {
   const visibles = planes.slice(0, max);
   const [tarifarios, setTarifarios] = useState<TarifarioGuardado[]>([]);
   const ges = useGesIsapres();
-  const conTarifarios = usePermite("tarifarios");
 
   useEffect(() => {
     if (max > 0) limitarPlanes(max);
   }, [max, limitarPlanes]);
 
   useEffect(() => {
-    if (!conTarifarios) return;
+    if (max === 0) return;
     let vigente = true;
     void listarTarifarios(getSupabase())
       .then((lista) => vigente && setTarifarios(lista))
@@ -271,7 +270,7 @@ export function PlanesCard() {
     return () => {
       vigente = false;
     };
-  }, [conTarifarios]);
+  }, [max]);
 
   if (max === 0) return null;
 
@@ -292,7 +291,7 @@ export function PlanesCard() {
               plan={plan}
               indice={i}
               eliminable={visibles.length > 1}
-              tarifarios={conTarifarios ? tarifarios : []}
+              tarifarios={tarifarios}
               ges={ges}
               gesManual={gesManual}
             />

@@ -12,8 +12,6 @@ import { listarGesIsapres } from "@/lib/supabase/ges";
 import { listarTarifarios, type TarifarioGuardado } from "@/lib/supabase/tarifarios";
 import type { IsapreId } from "@/types/isapre";
 
-import { usePermite } from "./AccesoPlan";
-
 function textoUF(valor: number): string {
   return valor.toLocaleString("es-CL", { maximumFractionDigits: 4, useGrouping: false });
 }
@@ -95,22 +93,19 @@ export function TarifariosAsesor() {
   const [ocupado, setOcupado] = useState<IsapreId | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const conTarifarios = usePermite("tarifarios");
 
   useEffect(() => {
     let vigente = true;
-    if (conTarifarios) {
-      void listarTarifarios(getSupabase())
-        .then((lista) => vigente && setTarifarios(lista))
-        .catch((err: unknown) => vigente && setError(err instanceof Error ? err.message : "No se pudieron cargar los tarifarios"));
-    }
+    void listarTarifarios(getSupabase())
+      .then((lista) => vigente && setTarifarios(lista))
+      .catch((err: unknown) => vigente && setError(err instanceof Error ? err.message : "No se pudieron cargar los tarifarios"));
     void listarGesIsapres(getSupabase())
       .then((mapa) => vigente && setGes(mapa))
       .catch((err: unknown) => vigente && setError(err instanceof Error ? err.message : "No se pudo cargar el GES"));
     return () => {
       vigente = false;
     };
-  }, [conTarifarios]);
+  }, []);
 
   async function guardarGes(isapreId: IsapreId, texto: string): Promise<string | null> {
     const actual = ges[isapreId] ?? GES_UF[isapreId];
@@ -184,15 +179,13 @@ export function TarifariosAsesor() {
             <li key={isapre.id} className="flex flex-col gap-2 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="text-sm">{isapre.nombre}</p>
-                {conTarifarios && (
-                  <p className="text-xs text-muted-foreground">
-                    {tarifario
-                      ? `${tarifario.planes.length} planes · ${tarifario.productos.length} productos`
-                      : excel
-                        ? "Sin tarifario · Excel"
-                        : "Sin tarifario · PDF"}
-                  </p>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  {tarifario
+                    ? `${tarifario.planes.length} planes · ${tarifario.productos.length} productos`
+                    : excel
+                      ? "Sin tarifario · Excel"
+                      : "Sin tarifario · PDF"}
+                </p>
               </div>
               <div className="flex shrink-0 flex-wrap items-center gap-1">
                 <CampoGes
@@ -201,7 +194,7 @@ export function TarifariosAsesor() {
                   valor={ges[isapre.id] ?? GES_UF[isapre.id]}
                   onGuardar={guardarGes}
                 />
-                {conTarifarios && tarifario && (
+                {tarifario && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -212,10 +205,9 @@ export function TarifariosAsesor() {
                     Quitar
                   </Button>
                 )}
-                {conTarifarios && (
-                  <label
-                    className={`inline-flex h-7 items-center rounded-lg border px-2.5 text-[0.8rem] ${ocupado === isapre.id ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-                  >
+                <label
+                  className={`inline-flex h-7 items-center rounded-lg border px-2.5 text-[0.8rem] ${ocupado === isapre.id ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+                >
                     {ocupado === isapre.id ? "Leyendo…" : tarifario ? "Reemplazar" : "Cargar"}
                     <input
                       type="file"
@@ -234,7 +226,6 @@ export function TarifariosAsesor() {
                       }}
                     />
                   </label>
-                )}
               </div>
             </li>
           );

@@ -21,3 +21,17 @@ const MENSAJES: Record<string, string> = {
 export function mensajeRegistro(code: string | undefined): string {
   return (code && MENSAJES[code]) || "No se pudo crear la cuenta. Intenta nuevamente.";
 }
+
+export function textoAvisoRegistro(entrada: {
+  nombre: string | null;
+  email: string;
+  modo: "trial" | "plan";
+  plan: string | null;
+}): { titulo: string; cuerpo: string } {
+  const quien = entrada.nombre?.trim() || entrada.email.trim();
+  const cuerpo =
+    entrada.modo === "plan" && entrada.plan
+      ? `${quien} creó una cuenta y eligió el plan ${entrada.plan}. La prueba de 7 días ya corre.`
+      : `${quien} creó una cuenta en la prueba de 7 días.`;
+  return { titulo: "Nuevo registro", cuerpo: cuerpo.slice(0, 300) };
+}
