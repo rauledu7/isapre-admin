@@ -26,9 +26,9 @@ import { ProspectoFormDialog } from "./ProspectoFormDialog";
 
 function Dato({ etiqueta, valor }: { etiqueta: string; valor: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="text-xs text-muted-foreground">{etiqueta}</dt>
-      <dd className="text-sm tabular-nums">{valor}</dd>
+      <dd className="text-sm break-words tabular-nums">{valor}</dd>
     </div>
   );
 }
