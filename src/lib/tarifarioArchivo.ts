@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import { ISAPRES } from "@/config/isapres";
 import { leerTarifario, type PalabraTarifa, type TarifarioLeido } from "@/lib/tarifario";
 import { leerTarifarioMasvida } from "@/lib/tarifarioMasvida";
+import { leerTarifarioVidaTres } from "@/lib/tarifarioVidaTres";
 import type { IsapreId } from "@/types/isapre";
 
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -24,7 +25,7 @@ function esExcel(archivo: File): boolean {
   );
 }
 
-async function leerPdf(archivo: File): Promise<TarifarioLeido> {
+async function leerPdf(archivo: File, isapreId: IsapreId): Promise<TarifarioLeido> {
   const pdf = await getDocumentProxy(new Uint8Array(await archivo.arrayBuffer()));
   const { items } = await extractTextItems(pdf);
   const paginas: PalabraTarifa[][] = [];
@@ -43,7 +44,7 @@ async function leerPdf(archivo: File): Promise<TarifarioLeido> {
         })),
     );
   }
-  return leerTarifario(paginas);
+  return isapreId === "vida-tres" ? leerTarifarioVidaTres(paginas) : leerTarifario(paginas);
 }
 
 function leerExcel(buffer: ArrayBuffer): TarifarioLeido {
@@ -76,7 +77,7 @@ export async function leerArchivoTarifario(
 
   let leido: TarifarioLeido;
   try {
-    leido = excel ? leerExcel(await archivo.arrayBuffer()) : await leerPdf(archivo);
+    leido = excel ? leerExcel(await archivo.arrayBuffer()) : await leerPdf(archivo, isapreId);
   } catch {
     return { ok: false, error: excel ? "No pude abrir ese Excel." : "No pude abrir ese PDF.", status: 422 };
   }
