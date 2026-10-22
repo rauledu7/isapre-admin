@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { extractTextItems, getDocumentProxy } from "unpdf";
 
+vi.mock("server-only", () => ({}));
+
+import { leerArchivoTarifario } from "./tarifarioArchivo";
 import type { PalabraTarifa } from "./tarifario";
 import { leerTarifarioVidaTres } from "./tarifarioVidaTres";
 
@@ -159,6 +162,27 @@ describe("leerTarifarioVidaTres", () => {
       { edadDesde: 88, edadHasta: 90, precioUF: 7.9 },
       { edadDesde: 96, edadHasta: 120, precioUF: 9.8 },
     ]);
+  });
+});
+
+describe("cargar el PDF de Vida Tres por el mismo camino que la app", () => {
+  it("lo acepta solo en Vida Tres y en Banmédica no encuentra precio base", async () => {
+    const bytes = readFileSync(PDF);
+    const archivo = new File([bytes], "TARIFARIO_SANTIAGO_20_OCTUBRE_2026.pdf", { type: "application/pdf" });
+
+    const vida = await leerArchivoTarifario("vida-tres", archivo);
+    const banmedica = await leerArchivoTarifario("banmedica", archivo);
+
+    expect(vida.ok).toBe(true);
+    if (vida.ok) {
+      expect(vida.leido.planes).toHaveLength(120);
+      expect(vida.leido.titulo).toBe("VIDA TRES SANTIAGO OCTUBRE 2026");
+    }
+    expect(banmedica).toEqual({
+      ok: false,
+      error: "No encontré planes con precio base en ese archivo.",
+      status: 422,
+    });
   });
 });
 
