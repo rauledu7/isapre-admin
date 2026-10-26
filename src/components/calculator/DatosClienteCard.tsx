@@ -1,7 +1,8 @@
 "use client";
 
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { PlusIcon, SearchIcon, Trash2Icon } from "lucide-react";
 
+import { usePermite } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +31,8 @@ export function DatosClienteCard() {
   const agregarCarga = useCotizadorStore((s) => s.agregarCarga);
   const actualizarCarga = useCotizadorStore((s) => s.actualizarCarga);
   const eliminarCarga = useCotizadorStore((s) => s.eliminarCarga);
+  const solicitarRecomendacion = useCotizadorStore((s) => s.solicitarRecomendacion);
+  const compara = usePermite("comparador");
 
   return (
     <Card>
@@ -118,6 +121,15 @@ export function DatosClienteCard() {
             </div>
           ))}
         </div>
+        {compara && (
+          <Button
+            type="button"
+            className="h-9 w-full shadow-[0_10px_24px_-12px_#4f46e5]"
+            onClick={() => solicitarRecomendacion()}
+          >
+            <SearchIcon /> Ver planes recomendados
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

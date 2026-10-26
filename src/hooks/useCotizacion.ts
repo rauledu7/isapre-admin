@@ -29,7 +29,7 @@ export function useCotizacion(): EstadoCotizacion {
   const cargas = useCotizadorStore((s) => s.cargas);
   const planes = useCotizadorStore((s) => s.planes);
   const valorUF = useValorUF();
-  const ges = useGesIsapres();
+  const { valores: ges } = useGesIsapres();
   const nivel = useNivelPlan();
   const planesUsados = useMemo(() => {
     const max = nivel ? maxPlanesComparar(nivel) : 0;

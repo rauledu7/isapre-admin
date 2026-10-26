@@ -13,6 +13,7 @@ const MODULOS = [
     puntos: [
       "Partes de la renta, la edad del titular y las cargas.",
       "El 7% legal sale en UF y en pesos, con el tope imponible del año.",
+      "La app recomienda automáticamente los planes que más se ajustan al 7% del prospecto: 2 en Profesional y 4 en Full.",
       "Pones el plan vigente al lado de otras alternativas, de la misma Isapre o de otra.",
       "El precio final suma la base por los factores, el GES de cada beneficiario y los productos adicionales.",
       "Cada alternativa queda marcada: deja excedentes o pide cotización adicional.",

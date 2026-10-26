@@ -41,7 +41,8 @@ export const PLANES_PUBLICOS: PlanPublico[] = [
     destacado: true,
     incluye: [
       "Todo lo del Básico",
-      "Comparas la cotización con un plan más",
+      "Comparas la cotización con dos planes más",
+      "Te recomienda los 2 planes que más se ajustan al 7% del prospecto",
       "Envías la propuesta por WhatsApp o en PDF",
       "Guardas los prospectos",
       "Guardas las cotizaciones",
@@ -59,7 +60,8 @@ export const PLANES_PUBLICOS: PlanPublico[] = [
     anual: 383990,
     incluye: [
       "Todo lo del Profesional",
-      "Comparas la cotización con dos planes más",
+      "Comparas la cotización con cuatro planes más",
+      "Te recomienda los 4 planes que más se ajustan al 7% del prospecto",
       "GES automatizado dependiendo de la Isapre seleccionada",
       "Cargas los tarifarios y Velora lee los planes y te los despliega en el cotizador.",
       "Puedes cargar el PDF de un plan individual en el cotizador para compararlo.",

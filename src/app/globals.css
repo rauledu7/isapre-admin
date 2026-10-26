@@ -202,14 +202,54 @@
   }
 }
 
+@keyframes recomendar-onda {
+  0% {
+    transform: scale(0.72);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+@keyframes recomendar-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.recomendar-onda {
+  animation: recomendar-onda 1.6s ease-out infinite;
+}
+
+.recomendar-onda-tarde {
+  animation-delay: 0.55s;
+}
+
+.recomendar-aparecer {
+  animation: recomendar-aparecer 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-subir,
   .landing-aliento,
   .landing-revelar,
-  .landing-flotar {
+  .landing-flotar,
+  .recomendar-aparecer {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+
+  .recomendar-onda {
+    animation: none;
+    opacity: 0;
   }
 }
 

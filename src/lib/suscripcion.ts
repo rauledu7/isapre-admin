@@ -86,8 +86,8 @@ export const NOMBRE_FUNCION: Record<Funcion, string> = {
 
 /** Alternativas del comparador. El Básico no compara. */
 export function maxPlanesComparar(nivel: NivelPlan): number {
-  if (nivel === "full") return 2;
-  if (nivel === "intermedio") return 1;
+  if (nivel === "full") return 4;
+  if (nivel === "intermedio") return 2;
   return 0;
 }
 

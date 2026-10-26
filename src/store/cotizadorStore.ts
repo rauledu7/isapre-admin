@@ -39,10 +39,14 @@ interface CotizadorState {
   actualizarCarga: (id: string, edad: string) => void;
   eliminarCarga: (id: string) => void;
   agregarPlan: (max: number) => void;
+  fijarPlanes: (planes: Omit<PlanForm, "id">[]) => void;
   limitarPlanes: (max: number) => void;
   actualizarPlan: (id: string, cambios: Partial<Omit<PlanForm, "id">>) => void;
   eliminarPlan: (id: string) => void;
   reiniciar: () => void;
+  /** Pedido de recomendación. No se guarda en la sesión. */
+  pedidoRecomendacion: { id: number } | null;
+  solicitarRecomendacion: () => void;
   cargarDesdeProspecto: (prospecto: Prospecto) => void;
   asociarProspecto: (prospectoId: string | null) => void;
 }
@@ -62,6 +66,13 @@ export const useCotizadorStore = create<CotizadorState>()(
   eliminarCarga: (id) => set((s) => ({ cargas: s.cargas.filter((c) => c.id !== id) })),
   agregarPlan: (max) =>
     set((s) => (s.planes.length >= max ? s : { planes: [...s.planes, planVacio()] })),
+  fijarPlanes: (planes) =>
+    set((s) => ({
+      planes: planes.map((plan, i) => ({
+        id: s.planes[i]?.id ?? nuevoId("plan"),
+        ...plan,
+      })),
+    })),
   limitarPlanes: (max) =>
     set((s) => (max < 1 || s.planes.length <= max ? s : { planes: s.planes.slice(0, max) })),
   actualizarPlan: (id, cambios) =>
@@ -70,6 +81,9 @@ export const useCotizadorStore = create<CotizadorState>()(
     set((s) => (s.planes.length <= 1 ? s : { planes: s.planes.filter((p) => p.id !== id) })),
   reiniciar: () =>
     set({ prospectoId: null, cliente: clienteInicial(), cargas: [], planes: [planVacio()] }),
+  pedidoRecomendacion: null,
+  solicitarRecomendacion: () =>
+    set((s) => ({ pedidoRecomendacion: { id: (s.pedidoRecomendacion?.id ?? 0) + 1 } })),
   cargarDesdeProspecto: (p) =>
     set({
       prospectoId: p.id,

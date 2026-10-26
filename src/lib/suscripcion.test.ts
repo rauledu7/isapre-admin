@@ -93,10 +93,10 @@ describe("niveles de plan", () => {
     expect(permite("intermedio", "leads_web")).toBe(false);
   });
 
-  it("el comparador admite un plan en Profesional y dos en Full", () => {
+  it("el comparador admite dos planes en Profesional y cuatro en Full", () => {
     expect(maxPlanesComparar("basico")).toBe(0);
-    expect(maxPlanesComparar("intermedio")).toBe(1);
-    expect(maxPlanesComparar("full")).toBe(2);
+    expect(maxPlanesComparar("intermedio")).toBe(2);
+    expect(maxPlanesComparar("full")).toBe(4);
     expect(permite("full", "embudo")).toBe(true);
     expect(permite("full", "ges_auto")).toBe(true);
     expect(permite("full", "leads_web")).toBe(true);

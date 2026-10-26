@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useNivelPlan, usePermite } from "@/components/layout/AccesoPlan";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -23,6 +23,7 @@ import type { IsapreId } from "@/types/isapre";
 
 import { Campo } from "./Campo";
 import { IsapreSelect } from "./IsapreSelect";
+import { RecomendadorPlanes } from "./RecomendadorPlanes";
 import { TarifarioPlan } from "./TarifarioPlan";
 
 function textoUF(valor: number): string {
@@ -254,8 +255,8 @@ export function PlanesCard() {
   const max = nivel ? maxPlanesComparar(nivel) : 0;
   const gesManual = nivel === "intermedio";
   const visibles = planes.slice(0, max);
-  const [tarifarios, setTarifarios] = useState<TarifarioGuardado[]>([]);
-  const ges = useGesIsapres();
+  const [tarifarios, setTarifarios] = useState<TarifarioGuardado[] | null>(null);
+  const { valores: ges } = useGesIsapres();
 
   useEffect(() => {
     if (max > 0) limitarPlanes(max);
@@ -274,14 +275,19 @@ export function PlanesCard() {
 
   if (max === 0) return null;
 
+  const cargados = tarifarios ?? [];
+
   return (
-    <Card>
+    <>
+      <RecomendadorPlanes
+        tarifarios={cargados}
+        tarifariosListos={tarifarios !== null}
+        max={max}
+        gesManual={gesManual}
+      />
+      <Card>
       <CardHeader>
         <CardTitle>Planes a comparar</CardTitle>
-        <CardDescription>
-          {max === 1 ? "Una alternativa." : `Hasta ${max} alternativas.`} Precio final = base × suma de
-          factores + GES por beneficiario + productos adicionales.
-        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {visibles.map((plan, i) => (
@@ -291,7 +297,7 @@ export function PlanesCard() {
               plan={plan}
               indice={i}
               eliminable={visibles.length > 1}
-              tarifarios={tarifarios}
+              tarifarios={cargados}
               ges={ges}
               gesManual={gesManual}
             />
@@ -304,5 +310,6 @@ export function PlanesCard() {
         )}
       </CardContent>
     </Card>
+    </>
   );
 }
